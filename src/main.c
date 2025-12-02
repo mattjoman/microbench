@@ -5,7 +5,7 @@ int main() {
   uint64_t start, end;
   start = timecheck();
 
-  volatile long long x = 0;
+  volatile long long x = 0; // volatile so the compiler doesn't optimise it away
   while (x < 100000000) {
     x++;
   }
