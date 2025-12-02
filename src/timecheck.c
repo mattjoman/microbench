@@ -1,4 +1,4 @@
-#include "../include/bench.h"
+#include "../include/include.h"
 
 uint64_t timecheck() {
   uint32_t lo, hi;

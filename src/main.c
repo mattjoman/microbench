@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/bench.h"
+#include "../include/include.h"
 
 int main() {
   uint64_t start, end;
