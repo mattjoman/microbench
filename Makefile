@@ -3,7 +3,7 @@ CC=gcc
 CFLAGS=-Iinclude -O2 -Wall -Wextra -std=gnu11
 
 # Source files
-SRCS=src/main.c src/timecheck.c
+SRCS=src/main.c src/bench.c src/tests.c src/runners.c
 OBJS=$(SRCS:.c=.o)
 
 # Output binary
