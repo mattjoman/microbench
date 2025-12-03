@@ -21,7 +21,7 @@ void test_loop() {
 
 
 void test_contiguous_array() {
-    volatile int arr[BIG_NUMBER_1];
+    int arr[BIG_NUMBER_1];
     volatile int sum;
 
     for (int i = 0; i < BIG_NUMBER_1; i++) {
@@ -33,7 +33,7 @@ void test_contiguous_array() {
 }
 
 void test_scattered_array() {
-    volatile int *arr[BIG_NUMBER_1];
+    int *arr[BIG_NUMBER_1];
     volatile int sum = 0;
 
     for (int i = 0; i < BIG_NUMBER_1; i++) {
@@ -42,6 +42,7 @@ void test_scattered_array() {
     }
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         sum += *arr[i];
+        free(arr[i]);
     }
 }
 
