@@ -11,9 +11,6 @@
 
 /*** STATIC HELPERS ***/
 
-
-
-
 static uint64_t rdtscp() {
     uint32_t lo, hi;
     __asm__ volatile("cpuid" ::: "rax", "rbx", "rcx", "rdx");
@@ -21,32 +18,9 @@ static uint64_t rdtscp() {
     return ((uint64_t)hi << 32) | lo;
 }
 
-
-
-
-/*** BENCHMARKS ***/
-
-
-
-
-uint64_t bench_rdtscp(void (*f)(void)) {
-    uint64_t start, end;
-    start = rdtscp();
-    f();
-    end = rdtscp();
-    return end - start;
-}
-
-
-
-
-uint64_t bench_cache_miss(void (*f)(void)) {
+static struct perf_event_attr create_perf_config() {
     struct perf_event_attr pea;
-    int fd;
-    uint64_t count;
-
     memset(&pea, 0, sizeof(struct perf_event_attr));
-
     pea.type = PERF_TYPE_HW_CACHE;
     pea.config = PERF_COUNT_HW_CACHE_L1D
         | (PERF_COUNT_HW_CACHE_OP_READ << 8)
@@ -56,13 +30,33 @@ uint64_t bench_cache_miss(void (*f)(void)) {
     pea.exclude_kernel = 1;
     pea.exclude_hv = 1;
     pea.exclude_idle = 1;
+    return pea;
+}
 
-    fd = syscall(SYS_perf_event_open, &pea, 0, -1, -1, 0);
 
+
+
+/*** BENCHMARKS ***/
+
+uint64_t bench_rdtscp(void (*f)(void)) {
+    uint64_t start, end;
+    start = rdtscp();
     f();
+    end = rdtscp();
+    return end - start;
+}
 
+uint64_t bench_cache_miss(void (*f)(void)) {
+    struct perf_event_attr pea;
+    int fd;
+    uint64_t count;
+
+    pea = create_perf_config();
+    fd = syscall(SYS_perf_event_open, &pea, 0, -1, -1, 0);
+    f();
     read(fd, &count, sizeof(count));
     close(fd);
+
     return count;
 }
 
