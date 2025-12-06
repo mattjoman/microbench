@@ -2,6 +2,7 @@
 #define BENCH_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 void test_loop();
 void test_contiguous_array();

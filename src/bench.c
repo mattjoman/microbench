@@ -77,7 +77,7 @@ uint64_t bench_cache_miss(void (*f)(void)) {
     int fd;
     uint64_t count;
 
-    pea = create_perf_config(METRIC_BRANCH_MISPREDICTIONS);
+    pea = create_perf_config(METRIC_L1_CACHE_MISSES);
 
     if ((fd = syscall(SYS_perf_event_open, &pea, 0, -1, -1, 0)) == -1)
         exit(1);

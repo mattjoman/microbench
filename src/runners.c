@@ -1,17 +1,11 @@
 #include <stdio.h>
 #include "../include/include.h"
 
-
-
-
 void run_rdtscp_test_loop() {
     uint64_t x = bench_rdtscp(test_loop);
 
     printf("%lu\n", x);
 }
-
-
-
 
 void run_test_cache_miss() {
     uint64_t count_1 = bench_cache_miss(test_contiguous_array);

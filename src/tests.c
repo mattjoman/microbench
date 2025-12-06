@@ -1,13 +1,7 @@
 #include <stdlib.h>
 #include "../include/include.h"
 
-
-
-
 #define BIG_NUMBER_1 1000
-
-
-
 
 void test_loop() {
     volatile long long x = 0; // volatile so the compiler doesn't optimise it away
@@ -16,9 +10,6 @@ void test_loop() {
     }
     return;
 }
-
-
-
 
 void test_contiguous_array() {
     int arr[BIG_NUMBER_1];
