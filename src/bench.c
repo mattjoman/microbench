@@ -6,10 +6,12 @@
 #include <string.h>
 #include "../include/include.h"
 
+#define METRIC_CPU_CYCLES 0
+#define METRIC_L1_CACHE_MISSES 1
+#define METRIC_BRANCH_MISPREDICTIONS 4
+#define METRIC_PAGE_FAULTS 16
 
-
-
-/*** STATIC HELPERS ***/
+/*** ====================== STATIC HELPERS ====================== ***/
 
 static uint64_t rdtscp() {
     uint32_t lo, hi;
@@ -17,11 +19,6 @@ static uint64_t rdtscp() {
     __asm__ volatile("rdtscp" : "=a"(lo), "=d"(hi) :: "ecx");
     return ((uint64_t)hi << 32) | lo;
 }
-
-#define METRIC_CPU_CYCLES 0
-#define METRIC_L1_CACHE_MISSES 1
-#define METRIC_BRANCH_MISPREDICTIONS 4
-#define METRIC_PAGE_FAULTS 16
 
 static struct perf_event_attr create_perf_config(int metric) {
     struct perf_event_attr pea;
@@ -59,10 +56,7 @@ static struct perf_event_attr create_perf_config(int metric) {
     return pea;
 }
 
-
-
-
-/*** BENCHMARKS ***/
+/*** ====================== BENCHMARKS ====================== ***/
 
 uint64_t bench_rdtscp(void (*f)(void)) {
     uint64_t start, end;
@@ -72,20 +66,45 @@ uint64_t bench_rdtscp(void (*f)(void)) {
     return end - start;
 }
 
-uint64_t bench_cache_miss(void (*f)(void)) {
-    struct perf_event_attr pea;
-    int fd;
-    uint64_t count;
+#define METRICS ((int[]) { \
+    METRIC_CPU_CYCLES \
+    ,METRIC_L1_CACHE_MISSES \
+    ,METRIC_BRANCH_MISPREDICTIONS \
+    ,METRIC_PAGE_FAULTS \
+})
 
-    pea = create_perf_config(METRIC_L1_CACHE_MISSES);
+struct benchmark_results bench_1(void (*f)(void)) {
+    struct perf_event_attr attrs[4];
+    int fd[4];
+    struct benchmark_results res;
 
-    if ((fd = syscall(SYS_perf_event_open, &pea, 0, -1, -1, 0)) == -1)
-        exit(1);
+    memset(&res, 0, sizeof(struct benchmark_results));
+
+    // create the perf_event_attribute configs for each metric
+    for (int i = 0; i < 4; i++)
+        attrs[i] = create_perf_config(METRICS[i]);
+
+    // start recording each metric
+    for (int i = 0; i < 4; i++) {
+        if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, -1, 0)) == -1)
+            exit(1);
+    }
+
+    // call function to measure
     f();
-    read(fd, &count, sizeof(count));
 
-    close(fd);
+    // collect results for each metric
+    read(fd[0], &res.cpu_cycles, sizeof(uint64_t));
+    read(fd[1], &res.l1_cache_misses, sizeof(uint64_t));
+    read(fd[2], &res.branch_mispredictions, sizeof(uint64_t));
+    read(fd[3], &res.page_faults, sizeof(uint64_t));
 
-    return count;
+    // close file descriptors
+    for (int i = 0; i < 4; i++) {
+        if (close(fd[i]) == -1)
+            exit(1);
+    }
+
+    return res;
 }
 
