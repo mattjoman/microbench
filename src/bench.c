@@ -54,15 +54,15 @@ static struct perf_event_attr create_perf_config(int metric) {
 
 /*** ====================== BENCHMARKS ====================== ***/
 
-uint64_t bench_rdtscp(void (*f)(void)) {
+uint64_t bench_rdtscp(void (*test_func)(void)) {
     uint64_t start, end;
     start = rdtscp();
-    f();
+    test_func();
     end = rdtscp();
     return end - start;
 }
 
-struct benchmark_results bench_1(void (*f)(void)) {
+struct benchmark_results bench_1(void (*test_func)(void)) {
     struct benchmark_results res;
     unsigned int i;
     struct perf_event_attr attrs[NUMBER_OF_METRICS];
@@ -78,7 +78,7 @@ struct benchmark_results bench_1(void (*f)(void)) {
             exit(1);
     }
 
-    f();
+    test_func();
 
     for (i = 0; i < NUMBER_OF_METRICS; i++)
         read(fd[i], &res.values[METRICS[i]], sizeof(uint64_t));
