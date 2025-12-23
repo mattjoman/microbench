@@ -26,11 +26,27 @@ static struct perf_event_attr create_perf_config(int metric) {
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CPU_CYCLES;
             break;
+        case METRIC_INSTRUCTIONS:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_INSTRUCTIONS;
+            break;
+        case METRIC_CACHE_ACCESSES:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
+            break;
+        case METRIC_CACHE_MISSES:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_CACHE_MISSES;
+            break;
         case METRIC_L1_CACHE_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
+            break;
+        case METRIC_BRANCH_INSTRUCTIONS:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
             break;
         case METRIC_BRANCH_MISPREDICTIONS:
             pea.type = PERF_TYPE_HARDWARE;
@@ -39,6 +55,18 @@ static struct perf_event_attr create_perf_config(int metric) {
         case METRIC_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
+            break;
+        case METRIC_CPU_CLOCK_NS:
+            pea.type = PERF_TYPE_SOFTWARE;
+            pea.config = PERF_COUNT_SW_CPU_CLOCK;
+            break;
+        case METRIC_TASK_CLOCK_NS:
+            pea.type = PERF_TYPE_SOFTWARE;
+            pea.config = PERF_COUNT_SW_TASK_CLOCK;
+            break;
+        case METRIC_ALIGNMENT_FAULTS:
+            pea.type = PERF_TYPE_SOFTWARE;
+            pea.config = PERF_COUNT_SW_ALIGNMENT_FAULTS;
             break;
         default:
             break;
@@ -62,7 +90,7 @@ uint64_t bench_rdtscp(void (*test_func)(void)) {
     return end - start;
 }
 
-struct benchmark_results bench_1(void (*test_func)(void)) {
+struct benchmark_results bench_perf_event(void (*test_func)(void), unsigned int warmup_runs) {
     struct benchmark_results res;
     unsigned int i;
     struct perf_event_attr attrs[NUMBER_OF_METRICS];
@@ -72,6 +100,9 @@ struct benchmark_results bench_1(void (*test_func)(void)) {
 
     for (i = 0; i < NUMBER_OF_METRICS; i++)
         attrs[i] = create_perf_config(METRICS[i]);
+
+    for (i = 0; i < warmup_runs; i++)
+        test_func();
 
     for (i = 0; i < NUMBER_OF_METRICS; i++) {
         if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, -1, 0)) == -1)
