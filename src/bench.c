@@ -6,10 +6,6 @@
 #include <string.h>
 #include "../include/include.h"
 
-#define METRIC_CPU_CYCLES 0
-#define METRIC_L1_CACHE_MISSES 1
-#define METRIC_BRANCH_MISPREDICTIONS 4
-#define METRIC_PAGE_FAULTS 16
 
 /*** ====================== STATIC HELPERS ====================== ***/
 
@@ -66,40 +62,27 @@ uint64_t bench_rdtscp(void (*f)(void)) {
     return end - start;
 }
 
-#define METRICS ((int[]) { \
-    METRIC_CPU_CYCLES \
-    ,METRIC_L1_CACHE_MISSES \
-    ,METRIC_BRANCH_MISPREDICTIONS \
-    ,METRIC_PAGE_FAULTS \
-})
-
 struct benchmark_results bench_1(void (*f)(void)) {
-    struct perf_event_attr attrs[4];
-    int fd[4];
     struct benchmark_results res;
+    unsigned int i;
+    struct perf_event_attr attrs[NUMBER_OF_METRICS];
+    int fd[NUMBER_OF_METRICS];
 
     memset(&res, 0, sizeof(struct benchmark_results));
 
-    // create the perf_event_attribute configs for each metric
-    for (int i = 0; i < 4; i++)
+    for (i = 0; i < NUMBER_OF_METRICS; i++)
         attrs[i] = create_perf_config(METRICS[i]);
 
-    // start recording each metric
-    for (int i = 0; i < 4; i++) {
+    for (i = 0; i < NUMBER_OF_METRICS; i++) {
         if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, -1, 0)) == -1)
             exit(1);
     }
 
-    // call function to measure
     f();
 
-    // collect results for each metric
-    read(fd[0], &res.cpu_cycles, sizeof(uint64_t));
-    read(fd[1], &res.l1_cache_misses, sizeof(uint64_t));
-    read(fd[2], &res.branch_mispredictions, sizeof(uint64_t));
-    read(fd[3], &res.page_faults, sizeof(uint64_t));
+    for (i = 0; i < NUMBER_OF_METRICS; i++)
+        read(fd[i], &res.values[METRICS[i]], sizeof(uint64_t));
 
-    // close file descriptors
     for (int i = 0; i < 4; i++) {
         if (close(fd[i]) == -1)
             exit(1);

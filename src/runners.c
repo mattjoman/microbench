@@ -15,18 +15,20 @@ void run_bench_1() {
 
     printf("\n\n");
     printf("Contiguous Array:\n");
-    printf("CPU Cycles: %lu\n", res1.cpu_cycles);
-    printf("L1 Cache Misses: %lu\n", res1.l1_cache_misses);
-    printf("Branch Mispredictions: %lu\n", res1.branch_mispredictions);
-    printf("Page Faults: %lu\n", res1.page_faults);
+
+    printf("CPU Cycles: %lu\n", res1.values[METRIC_CPU_CYCLES]);
+    printf("L1 Cache Misses: %lu\n", res1.values[METRIC_L1_CACHE_MISSES]);
+    printf("Branch Mispredictions: %lu\n", res1.values[METRIC_BRANCH_MISPREDICTIONS]);
+    printf("Page Faults: %lu\n", res1.values[METRIC_PAGE_FAULTS]);
 
     printf("\n\n");
-
     printf("Heap int Pointer Array:\n");
-    printf("CPU Cycles: %lu\n", res2.cpu_cycles);
-    printf("L1 Cache Misses: %lu\n", res2.l1_cache_misses);
-    printf("Branch Mispredictions: %lu\n", res2.branch_mispredictions);
-    printf("Page Faults: %lu\n", res2.page_faults);
+
+    printf("CPU Cycles: %lu\n", res2.values[METRIC_CPU_CYCLES]);
+    printf("L1 Cache Misses: %lu\n", res2.values[METRIC_L1_CACHE_MISSES]);
+    printf("Branch Mispredictions: %lu\n", res2.values[METRIC_BRANCH_MISPREDICTIONS]);
+    printf("Page Faults: %lu\n", res2.values[METRIC_PAGE_FAULTS]);
+
     printf("\n\n");
 }
 
