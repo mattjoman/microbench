@@ -24,6 +24,8 @@ void run_bench_1() {
 
     printf("CPU Cycles: %lu\n", res1.values[METRIC_CPU_CYCLES]);
     printf("CPU Instructions: %lu\n", res1.values[METRIC_INSTRUCTIONS]);
+    //printf("Stalled Cycles Frontend: %lu\n", res1.values[METRIC_STALLED_CYCLES_FRONTEND]);
+    //printf("Stalled Cycles Backend: %lu\n", res1.values[METRIC_STALLED_CYCLES_BACKEND]);
     printf("Cache Accesses: %lu\n", res1.values[METRIC_CACHE_ACCESSES]);
     printf("All Cache Misses: %lu\n", res1.values[METRIC_CACHE_MISSES]);
     printf("L1 Cache Misses: %lu\n", res1.values[METRIC_L1_CACHE_MISSES]);
@@ -39,6 +41,8 @@ void run_bench_1() {
 
     printf("CPU Cycles: %lu\n", res2.values[METRIC_CPU_CYCLES]);
     printf("CPU Instructions: %lu\n", res2.values[METRIC_INSTRUCTIONS]);
+    //printf("Stalled Cycles Frontend: %lu\n", res2.values[METRIC_STALLED_CYCLES_FRONTEND]);
+    //printf("Stalled Cycles Backend: %lu\n", res2.values[METRIC_STALLED_CYCLES_BACKEND]);
     printf("Cache Accesses: %lu\n", res2.values[METRIC_CACHE_ACCESSES]);
     printf("All Cache Misses: %lu\n", res2.values[METRIC_CACHE_MISSES]);
     printf("L1 Cache Misses: %lu\n", res2.values[METRIC_L1_CACHE_MISSES]);

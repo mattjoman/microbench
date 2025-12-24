@@ -30,6 +30,16 @@ static struct perf_event_attr create_perf_config(int metric) {
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
+        /*
+        case METRIC_STALLED_CYCLES_FRONTEND:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_STALLED_CYCLES_FRONTEND;
+            break;
+        case METRIC_STALLED_CYCLES_BACKEND:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_STALLED_CYCLES_BACKEND;
+            break;
+        */
         case METRIC_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_REFERENCES;

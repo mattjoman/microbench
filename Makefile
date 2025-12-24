@@ -1,6 +1,6 @@
 # Compiler and flags
 CC=gcc
-CFLAGS=-Iinclude -O2 -Wall -Wextra -std=gnu11
+CFLAGS=-Iinclude -O2 -Wall -Wextra -std=gnu11 -g
 
 # Source files
 SRCS=src/main.c src/bench.c src/tests.c src/runners.c
