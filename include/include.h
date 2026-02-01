@@ -30,7 +30,7 @@ struct bench_batch_results {
     int warmup_runs;
     int batch_size; // actual runs
     int event_group_size; // actual number of metrics
-    uint64_t events[MAX_EVENT_GROUP_SIZE];
+    int events[MAX_EVENT_GROUP_SIZE];
     uint64_t values[NUMBER_OF_METRICS][MAX_BENCH_BATCH_SIZE];
 };
 
