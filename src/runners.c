@@ -12,6 +12,7 @@ void run_bench_1() {
 
     struct bench_batch_results batch_results;
 
+    batch_results.warmup_runs = 10;
     batch_results.batch_size = MAX_BENCH_BATCH_SIZE;
     batch_results.event_group_size = MAX_EVENT_GROUP_SIZE;
     batch_results.events[0] = METRIC_INSTRUCTIONS;
@@ -19,7 +20,7 @@ void run_bench_1() {
     batch_results.events[2] = METRIC_BRANCH_INSTRUCTIONS;
 
     init_contiguous_array();
-    bench_perf_event(&batch_results, test_contiguous_array, 10);
+    bench_perf_event(&batch_results, test_contiguous_array);
     clean_contiguous_array();
 
     printf("CPU cycles:     %ld\n", batch_results.values[METRIC_CPU_CYCLES][0]);
