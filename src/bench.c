@@ -82,7 +82,7 @@ static struct perf_event_attr create_perf_config(int metric) {
             break;
     }
     pea.size = sizeof(struct perf_event_attr);
-    pea.disabled = 0;
+    pea.disabled = 1;
     pea.exclude_kernel = 1;
     pea.exclude_hv = 1;
     pea.exclude_idle = 1;
@@ -108,22 +108,37 @@ struct benchmark_results bench_perf_event(void (*test_func)(void), unsigned int 
 
     memset(&res, 0, sizeof(struct benchmark_results));
 
+    // generate configs for each event counter
     for (i = 0; i < NUMBER_OF_METRICS; i++)
         attrs[i] = create_perf_config(METRICS[i]);
 
-    for (i = 0; i < warmup_runs; i++)
-        test_func();
-
+    // open the event counters
     for (i = 0; i < NUMBER_OF_METRICS; i++) {
         if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, -1, 0)) == -1)
             exit(1);
     }
 
+    // warm up caches, train branch predictor
+    for (i = 0; i < warmup_runs; i++)
+        test_func();
+
+    // start event counters
+    for (i = 0; i < NUMBER_OF_METRICS; i++) {
+        ioctl(fd[i], PERF_EVENT_IOC_RESET, 0);
+        ioctl(fd[i], PERF_EVENT_IOC_ENABLE, 0);
+    }
+
     test_func();
 
+    // stop event counters
+    for (i = 0; i < NUMBER_OF_METRICS; i++)
+        ioctl(fd[i], PERF_EVENT_IOC_DISABLE, 0);
+
+    // read event counters
     for (i = 0; i < NUMBER_OF_METRICS; i++)
         read(fd[i], &res.values[METRICS[i]], sizeof(uint64_t));
 
+    // close event counters
     for (int i = 0; i < 4; i++) {
         if (close(fd[i]) == -1)
             exit(1);
@@ -131,4 +146,3 @@ struct benchmark_results bench_perf_event(void (*test_func)(void), unsigned int 
 
     return res;
 }
-
