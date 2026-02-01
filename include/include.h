@@ -10,8 +10,6 @@
 enum metric {
     METRIC_CPU_CYCLES
     ,METRIC_INSTRUCTIONS
-    //,METRIC_STALLED_CYCLES_FRONTEND
-    //,METRIC_STALLED_CYCLES_BACKEND
     ,METRIC_CACHE_ACCESSES
     ,METRIC_CACHE_MISSES
     ,METRIC_L1_CACHE_MISSES
@@ -23,27 +21,6 @@ enum metric {
     ,METRIC_ALIGNMENT_FAULTS
     ,NUMBER_OF_METRICS
 };
-
-static const uint64_t METRICS[NUMBER_OF_METRICS] = {
-    METRIC_CPU_CYCLES
-    ,METRIC_INSTRUCTIONS
-    //,METRIC_STALLED_CYCLES_FRONTEND
-    //,METRIC_STALLED_CYCLES_BACKEND
-    ,METRIC_CACHE_ACCESSES
-    ,METRIC_CACHE_MISSES
-    ,METRIC_L1_CACHE_MISSES
-    ,METRIC_BRANCH_INSTRUCTIONS
-    ,METRIC_BRANCH_MISPREDICTIONS
-    ,METRIC_PAGE_FAULTS
-    ,METRIC_CPU_CLOCK_NS
-    ,METRIC_TASK_CLOCK_NS
-    ,METRIC_ALIGNMENT_FAULTS
-};
-
-struct benchmark_results {
-    uint64_t values[NUMBER_OF_METRICS];
-};
-
 
 #define MAX_EVENT_GROUP_SIZE 3
 #define MAX_BENCH_BATCH_SIZE 1
@@ -61,14 +38,10 @@ struct bench_run_results {
 
 // for use in my program
 struct bench_batch_results {
-    char name[64];
-    uint64_t runs; // actual runs
-    uint64_t event_group_size; // how many metrics
-    struct {
-        unsigned int id; // e.g. METRIC_CPU_CYCLES
-        char name[64];
-        uint64_t values[MAX_BENCH_BATCH_SIZE];
-    } metrics[MAX_EVENT_GROUP_SIZE];
+    uint64_t batch_size; // actual runs
+    uint64_t event_group_size; // actual number of metrics
+    uint64_t events[MAX_EVENT_GROUP_SIZE];
+    uint64_t values[NUMBER_OF_METRICS][MAX_BENCH_BATCH_SIZE];
 };
 
 /*** ====================== TESTS ====================== ***/
@@ -86,7 +59,9 @@ void test_scattered_array();
 /*** ====================== BENCHMARKS ====================== ***/
 
 uint64_t bench_rdtscp(void (*test_func)(void));
-int bench_perf_event(struct bench_batch_results *batch_results, void (*test_func)(void), unsigned int warmup_runs);
+int bench_perf_event(struct bench_batch_results *batch_results,
+                                void (*test_func)(void),
+                                unsigned int warmup_runs);
 
 void run_rdtscp_test_loop();
 void run_test_cache_miss();

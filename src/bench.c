@@ -107,8 +107,9 @@ uint64_t bench_rdtscp(void (*test_func)(void)) {
 
 
 
-int bench_perf_event(struct bench_batch_results *batch_results, void (*test_func)(void),
-                        unsigned int warmup_runs)
+int bench_perf_event(struct bench_batch_results *batch_results,
+                                void (*test_func)(void),
+                                unsigned int warmup_runs)
 {
     struct perf_event_attr attrs[MAX_EVENT_GROUP_SIZE];
     struct bench_run_results run_results;
@@ -123,18 +124,18 @@ int bench_perf_event(struct bench_batch_results *batch_results, void (*test_func
 
     // generate configs for each event counter
     for (i = 0; i < MAX_EVENT_GROUP_SIZE; i++)
-        attrs[i] = create_perf_config(METRICS[i]);
+        attrs[i] = create_perf_config(batch_results->events[i]);
 
     // open event group leader
-    if ((leader_fd = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0)) == -1)
-        exit(1);
+    leader_fd = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0);
+    if (leader_fd == -1) exit(1);
     fd[0] = leader_fd;
     ioctl(leader_fd, PERF_EVENT_IOC_ID, &counter_ids[0]);
 
     // open the other event counters
     for (i = 1; i < MAX_EVENT_GROUP_SIZE; i++) {
-        if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, leader_fd, 0)) == -1)
-            exit(1);
+        fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, leader_fd, 0);
+        if (fd[i] == -1) exit(1);
 
         ioctl(fd[i], PERF_EVENT_IOC_ID, &counter_ids[i]);
     }
@@ -184,16 +185,11 @@ int bench_perf_event(struct bench_batch_results *batch_results, void (*test_func
 
         for (int j = 0; j < MAX_EVENT_GROUP_SIZE; j++) {
             if (counter_ids[j] == perf_counter_id) {
-                batch_results->metrics[METRICS[j]].values[0] = perf_counter_value;
+                batch_results->values[batch_results->events[j]][0] =
+                                                perf_counter_value;
             }
         }
     }
-
-    /*
-    printf("CPU cycles:     %ld\n", batch_results->metrics[0].values[0]);
-    printf("Instructions:   %ld\n", batch_results->metrics[1].values[0]);
-    printf("cache accesses: %ld\n", batch_results->metrics[2].values[0]);
-    */
 
     return 1;
 }
