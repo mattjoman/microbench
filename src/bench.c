@@ -139,7 +139,7 @@ struct benchmark_results bench_perf_event(void (*test_func)(void), unsigned int 
         read(fd[i], &res.values[METRICS[i]], sizeof(uint64_t));
 
     // close event counters
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < NUMBER_OF_METRICS; i++) {
         if (close(fd[i]) == -1)
             exit(1);
     }
