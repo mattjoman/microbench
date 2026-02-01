@@ -9,50 +9,27 @@ void run_rdtscp_test_loop() {
 }
 
 void run_bench_1() {
-    struct benchmark_results res1, res2;
+
+    struct bench_batch_results batch_results;
+
+    batch_results.runs = MAX_BENCH_BATCH_SIZE;
+    batch_results.runs = MAX_EVENT_GROUP_SIZE;
 
     init_contiguous_array();
-    res1 = bench_perf_event(test_contiguous_array, 10);
+    bench_perf_event(&batch_results, test_contiguous_array, 10);
     clean_contiguous_array();
 
+    printf("CPU cycles:     %ld\n", batch_results.metrics[0].values[0]);
+    printf("Instructions:   %ld\n", batch_results.metrics[1].values[0]);
+    printf("cache accesses: %ld\n", batch_results.metrics[2].values[0]);
+
+    /*
     init_scattered_array();
     res2 = bench_perf_event(test_scattered_array, 10);
     clean_scattered_array();
+    */
 
     printf("\n\n");
-    printf("Contiguous Array:\n");
-
-    printf("CPU Cycles: %lu\n", res1.values[METRIC_CPU_CYCLES]);
-    printf("CPU Instructions: %lu\n", res1.values[METRIC_INSTRUCTIONS]);
-    //printf("Stalled Cycles Frontend: %lu\n", res1.values[METRIC_STALLED_CYCLES_FRONTEND]);
-    //printf("Stalled Cycles Backend: %lu\n", res1.values[METRIC_STALLED_CYCLES_BACKEND]);
-    printf("Cache Accesses: %lu\n", res1.values[METRIC_CACHE_ACCESSES]);
-    printf("All Cache Misses: %lu\n", res1.values[METRIC_CACHE_MISSES]);
-    printf("L1 Cache Misses: %lu\n", res1.values[METRIC_L1_CACHE_MISSES]);
-    printf("Branch Instructions: %lu\n", res1.values[METRIC_BRANCH_INSTRUCTIONS]);
-    printf("Branch Mispredictions: %lu\n", res1.values[METRIC_BRANCH_MISPREDICTIONS]);
-    printf("Page Faults: %lu\n", res1.values[METRIC_PAGE_FAULTS]);
-    printf("CPU time (ns): %lu\n", res1.values[METRIC_CPU_CLOCK_NS]);
-    printf("Task time (ns): %lu\n", res1.values[METRIC_TASK_CLOCK_NS]);
-    printf("Memory alignment faults: %lu\n", res1.values[METRIC_ALIGNMENT_FAULTS]);
-
-    printf("\n\n");
-    printf("Heap int Pointer Array:\n");
-
-    printf("CPU Cycles: %lu\n", res2.values[METRIC_CPU_CYCLES]);
-    printf("CPU Instructions: %lu\n", res2.values[METRIC_INSTRUCTIONS]);
-    //printf("Stalled Cycles Frontend: %lu\n", res2.values[METRIC_STALLED_CYCLES_FRONTEND]);
-    //printf("Stalled Cycles Backend: %lu\n", res2.values[METRIC_STALLED_CYCLES_BACKEND]);
-    printf("Cache Accesses: %lu\n", res2.values[METRIC_CACHE_ACCESSES]);
-    printf("All Cache Misses: %lu\n", res2.values[METRIC_CACHE_MISSES]);
-    printf("L1 Cache Misses: %lu\n", res2.values[METRIC_L1_CACHE_MISSES]);
-    printf("Branch Instructions: %lu\n", res2.values[METRIC_BRANCH_INSTRUCTIONS]);
-    printf("Branch Mispredictions: %lu\n", res2.values[METRIC_BRANCH_MISPREDICTIONS]);
-    printf("Page Faults: %lu\n", res2.values[METRIC_PAGE_FAULTS]);
-    printf("CPU time (ns): %lu\n", res2.values[METRIC_CPU_CLOCK_NS]);
-    printf("Task time (ns): %lu\n", res2.values[METRIC_TASK_CLOCK_NS]);
-    printf("Memory alignment faults: %lu\n", res2.values[METRIC_ALIGNMENT_FAULTS]);
-
     printf("\n\n");
 }
 

@@ -86,6 +86,10 @@ static struct perf_event_attr create_perf_config(int metric) {
     pea.exclude_kernel = 1;
     pea.exclude_hv = 1;
     pea.exclude_idle = 1;
+    pea.read_format = PERF_FORMAT_GROUP |
+        PERF_FORMAT_ID |
+        PERF_FORMAT_TOTAL_TIME_ENABLED |
+        PERF_FORMAT_TOTAL_TIME_RUNNING;
 
     return pea;
 }
@@ -100,49 +104,96 @@ uint64_t bench_rdtscp(void (*test_func)(void)) {
     return end - start;
 }
 
-struct benchmark_results bench_perf_event(void (*test_func)(void), unsigned int warmup_runs) {
-    struct benchmark_results res;
-    unsigned int i;
-    struct perf_event_attr attrs[NUMBER_OF_METRICS];
-    int fd[NUMBER_OF_METRICS];
 
-    memset(&res, 0, sizeof(struct benchmark_results));
+
+
+int bench_perf_event(struct bench_batch_results *batch_results, void (*test_func)(void),
+                        unsigned int warmup_runs)
+{
+    struct perf_event_attr attrs[MAX_EVENT_GROUP_SIZE];
+    struct bench_run_results run_results;
+    uint64_t i;
+    int leader_fd, fd[MAX_EVENT_GROUP_SIZE];
+    uint64_t counter_ids[MAX_EVENT_GROUP_SIZE];
+
+    memset(&run_results, 0, sizeof(struct bench_run_results));
+
+
+
 
     // generate configs for each event counter
-    for (i = 0; i < NUMBER_OF_METRICS; i++)
+    for (i = 0; i < MAX_EVENT_GROUP_SIZE; i++)
         attrs[i] = create_perf_config(METRICS[i]);
 
-    // open the event counters
-    for (i = 0; i < NUMBER_OF_METRICS; i++) {
-        if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, -1, 0)) == -1)
+    // open event group leader
+    if ((leader_fd = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0)) == -1)
+        exit(1);
+    fd[0] = leader_fd;
+    ioctl(leader_fd, PERF_EVENT_IOC_ID, &counter_ids[0]);
+
+    // open the other event counters
+    for (i = 1; i < MAX_EVENT_GROUP_SIZE; i++) {
+        if ((fd[i] = syscall(SYS_perf_event_open, &(attrs[i]), 0, -1, leader_fd, 0)) == -1)
             exit(1);
+
+        ioctl(fd[i], PERF_EVENT_IOC_ID, &counter_ids[i]);
     }
+
+
+
 
     // warm up caches, train branch predictor
     for (i = 0; i < warmup_runs; i++)
         test_func();
 
+
+
+
     // start event counters
-    for (i = 0; i < NUMBER_OF_METRICS; i++) {
-        ioctl(fd[i], PERF_EVENT_IOC_RESET, 0);
-        ioctl(fd[i], PERF_EVENT_IOC_ENABLE, 0);
-    }
+    ioctl(leader_fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
+    ioctl(leader_fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
 
     test_func();
 
     // stop event counters
-    for (i = 0; i < NUMBER_OF_METRICS; i++)
-        ioctl(fd[i], PERF_EVENT_IOC_DISABLE, 0);
+    ioctl(leader_fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
+
+
+
+
 
     // read event counters
-    for (i = 0; i < NUMBER_OF_METRICS; i++)
-        read(fd[i], &res.values[METRICS[i]], sizeof(uint64_t));
+    read(leader_fd, &run_results, sizeof(struct bench_run_results));
+
+
+
 
     // close event counters
-    for (int i = 0; i < NUMBER_OF_METRICS; i++) {
+    for (i = 0; i < MAX_EVENT_GROUP_SIZE; i++) {
         if (close(fd[i]) == -1)
             exit(1);
     }
 
-    return res;
+
+
+
+    for (i = 0; i < MAX_EVENT_GROUP_SIZE; i++) {
+        uint64_t perf_counter_id = run_results.values[i].id;
+
+        uint64_t perf_counter_value = run_results.values[i].value;
+
+        for (int j = 0; j < MAX_EVENT_GROUP_SIZE; j++) {
+            if (counter_ids[j] == perf_counter_id) {
+                batch_results->metrics[METRICS[j]].values[0] = perf_counter_value;
+            }
+        }
+    }
+
+    /*
+    printf("CPU cycles:     %ld\n", batch_results->metrics[0].values[0]);
+    printf("Instructions:   %ld\n", batch_results->metrics[1].values[0]);
+    printf("cache accesses: %ld\n", batch_results->metrics[2].values[0]);
+    */
+
+    return 1;
 }
