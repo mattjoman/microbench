@@ -1,4 +1,9 @@
+#define _GNU_SOURCE
 #include <unistd.h>
+#include <sched.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <sys/syscall.h>
 #include <linux/perf_event.h>
@@ -18,6 +23,17 @@ struct bench_run_results {
 };
 
 /*** ====================== STATIC HELPERS ====================== ***/
+
+static void pin_thread() {
+    cpu_set_t cpuset;
+    int core_id = 0;
+    
+    CPU_ZERO(&cpuset);
+    CPU_SET(core_id, &cpuset);
+
+    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuset) == -1)
+        exit(-1);
+}
 
 static uint64_t rdtscp() {
     uint32_t lo, hi;
@@ -148,7 +164,7 @@ int bench_perf_event(batch_t *batch, void (*test_func)(void)) {
     }
 
 
-
+    pin_thread();
 
     // warm up caches, train branch predictor
     for (i = 0; i < batch->warmup_runs; i++)

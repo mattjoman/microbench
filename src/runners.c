@@ -24,10 +24,12 @@ void run_bench_1() {
     bench_perf_event(&batch, test_contiguous_array);
     clean_contiguous_array();
 
-    printf("CPU cycles:     %ld\n", batch.results[METRIC_CPU_CYCLES][0]);
-    printf("Instructions:   %ld\n", batch.results[METRIC_PAGE_FAULTS][0]);
-    printf("cache accesses: %ld\n",
+    printf("\n\n");
+    printf("%ld\n", batch.results[METRIC_CPU_CYCLES][0]);
+    printf("%ld\n", batch.results[METRIC_PAGE_FAULTS][0]);
+    printf("%ld\n",
                                 batch.results[METRIC_BRANCH_INSTRUCTIONS][0]);
+    printf("\n\n");
 
     /*
     init_scattered_array();
@@ -35,7 +37,5 @@ void run_bench_1() {
     clean_scattered_array();
     */
 
-    printf("\n\n");
-    printf("\n\n");
 }
 
