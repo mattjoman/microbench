@@ -25,13 +25,14 @@ enum metric {
 #define MAX_EVENT_GROUP_SIZE 3
 #define MAX_BENCH_BATCH_SIZE 1
 
-// for use in my program
-struct bench_batch_results {
+typedef struct batch batch_t;
+
+struct batch {
     int warmup_runs;
-    int batch_size; // actual runs
+    int batch_runs; // actual runs
     int event_group_size; // actual number of metrics
-    int events[MAX_EVENT_GROUP_SIZE];
-    uint64_t values[NUMBER_OF_METRICS][MAX_BENCH_BATCH_SIZE];
+    int event_group[MAX_EVENT_GROUP_SIZE];
+    uint64_t results[NUMBER_OF_METRICS][MAX_BENCH_BATCH_SIZE];
 };
 
 /*** ====================== TESTS ====================== ***/
@@ -49,8 +50,7 @@ void test_scattered_array();
 /*** ====================== BENCHMARKS ====================== ***/
 
 uint64_t bench_rdtscp(void (*test_func)(void));
-int bench_perf_event(struct bench_batch_results *batch_results,
-                                void (*test_func)(void));
+int bench_perf_event(batch_t *batch, void (*test_func)(void));
 
 void run_rdtscp_test_loop();
 void run_test_cache_miss();

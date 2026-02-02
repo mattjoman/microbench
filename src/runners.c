@@ -10,22 +10,24 @@ void run_rdtscp_test_loop() {
 
 void run_bench_1() {
 
-    struct bench_batch_results batch_results;
+    batch_t batch;
 
-    batch_results.warmup_runs = 10;
-    batch_results.batch_size = MAX_BENCH_BATCH_SIZE;
-    batch_results.event_group_size = MAX_EVENT_GROUP_SIZE;
-    batch_results.events[0] = METRIC_INSTRUCTIONS;
-    batch_results.events[1] = METRIC_PAGE_FAULTS;
-    batch_results.events[2] = METRIC_BRANCH_INSTRUCTIONS;
+    batch.warmup_runs = 100;
+    batch.batch_runs = MAX_BENCH_BATCH_SIZE;
+    batch.event_group_size = MAX_EVENT_GROUP_SIZE;
+
+    batch.event_group[0] = METRIC_INSTRUCTIONS;
+    batch.event_group[1] = METRIC_PAGE_FAULTS;
+    batch.event_group[2] = METRIC_BRANCH_INSTRUCTIONS;
 
     init_contiguous_array();
-    bench_perf_event(&batch_results, test_contiguous_array);
+    bench_perf_event(&batch, test_contiguous_array);
     clean_contiguous_array();
 
-    printf("CPU cycles:     %ld\n", batch_results.values[METRIC_CPU_CYCLES][0]);
-    printf("Instructions:   %ld\n", batch_results.values[METRIC_PAGE_FAULTS][0]);
-    printf("cache accesses: %ld\n", batch_results.values[METRIC_BRANCH_INSTRUCTIONS][0]);
+    printf("CPU cycles:     %ld\n", batch.results[METRIC_CPU_CYCLES][0]);
+    printf("Instructions:   %ld\n", batch.results[METRIC_PAGE_FAULTS][0]);
+    printf("cache accesses: %ld\n",
+                                batch.results[METRIC_BRANCH_INSTRUCTIONS][0]);
 
     /*
     init_scattered_array();
