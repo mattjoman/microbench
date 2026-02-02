@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define BIG_NUMBER_1 1000000
+#define BIG_NUMBER_1 10000
 
 enum metric {
     METRIC_CPU_CYCLES
