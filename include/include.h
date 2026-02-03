@@ -23,7 +23,7 @@ enum metric {
 };
 
 #define MAX_EVENT_GROUP_SIZE 3
-#define MAX_BENCH_BATCH_SIZE 1
+#define MAX_BENCH_BATCH_SIZE 100
 
 typedef struct batch batch_t;
 
