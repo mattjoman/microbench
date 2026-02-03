@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "../include/include.h"
 
@@ -8,17 +9,35 @@ void run_rdtscp_test_loop() {
     printf("%lu\n", x);
 }
 
+static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
+                                int event_group[])
+{
+    if (batch_runs < 0 || batch_runs > MAX_BENCH_BATCH_SIZE)
+        abort();
+
+    if (event_group_size < 0 || event_group_size > MAX_EVENT_GROUP_SIZE)
+        abort();
+
+    batch_t batch;
+    memset(&batch, 0, sizeof(batch_t));
+
+    batch.warmup_runs = warmup_runs;
+    batch.batch_runs = batch_runs;
+    batch.event_group_size = event_group_size;
+
+    memcpy(batch.event_group, event_group, event_group_size * sizeof(int));
+
+    return batch;
+}
+
 void run_bench_1() {
 
     batch_t batch;
+    int event_group[3] = {
+        METRIC_CPU_CYCLES, METRIC_L1_CACHE_MISSES, METRIC_INSTRUCTIONS
+    };
 
-    batch.warmup_runs      = 3;
-    batch.batch_runs       = 3;
-    batch.event_group_size =  3;
-
-    batch.event_group[0] = METRIC_CPU_CYCLES;
-    batch.event_group[1] = METRIC_L1_CACHE_MISSES;
-    batch.event_group[2] = METRIC_INSTRUCTIONS;
+    batch = batch_init(2, 10, 3, event_group);
 
     init_contiguous_array();
     bench_perf_event(&batch, test_contiguous_array);
@@ -38,7 +57,6 @@ void run_bench_1() {
     printf("INSTRUCTIONS:    %ld\n", batch.results[METRIC_INSTRUCTIONS][2]);
 
     printf("\n\n");
-
 
     /*
 
