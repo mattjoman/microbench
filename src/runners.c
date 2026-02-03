@@ -3,6 +3,13 @@
 
 #include "../include/include.h"
 
+typedef struct metric_aggregate metric_aggregate_t;
+struct metric_aggregate {
+    uint64_t min;
+    uint64_t max;
+    uint64_t median;
+};
+
 void run_rdtscp_test_loop() {
     uint64_t x = bench_rdtscp(test_loop);
 
@@ -12,10 +19,10 @@ void run_rdtscp_test_loop() {
 static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
                                 int event_group[])
 {
-    if (batch_runs < 0 || batch_runs > MAX_BENCH_BATCH_SIZE)
+    if (batch_runs < 1 || batch_runs > MAX_BENCH_BATCH_SIZE)
         abort();
 
-    if (event_group_size < 0 || event_group_size > MAX_EVENT_GROUP_SIZE)
+    if (event_group_size < 1 || event_group_size > MAX_EVENT_GROUP_SIZE)
         abort();
 
     batch_t batch;
@@ -28,6 +35,12 @@ static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
     memcpy(batch.event_group, event_group, event_group_size * sizeof(int));
 
     return batch;
+}
+
+static metric_aggregate_t batch_aggregate(batch_t batch) {
+    metric_aggregate_t agg;
+    memset(&agg, 0, sizeof(metric_aggregate_t));
+    return agg;
 }
 
 void run_bench_1() {
