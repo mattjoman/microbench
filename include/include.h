@@ -22,6 +22,8 @@ enum metric {
     ,NUMBER_OF_METRICS
 };
 
+extern const char *metric_names[NUMBER_OF_METRICS];
+
 #define MAX_EVENT_GROUP_SIZE 3
 #define MAX_BENCH_BATCH_SIZE 100
 
