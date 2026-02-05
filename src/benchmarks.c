@@ -116,7 +116,8 @@ static struct perf_event_attr create_perf_config(int metric)
     return pea;
 }
 
-struct event_map calculate_event_map(struct bench_run_results run_results, uint64_t counter_ids[], int event_group_size)
+struct event_map calculate_event_map(struct bench_run_results run_results,
+                                uint64_t counter_ids[], int event_group_size)
 {
     event_map_t event_map;
 
@@ -154,7 +155,8 @@ int bench_perf_event(batch_t *batch, void (*test_func)(void))
     ioctl(fd[0], PERF_EVENT_IOC_ID, &counter_ids[0]);
 
     for (int evt_idx = 1; evt_idx < batch->event_group_size; evt_idx++) {
-        fd[evt_idx] = syscall(SYS_perf_event_open, &(attrs[evt_idx]), 0, -1, fd[0], 0);
+        fd[evt_idx] = syscall(SYS_perf_event_open, &(attrs[evt_idx]), 0, -1,
+                                                                    fd[0], 0);
         if (fd[evt_idx] == -1) exit(1);
 
         ioctl(fd[evt_idx], PERF_EVENT_IOC_ID, &counter_ids[evt_idx]);
@@ -182,7 +184,8 @@ int bench_perf_event(batch_t *batch, void (*test_func)(void))
             exit(1);
     }
 
-    event_map_t event_map = calculate_event_map(run_results[0], counter_ids, batch->event_group_size);
+    event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
+                                                    batch->event_group_size);
 
     for (int run_idx = 0; run_idx < batch->batch_runs; run_idx++) {
 

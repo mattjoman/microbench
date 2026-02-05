@@ -3,23 +3,24 @@
 
 #include "../include/include.h"
 
-#define BIG_NUMBER_1 10000
+//#define BIG_NUMBER_1 777777
+#define BIG_NUMBER_1 999996
 
 int contiguous_array[BIG_NUMBER_1];
 
-void init_contiguous_array()
+static void init_contiguous_array()
 {
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         contiguous_array[i] = i;
     }
 }
 
-void clean_contiguous_array(void)
+static void clean_contiguous_array(void)
 {
     return;
 }
 
-void test_contiguous_array(void)
+static void contiguous_array_func(void)
 {
     volatile int sum;
     for (int i = 0; i < BIG_NUMBER_1; i++) {
@@ -29,7 +30,7 @@ void test_contiguous_array(void)
 
 int *scattered_array[BIG_NUMBER_1];
 
-void init_scattered_array(void)
+static void init_scattered_array(void)
 {
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         scattered_array[i] = malloc(sizeof(int));
@@ -37,14 +38,14 @@ void init_scattered_array(void)
     }
 }
 
-void clean_scattered_array(void)
+static void clean_scattered_array(void)
 {
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         free(scattered_array[i]);
     }
 }
 
-void test_scattered_array(void)
+static void scattered_array_func(void)
 {
     volatile int sum;
 
@@ -52,4 +53,30 @@ void test_scattered_array(void)
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         sum += *scattered_array[i];
     }
+}
+
+static const workload_t wl_contiguous_array = {
+    .init = init_contiguous_array,
+    .clean = clean_contiguous_array,
+    .workload = contiguous_array_func,
+};
+
+static const workload_t wl_scattered_array = {
+    .init = init_scattered_array,
+    .clean = clean_scattered_array,
+    .workload = scattered_array_func,
+};
+
+const workload_t *get_workload(int workload)
+{
+    switch (workload) {
+        case WL_CONTIGUOUS_ARRAY:
+            return &wl_contiguous_array;
+        case WL_SCATTERED_ARRAY:
+            return &wl_scattered_array;
+        default:
+            break;
+    }
+
+    return NULL;
 }

@@ -5,19 +5,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-enum metric {
-    METRIC_CPU_CYCLES
-    ,METRIC_INSTRUCTIONS
-    ,METRIC_CACHE_ACCESSES
-    ,METRIC_CACHE_MISSES
-    ,METRIC_L1_CACHE_MISSES
-    ,METRIC_BRANCH_INSTRUCTIONS
-    ,METRIC_BRANCH_MISPREDICTIONS
-    ,METRIC_PAGE_FAULTS
-    ,METRIC_CPU_CLOCK_NS
-    ,METRIC_TASK_CLOCK_NS
-    ,METRIC_ALIGNMENT_FAULTS
-    ,NUMBER_OF_METRICS
+enum _metrics {
+    METRIC_CPU_CYCLES,
+    METRIC_INSTRUCTIONS,
+    METRIC_CACHE_ACCESSES,
+    METRIC_CACHE_MISSES,
+    METRIC_L1_CACHE_MISSES,
+    METRIC_BRANCH_INSTRUCTIONS,
+    METRIC_BRANCH_MISPREDICTIONS,
+    METRIC_PAGE_FAULTS,
+    METRIC_CPU_CLOCK_NS,
+    METRIC_TASK_CLOCK_NS,
+    METRIC_ALIGNMENT_FAULTS,
+    NUMBER_OF_METRICS,
 };
 
 typedef struct metric_agg metric_agg_t;
@@ -44,23 +44,26 @@ struct batch {
     uint64_t results[NUMBER_OF_METRICS][MAX_BENCH_BATCH_SIZE];
 };
 
-/*** ====================== TESTS ====================== ***/
+enum _workloads {
+    WL_CONTIGUOUS_ARRAY,
+    WL_SCATTERED_ARRAY,
+};
 
-void init_contiguous_array(void);
-void test_contiguous_array(void);
-void clean_contiguous_array(void);
+typedef struct workload {
+    void (*init)(void);
+    void (*clean)(void);
+    void (*workload)(void);
+} workload_t;
 
-void init_scattered_array(void);
-void test_scattered_array(void);
-void clean_scattered_array(void);
+/*** ====================== WORKLOADS ====================== ***/
+
+const workload_t *get_workload(int workload);
 
 /*** ====================== BENCHMARKS ====================== ***/
 
 uint64_t bench_rdtscp(void (*test_func)(void));
 int bench_perf_event(batch_t *batch, void (*test_func)(void));
 
-void run_rdtscp_test_loop(void);
-void run_test_cache_miss(void);
-void run_bench_1(void);
+void experiment_1(void);
 
 #endif

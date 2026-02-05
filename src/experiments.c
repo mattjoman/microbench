@@ -4,7 +4,7 @@
 #include "../include/include.h"
 
 static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
-                                int event_group[])
+                                                            int event_group[])
 {
     if (batch_runs < 1 || batch_runs > MAX_BENCH_BATCH_SIZE)
         abort();
@@ -24,7 +24,7 @@ static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
     return batch;
 }
 
-void run_bench_1(void)
+void experiment_1(void)
 {
 
     batch_t batch;
@@ -33,13 +33,16 @@ void run_bench_1(void)
         METRIC_CPU_CYCLES, METRIC_L1_CACHE_MISSES, METRIC_INSTRUCTIONS
     };
     metric_agg_t agg;
+    workload_t workload;
 
     batch_runs = 3;
     batch = batch_init(2, batch_runs, 3, event_group);
 
-    init_contiguous_array();
-    bench_perf_event(&batch, test_contiguous_array);
-    clean_contiguous_array();
+    workload = *get_workload(WL_SCATTERED_ARRAY);
+
+    workload.init();
+    bench_perf_event(&batch, workload.workload);
+    workload.clean();
 
     for (int evt_idx = 0; evt_idx < batch.event_group_size; evt_idx++) {
         int event = batch.event_group[evt_idx];
@@ -51,17 +54,5 @@ void run_bench_1(void)
         printf("median: %ld\n", agg.median);
         printf("\n");
     }
-
-    /*
-    init_scattered_array();
-    bench_perf_event(&batch, test_scattered_array);
-    clean_scattered_array();
-
-    printf("\n\n");
-    printf("CPU_CYCLES:      %ld\n", batch.results[METRIC_CPU_CYCLES][0]);
-    printf("INSTRUCTIONS:    %ld\n", batch.results[METRIC_INSTRUCTIONS][0]);
-    printf("L1_CACHE_MISSES: %ld\n", batch.results[METRIC_L1_CACHE_MISSES][0]);
-    printf("\n\n");
-    */
 }
 

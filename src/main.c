@@ -3,6 +3,6 @@
 
 int main() {
     //run_rdtscp_test_loop();
-    run_bench_1();
+    experiment_1();
     return 0;
 }
