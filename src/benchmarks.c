@@ -11,7 +11,7 @@
 #include <string.h>
 #include "../include/include.h"
 
-// matches kernel abi
+/* matches kernel abi */
 struct bench_run_results {
     uint64_t nr;
     uint64_t time_enabled;
@@ -27,10 +27,8 @@ struct event_map {
     int data[MAX_EVENT_GROUP_SIZE];
 };
 
-
-/*** ====================== STATIC HELPERS ====================== ***/
-
-static void pin_thread() {
+static void pin_thread(void)
+{
     cpu_set_t cpuset;
     int core_id = 0;
     
@@ -41,14 +39,16 @@ static void pin_thread() {
         exit(1);
 }
 
-static uint64_t rdtscp() {
+static uint64_t rdtscp()
+{
     uint32_t lo, hi;
     __asm__ volatile("cpuid" ::: "rax", "rbx", "rcx", "rdx");
     __asm__ volatile("rdtscp" : "=a"(lo), "=d"(hi) :: "ecx");
     return ((uint64_t)hi << 32) | lo;
 }
 
-static struct perf_event_attr create_perf_config(int metric) {
+static struct perf_event_attr create_perf_config(int metric)
+{
     struct perf_event_attr pea;
 
     memset(&pea, 0, sizeof(struct perf_event_attr));
@@ -62,16 +62,6 @@ static struct perf_event_attr create_perf_config(int metric) {
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
-        /*
-        case METRIC_STALLED_CYCLES_FRONTEND:
-            pea.type = PERF_TYPE_HARDWARE;
-            pea.config = PERF_COUNT_HW_STALLED_CYCLES_FRONTEND;
-            break;
-        case METRIC_STALLED_CYCLES_BACKEND:
-            pea.type = PERF_TYPE_HARDWARE;
-            pea.config = PERF_COUNT_HW_STALLED_CYCLES_BACKEND;
-            break;
-        */
         case METRIC_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
@@ -126,7 +116,8 @@ static struct perf_event_attr create_perf_config(int metric) {
     return pea;
 }
 
-struct event_map calculate_event_map(struct bench_run_results run_results, uint64_t counter_ids[], int event_group_size) {
+struct event_map calculate_event_map(struct bench_run_results run_results, uint64_t counter_ids[], int event_group_size)
+{
     event_map_t event_map;
 
     for (int rr_idx = 0; rr_idx < event_group_size; rr_idx++) {
@@ -139,9 +130,8 @@ struct event_map calculate_event_map(struct bench_run_results run_results, uint6
     return event_map;
 }
 
-/*** ====================== BENCHMARKS ====================== ***/
-
-uint64_t bench_rdtscp(void (*test_func)(void)) {
+uint64_t bench_rdtscp(void (*test_func)(void))
+{
     uint64_t start, end;
     start = rdtscp();
     test_func();
@@ -149,11 +139,8 @@ uint64_t bench_rdtscp(void (*test_func)(void)) {
     return end - start;
 }
 
-
-
-
-int bench_perf_event(batch_t *batch, void (*test_func)(void)) {
-
+int bench_perf_event(batch_t *batch, void (*test_func)(void))
+{
     struct perf_event_attr attrs[MAX_EVENT_GROUP_SIZE];
     int fd[MAX_EVENT_GROUP_SIZE];
     uint64_t counter_ids[MAX_EVENT_GROUP_SIZE];

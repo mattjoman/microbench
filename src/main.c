@@ -6,4 +6,3 @@ int main() {
     run_bench_1();
     return 0;
 }
-

@@ -3,27 +3,24 @@
 
 #include "../include/include.h"
 
-void test_loop() {
-    volatile long long x = 0; // volatile so the compiler doesn't optimise it away
-    while (x < 1000000) {
-        x++;
-    }
-    return;
-}
+#define BIG_NUMBER_1 10000
 
 int contiguous_array[BIG_NUMBER_1];
 
-void init_contiguous_array() {
+void init_contiguous_array()
+{
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         contiguous_array[i] = i;
     }
 }
 
-void clean_contiguous_array() {
+void clean_contiguous_array(void)
+{
     return;
 }
 
-void test_contiguous_array() {
+void test_contiguous_array(void)
+{
     volatile int sum;
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         sum += contiguous_array[i];
@@ -32,20 +29,23 @@ void test_contiguous_array() {
 
 int *scattered_array[BIG_NUMBER_1];
 
-void init_scattered_array() {
+void init_scattered_array(void)
+{
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         scattered_array[i] = malloc(sizeof(int));
         *scattered_array[i] = i;
     }
 }
 
-void clean_scattered_array() {
+void clean_scattered_array(void)
+{
     for (int i = 0; i < BIG_NUMBER_1; i++) {
         free(scattered_array[i]);
     }
 }
 
-void test_scattered_array() {
+void test_scattered_array(void)
+{
     volatile int sum;
 
     sum = 0;
@@ -53,4 +53,3 @@ void test_scattered_array() {
         sum += *scattered_array[i];
     }
 }
-

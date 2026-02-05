@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define BIG_NUMBER_1 10000
-
 enum metric {
     METRIC_CPU_CYCLES
     ,METRIC_INSTRUCTIONS
@@ -21,6 +19,15 @@ enum metric {
     ,METRIC_ALIGNMENT_FAULTS
     ,NUMBER_OF_METRICS
 };
+
+typedef struct metric_agg metric_agg_t;
+struct metric_agg {
+    uint64_t min;
+    uint64_t max;
+    uint64_t median;
+};
+
+metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs);
 
 extern const char *metric_names[NUMBER_OF_METRICS];
 
@@ -39,24 +46,21 @@ struct batch {
 
 /*** ====================== TESTS ====================== ***/
 
-void test_loop();
+void init_contiguous_array(void);
+void test_contiguous_array(void);
+void clean_contiguous_array(void);
 
-void init_contiguous_array();
-void test_contiguous_array();
-void clean_contiguous_array();
-
-void init_scattered_array();
-void clean_scattered_array();
-void test_scattered_array();
+void init_scattered_array(void);
+void test_scattered_array(void);
+void clean_scattered_array(void);
 
 /*** ====================== BENCHMARKS ====================== ***/
 
 uint64_t bench_rdtscp(void (*test_func)(void));
 int bench_perf_event(batch_t *batch, void (*test_func)(void));
 
-void run_rdtscp_test_loop();
-void run_test_cache_miss();
-void run_bench_1();
+void run_rdtscp_test_loop(void);
+void run_test_cache_miss(void);
+void run_bench_1(void);
 
 #endif
-
