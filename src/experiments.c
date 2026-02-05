@@ -38,7 +38,8 @@ void experiment_1(void)
     batch_runs = 3;
     batch = batch_init(2, batch_runs, 3, event_group);
 
-    workload = *get_workload(WL_SCATTERED_ARRAY);
+    workload = *get_workload(WL_CONTIGUOUS_ARRAY);
+    //workload = *get_workload(WL_SCATTERED_ARRAY);
 
     workload.init();
     bench_perf_event(&batch, workload.workload);

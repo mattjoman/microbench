@@ -4,7 +4,7 @@
 #include "../include/include.h"
 
 //#define BIG_NUMBER_1 777777
-#define BIG_NUMBER_1 999996
+#define BIG_NUMBER_1 10000000
 
 int contiguous_array[BIG_NUMBER_1];
 

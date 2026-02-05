@@ -12,7 +12,7 @@
 #include "../include/include.h"
 
 /* matches kernel abi */
-struct bench_run_results {
+typedef struct run_result {
     uint64_t nr;
     uint64_t time_enabled;
     uint64_t time_running;
@@ -20,12 +20,11 @@ struct bench_run_results {
         uint64_t value;
         uint64_t id;
     } values[MAX_EVENT_GROUP_SIZE];
-};
+} run_result_t;
 
-typedef struct event_map event_map_t;
-struct event_map {
+typedef struct event_map {
     int data[MAX_EVENT_GROUP_SIZE];
-};
+} event_map_t;
 
 static void pin_thread(void)
 {
@@ -116,19 +115,59 @@ static struct perf_event_attr create_perf_config(int metric)
     return pea;
 }
 
-struct event_map calculate_event_map(struct bench_run_results run_results,
+struct event_map calculate_event_map(run_result_t run_result,
                                 uint64_t counter_ids[], int event_group_size)
 {
     event_map_t event_map;
 
     for (int rr_idx = 0; rr_idx < event_group_size; rr_idx++) {
         for (int cid_idx = 0; cid_idx < event_group_size; cid_idx++) {
-            if (run_results.values[rr_idx].id == counter_ids[cid_idx])
+            if (run_result.values[rr_idx].id == counter_ids[cid_idx])
                 event_map.data[rr_idx] = cid_idx;
         }
     }
 
     return event_map;
+}
+
+static void perf_open_counters(struct perf_event_attr attrs[],
+        int counter_fds[], uint64_t counter_ids[], int event_group_size)
+{
+    counter_fds[0] = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0);
+
+    if (counter_fds[0] == -1)
+        exit(1);
+
+    ioctl(counter_fds[0], PERF_EVENT_IOC_ID, &counter_ids[0]);
+
+    for (int evt_idx = 1; evt_idx < event_group_size; evt_idx++) {
+
+        counter_fds[evt_idx] = syscall(SYS_perf_event_open,
+                                &(attrs[evt_idx]), 0, -1, counter_fds[0], 0);
+
+        if (counter_fds[evt_idx] == -1)
+            exit(1);
+
+        ioctl(counter_fds[evt_idx], PERF_EVENT_IOC_ID, &counter_ids[evt_idx]);
+    }
+}
+
+static void perf_store_results(batch_t *batch, run_result_t run_results[],
+                                                        uint64_t counter_ids[])
+{
+    event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
+                                                    batch->event_group_size);
+
+    for (int run_idx = 0; run_idx < batch->batch_runs; run_idx++) {
+
+        for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++) {
+
+            uint64_t value = run_results[run_idx].values[evt_idx].value;
+            int batch_evt_idx = event_map.data[evt_idx];
+
+            batch->results[batch->event_group[batch_evt_idx]][run_idx] = value;
+        }
+    }
 }
 
 uint64_t bench_rdtscp(void (*test_func)(void))
@@ -143,24 +182,15 @@ uint64_t bench_rdtscp(void (*test_func)(void))
 int bench_perf_event(batch_t *batch, void (*test_func)(void))
 {
     struct perf_event_attr attrs[MAX_EVENT_GROUP_SIZE];
-    int fd[MAX_EVENT_GROUP_SIZE];
+    int counter_fds[MAX_EVENT_GROUP_SIZE];
     uint64_t counter_ids[MAX_EVENT_GROUP_SIZE];
-    struct bench_run_results run_results[MAX_BENCH_BATCH_SIZE];
+    run_result_t run_results[MAX_BENCH_BATCH_SIZE];
 
     for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++)
         attrs[evt_idx] = create_perf_config(batch->event_group[evt_idx]);
 
-    fd[0] = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0);
-    if (fd[0] == -1) exit(1);
-    ioctl(fd[0], PERF_EVENT_IOC_ID, &counter_ids[0]);
-
-    for (int evt_idx = 1; evt_idx < batch->event_group_size; evt_idx++) {
-        fd[evt_idx] = syscall(SYS_perf_event_open, &(attrs[evt_idx]), 0, -1,
-                                                                    fd[0], 0);
-        if (fd[evt_idx] == -1) exit(1);
-
-        ioctl(fd[evt_idx], PERF_EVENT_IOC_ID, &counter_ids[evt_idx]);
-    }
+    perf_open_counters(attrs, counter_fds, counter_ids,
+                                                    batch->event_group_size);
 
     pin_thread();
 
@@ -169,34 +199,22 @@ int bench_perf_event(batch_t *batch, void (*test_func)(void))
 
     for (int run_num = 0; run_num < batch->batch_runs; run_num++) {
 
-        ioctl(fd[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
-        ioctl(fd[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
+        ioctl(counter_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
+        ioctl(counter_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
 
         test_func();
 
-        ioctl(fd[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
+        ioctl(counter_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
 
-        read(fd[0], &run_results[run_num], sizeof(struct bench_run_results));
+        read(counter_fds[0], &run_results[run_num], sizeof(run_result_t));
     }
 
     for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++) {
-        if (close(fd[evt_idx]) == -1)
+        if (close(counter_fds[evt_idx]) == -1)
             exit(1);
     }
 
-    event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
-                                                    batch->event_group_size);
-
-    for (int run_idx = 0; run_idx < batch->batch_runs; run_idx++) {
-
-        for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++) {
-
-            uint64_t value = run_results[run_idx].values[evt_idx].value;
-            int batch_evt_idx = event_map.data[evt_idx];
-
-            batch->results[batch->event_group[batch_evt_idx]][run_idx] = value;
-        }
-    }
+    perf_store_results(batch, run_results, counter_ids);
 
     return 0;
 }
