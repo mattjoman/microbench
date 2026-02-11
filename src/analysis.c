@@ -60,6 +60,75 @@ metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
     return agg;
 }
 
+
+
+
+
+
+
+static void r_sort_swap(double *a, double *b)
+{
+    double tmp;
+
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+static int r_sort_partition(double array[], int low, int high)
+{
+    double pivot;
+    int i, j;
+
+    i = low - 1;
+    pivot = array[high];
+
+    for (j = low; j < high; j++) {
+        if (array[j] <= pivot) {
+            i++;
+            r_sort_swap(&array[i], &array[j]);
+        }
+    }
+
+    r_sort_swap(&array[i + 1], &array[high]);
+
+    return i + 1;
+}
+
+static void r_sort(double array[], int low, int high)
+{
+    int p;
+
+    if (low < high) {
+        p = r_sort_partition(array, low, high);
+        r_sort(array, low, p - 1);
+        r_sort(array, p + 1, high);
+    }
+}
+
+ratio_agg_t ratio_agg(double ratios[], int batch_runs)
+{
+    ratio_agg_t agg;
+    double array_cpy[MAX_BENCH_BATCH_SIZE];
+
+    memcpy(array_cpy, ratios, batch_runs * sizeof(double));
+
+    r_sort(array_cpy, 0, batch_runs - 1);
+
+    memset(&agg, 0, sizeof(ratio_agg_t));
+    agg.min = array_cpy[0];
+    agg.max = array_cpy[batch_runs - 1];
+    agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
+    //agg.median = array_cpy[batch_runs / 2]; // upper median
+
+    return agg;
+}
+
+
+
+
+
+
 void calc_ratios(double results[], uint64_t numerators[],
                                    uint64_t denominators[],
                                    int batch_runs)

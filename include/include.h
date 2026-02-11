@@ -41,7 +41,14 @@ typedef struct metric_agg {
     uint64_t median;
 } metric_agg_t;
 
+typedef struct ratio_agg {
+    double min;
+    double max;
+    double median;
+} ratio_agg_t;
+
 metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs);
+ratio_agg_t ratio_agg(double ratios[], int batch_runs);
 void calc_ratios(double results[], uint64_t numerators[],
                                    uint64_t denominators[],
                                    int batch_runs);

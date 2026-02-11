@@ -60,14 +60,12 @@ void experiment_1(void)
     calc_ratios(ipcs, batch.results[METRIC_INSTRUCTIONS],
                       batch.results[METRIC_CPU_CYCLES],
                       batch_runs);
-    /*
-    agg = metric_agg(ipcs, batch_runs);
+    ratio_agg_t r_agg = ratio_agg(ipcs, batch_runs);
 
     printf("\n");
     printf("IPC\n");
-    printf("min:    %ld\n", agg.min);
-    printf("max:    %ld\n", agg.max);
-    printf("median: %ld\n", agg.median);
+    printf("min:    %f\n", r_agg.min);
+    printf("max:    %f\n", r_agg.max);
+    printf("median: %f\n", r_agg.median);
     printf("\n");
-    */
 }
