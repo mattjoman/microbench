@@ -3,8 +3,9 @@
 
 #include "../include/include.h"
 
-static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
-                                                            int event_group[])
+static batch_t batch_init(int warmup_runs, int batch_runs,
+                                           int event_group_size,
+                                           int event_group[])
 {
     if (batch_runs < 1 || batch_runs > MAX_BENCH_BATCH_SIZE)
         abort();
@@ -26,7 +27,6 @@ static batch_t batch_init(int warmup_runs, int batch_runs, int event_group_size,
 
 void experiment_1(void)
 {
-
     batch_t batch;
     int batch_runs;
     int event_group[3] = {
@@ -56,4 +56,3 @@ void experiment_1(void)
         printf("\n");
     }
 }
-

@@ -62,7 +62,7 @@ const workload_t *get_workload(int workload);
 /*** ====================== BENCHMARKS ====================== ***/
 
 uint64_t bench_rdtscp(void (*test_func)(void));
-int bench_perf_event(batch_t *batch, void (*test_func)(void));
+int bench_perf_event(batch_t *batch, void (*workload)(void));
 
 void experiment_1(void);
 

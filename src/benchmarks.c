@@ -179,7 +179,7 @@ uint64_t bench_rdtscp(void (*test_func)(void))
     return end - start;
 }
 
-int bench_perf_event(batch_t *batch, void (*test_func)(void))
+int bench_perf_event(batch_t *batch, void (*workload)(void))
 {
     struct perf_event_attr attrs[MAX_EVENT_GROUP_SIZE];
     int counter_fds[MAX_EVENT_GROUP_SIZE];
@@ -195,14 +195,18 @@ int bench_perf_event(batch_t *batch, void (*test_func)(void))
     pin_thread();
 
     for (int wu_num = 0; wu_num < batch->warmup_runs; wu_num++)
-        test_func();
+        workload();
 
     for (int run_num = 0; run_num < batch->batch_runs; run_num++) {
 
         ioctl(counter_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
         ioctl(counter_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
 
-        test_func();
+        asm volatile("" ::: "memory");
+
+        workload();
+
+        asm volatile("" ::: "memory");
 
         ioctl(counter_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
 

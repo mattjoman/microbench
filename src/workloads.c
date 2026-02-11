@@ -20,6 +20,7 @@ static void clean_contiguous_array(void)
     return;
 }
 
+__attribute__((noinline))
 static void contiguous_array_func(void)
 {
     volatile int sum;
@@ -45,6 +46,7 @@ static void clean_scattered_array(void)
     }
 }
 
+__attribute__((noinline))
 static void scattered_array_func(void)
 {
     volatile int sum;
