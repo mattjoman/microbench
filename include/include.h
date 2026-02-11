@@ -87,4 +87,6 @@ int bench_perf_event(batch_t *batch, void (*workload)(void));
 
 void experiment_1(void);
 
+void report_batch(batch_t *batch, int event_group_id);
+
 #endif

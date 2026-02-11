@@ -8,7 +8,8 @@ SRCS=src/main.c \
 		 src/workloads.c \
 		 src/experiments.c \
 		 src/analysis.c \
-		 src/metrics.c
+		 src/metrics.c \
+		 src/reports.c
 
 OBJS=$(SRCS:.c=.o)
 
