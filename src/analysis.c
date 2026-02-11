@@ -59,3 +59,12 @@ metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
 
     return agg;
 }
+
+void calc_ratios(double results[], uint64_t numerators[],
+                                   uint64_t denominators[],
+                                   int batch_runs)
+{
+    for (int i = 0; i < batch_runs; i++) {
+        results[i] = numerators[i] / (1.0 * denominators[i]);
+    }
+}

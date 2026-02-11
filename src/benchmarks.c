@@ -57,6 +57,10 @@ static struct perf_event_attr create_perf_config(int metric)
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CPU_CYCLES;
             break;
+        case METRIC_REF_CPU_CYCLES:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_REF_CPU_CYCLES;
+            break;
         case METRIC_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;

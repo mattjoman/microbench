@@ -4,13 +4,12 @@
 #include "../include/include.h"
 
 static batch_t batch_init(int warmup_runs, int batch_runs,
-                                           int event_group_size,
-                                           int event_group[])
+                                           event_group_t event_group)
 {
     if (batch_runs < 1 || batch_runs > MAX_BENCH_BATCH_SIZE)
         abort();
 
-    if (event_group_size < 1 || event_group_size > MAX_EVENT_GROUP_SIZE)
+    if (event_group.size < 1 || event_group.size > MAX_EVENT_GROUP_SIZE)
         abort();
 
     batch_t batch;
@@ -18,9 +17,10 @@ static batch_t batch_init(int warmup_runs, int batch_runs,
 
     batch.warmup_runs = warmup_runs;
     batch.batch_runs = batch_runs;
-    batch.event_group_size = event_group_size;
+    batch.event_group_size = event_group.size;
 
-    memcpy(batch.event_group, event_group, event_group_size * sizeof(int));
+    memcpy(batch.event_group, event_group.event_ids,
+                              event_group.size * sizeof(int));
 
     return batch;
 }
@@ -29,14 +29,14 @@ void experiment_1(void)
 {
     batch_t batch;
     int batch_runs;
-    int event_group[3] = {
-        METRIC_CPU_CYCLES, METRIC_L1_CACHE_MISSES, METRIC_INSTRUCTIONS
-    };
     metric_agg_t agg;
     workload_t workload;
+    event_group_t event_group;
 
-    batch_runs = 3;
-    batch = batch_init(2, batch_runs, 3, event_group);
+    event_group = *get_event_group(EVENT_GROUP_IPC);
+
+    batch_runs = 10;
+    batch = batch_init(2, batch_runs, event_group);
 
     workload = *get_workload(WL_CONTIGUOUS_ARRAY);
     //workload = *get_workload(WL_SCATTERED_ARRAY);
@@ -55,4 +55,19 @@ void experiment_1(void)
         printf("median: %ld\n", agg.median);
         printf("\n");
     }
+
+    double ipcs[MAX_BENCH_BATCH_SIZE];
+    calc_ratios(ipcs, batch.results[METRIC_INSTRUCTIONS],
+                      batch.results[METRIC_CPU_CYCLES],
+                      batch_runs);
+    /*
+    agg = metric_agg(ipcs, batch_runs);
+
+    printf("\n");
+    printf("IPC\n");
+    printf("min:    %ld\n", agg.min);
+    printf("max:    %ld\n", agg.max);
+    printf("median: %ld\n", agg.median);
+    printf("\n");
+    */
 }

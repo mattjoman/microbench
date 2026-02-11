@@ -5,8 +5,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-enum _metrics {
+#define MAX_EVENT_GROUP_SIZE 3
+#define MAX_BENCH_BATCH_SIZE 100
+
+enum {
     METRIC_CPU_CYCLES,
+    METRIC_REF_CPU_CYCLES,
     METRIC_INSTRUCTIONS,
     METRIC_CACHE_ACCESSES,
     METRIC_CACHE_MISSES,
@@ -20,34 +24,43 @@ enum _metrics {
     NUMBER_OF_METRICS,
 };
 
-typedef struct metric_agg metric_agg_t;
-struct metric_agg {
+enum {
+    EVENT_GROUP_IPC,
+    EVENT_GROUP_FEND_VS_BEND,
+    EVENT_GROUP_BRANCH_EFFICIENCY,
+};
+
+enum {
+    WL_CONTIGUOUS_ARRAY,
+    WL_SCATTERED_ARRAY,
+};
+
+typedef struct metric_agg {
     uint64_t min;
     uint64_t max;
     uint64_t median;
-};
+} metric_agg_t;
 
 metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs);
+void calc_ratios(double results[], uint64_t numerators[],
+                                   uint64_t denominators[],
+                                   int batch_runs);
 
 extern const char *metric_names[NUMBER_OF_METRICS];
 
-#define MAX_EVENT_GROUP_SIZE 3
-#define MAX_BENCH_BATCH_SIZE 100
+typedef struct event_group {
+    int event_group_id;
+    int size;
+    int event_ids[MAX_EVENT_GROUP_SIZE];
+} event_group_t;
 
-typedef struct batch batch_t;
-
-struct batch {
+typedef struct batch {
     int warmup_runs;
     int batch_runs; // actual runs
     int event_group_size; // actual number of metrics
     int event_group[MAX_EVENT_GROUP_SIZE];
     uint64_t results[NUMBER_OF_METRICS][MAX_BENCH_BATCH_SIZE];
-};
-
-enum _workloads {
-    WL_CONTIGUOUS_ARRAY,
-    WL_SCATTERED_ARRAY,
-};
+} batch_t;
 
 typedef struct workload {
     void (*init)(void);
@@ -58,6 +71,7 @@ typedef struct workload {
 /*** ====================== WORKLOADS ====================== ***/
 
 const workload_t *get_workload(int workload);
+const event_group_t *get_event_group(int event_group_id);
 
 /*** ====================== BENCHMARKS ====================== ***/
 
