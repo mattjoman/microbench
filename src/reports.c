@@ -1,56 +1,26 @@
-/*
- * This file will contain code for displaying the results of
- * experiments & analysis
- */
-
 #include <stdio.h>
 
 #include "../include/include.h"
 
-static void report_events(batch_t *batch)
+void run_report(event_group_t egroup, analysis_t analysis)
 {
-    metric_agg_t agg;
+    const char *egroup_name;
+    int event_id;
 
-    for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++) {
+    egroup_name = event_group_names[egroup.id];
 
-        int event = batch->event_group[evt_idx];
+    printf("\nEvent Group: %s\n\n", egroup_name);
 
-        agg = metric_agg(batch->results[event], batch->batch_runs);
-
-        printf("\n");
-        printf("%s\n", metric_names[event]);
-        printf("min:    %ld\n", agg.min);
-        printf("max:    %ld\n", agg.max);
-        printf("median: %ld\n", agg.median);
-        printf("\n");
+    for (int e = 0; e < MAX_EVENT_GROUP_SIZE; e++) {
+        event_id = analysis.event_aggs[e].event_id;
+        printf("%s:\n", metric_names[event_id]);
+        printf("Min:    %ld\n", analysis.event_aggs[e].min);
+        printf("Median: %ld\n", analysis.event_aggs[e].median);
+        printf("Max:    %ld\n\n", analysis.event_aggs[e].max);
     }
-}
 
-static void report_ipc(batch_t *batch)
-{
-    double ipcs[MAX_BENCH_BATCH_SIZE];
-    calc_ratios(ipcs, batch->results[METRIC_INSTRUCTIONS],
-                      batch->results[METRIC_CPU_CYCLES],
-                      batch->batch_runs);
-
-    ratio_agg_t r_agg = ratio_agg(ipcs, batch->batch_runs);
-
-    printf("\n");
-    printf("IPC\n");
-    printf("min:    %f\n", r_agg.min);
-    printf("max:    %f\n", r_agg.max);
-    printf("median: %f\n", r_agg.median);
-    printf("\n");
-}
-
-void report_batch(batch_t *batch, int event_group_id) {
-    report_events(batch);
-
-    switch (event_group_id) {
-        case EVENT_GROUP_IPC:
-            report_ipc(batch);
-            break;
-        default:
-            break;
-    }
+    printf("RATIO:\n");
+    printf("Min:    %f\n", analysis.ratio_agg.min);
+    printf("Median: %f\n", analysis.ratio_agg.median);
+    printf("Max:    %f\n\n", analysis.ratio_agg.max);
 }

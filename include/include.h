@@ -24,18 +24,27 @@ enum {
     NUMBER_OF_METRICS,
 };
 
+extern const char *metric_names[NUMBER_OF_METRICS];
+
 enum {
     EVENT_GROUP_IPC,
-    EVENT_GROUP_FEND_VS_BEND,
-    EVENT_GROUP_BRANCH_EFFICIENCY,
+    //EVENT_GROUP_FEND_VS_BEND,
+    //EVENT_GROUP_BRANCH_EFFICIENCY,
+    NUMBER_OF_EVENT_GROUPS,
 };
+
+extern const char *event_group_names[NUMBER_OF_EVENT_GROUPS];
 
 enum {
     WL_CONTIGUOUS_ARRAY,
     WL_SCATTERED_ARRAY,
+    NUMBER_OF_WORKLOADS,
 };
 
+extern const char *workload_names[NUMBER_OF_WORKLOADS];
+
 typedef struct metric_agg {
+    int event_id;
     uint64_t min;
     uint64_t max;
     uint64_t median;
@@ -47,16 +56,13 @@ typedef struct ratio_agg {
     double median;
 } ratio_agg_t;
 
-metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs);
-ratio_agg_t ratio_agg(double ratios[], int batch_runs);
-void calc_ratios(double results[], uint64_t numerators[],
-                                   uint64_t denominators[],
-                                   int batch_runs);
-
-extern const char *metric_names[NUMBER_OF_METRICS];
+typedef struct analysis {
+    metric_agg_t event_aggs[MAX_EVENT_GROUP_SIZE];
+    ratio_agg_t ratio_agg;
+} analysis_t;
 
 typedef struct event_group {
-    int event_group_id;
+    int id;
     int size;
     int event_ids[MAX_EVENT_GROUP_SIZE];
 } event_group_t;
@@ -77,7 +83,7 @@ typedef struct workload {
 
 /*** ====================== WORKLOADS ====================== ***/
 
-const workload_t *get_workload(int workload);
+const workload_t *get_workload(int workload_id);
 const event_group_t *get_event_group(int event_group_id);
 
 /*** ====================== BENCHMARKS ====================== ***/
@@ -85,8 +91,10 @@ const event_group_t *get_event_group(int event_group_id);
 uint64_t bench_rdtscp(void (*test_func)(void));
 int bench_perf_event(batch_t *batch, void (*workload)(void));
 
-void experiment_1(void);
+void run_experiment(int workload_id, int egroup_id);
 
-void report_batch(batch_t *batch, int event_group_id);
+void run_report(event_group_t egroup, analysis_t analysis);
+
+analysis_t run_analysis(batch_t *batch, event_group_t egroup);
 
 #endif

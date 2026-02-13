@@ -42,7 +42,7 @@ static void sort(uint64_t array[], int low, int high)
     }
 }
 
-metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
+static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs, int event_id)
 {
     metric_agg_t agg;
     uint64_t array_cpy[MAX_BENCH_BATCH_SIZE];
@@ -52,6 +52,8 @@ metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
     sort(array_cpy, 0, batch_runs - 1);
 
     memset(&agg, 0, sizeof(metric_agg_t));
+
+    agg.event_id = event_id;
     agg.min = array_cpy[0];
     agg.max = array_cpy[batch_runs - 1];
     agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
@@ -106,7 +108,7 @@ static void r_sort(double array[], int low, int high)
     }
 }
 
-ratio_agg_t ratio_agg(double ratios[], int batch_runs)
+static ratio_agg_t ratio_agg(double ratios[], int batch_runs)
 {
     ratio_agg_t agg;
     double array_cpy[MAX_BENCH_BATCH_SIZE];
@@ -129,7 +131,7 @@ ratio_agg_t ratio_agg(double ratios[], int batch_runs)
 
 
 
-void calc_ratios(double results[], uint64_t numerators[],
+static void calc_ratios(double results[], uint64_t numerators[],
                                    uint64_t denominators[],
                                    int batch_runs)
 {
@@ -137,3 +139,72 @@ void calc_ratios(double results[], uint64_t numerators[],
         results[i] = numerators[i] / (1.0 * denominators[i]);
     }
 }
+
+analysis_t run_analysis(batch_t *batch, event_group_t egroup)
+{
+    analysis_t analysis;
+    metric_agg_t e_agg;
+    ratio_agg_t r_agg;
+
+    for (int e = 0; e < MAX_EVENT_GROUP_SIZE; e++) {
+
+        int event_id = egroup.event_ids[e];
+        e_agg = metric_agg(batch->results[event_id], batch->batch_runs,
+                                                     event_id);
+
+        analysis.event_aggs[e] = e_agg;
+    }
+
+    double ratios[MAX_BENCH_BATCH_SIZE];
+
+    switch (egroup.id) {
+        case EVENT_GROUP_IPC:
+            calc_ratios(ratios, batch->results[METRIC_INSTRUCTIONS],
+                                batch->results[METRIC_CPU_CYCLES],
+                                batch->batch_runs);
+            break;
+        default:
+            break;
+    }
+
+    r_agg = ratio_agg(ratios, batch->batch_runs);
+
+    analysis.ratio_agg = r_agg;
+
+    return analysis;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

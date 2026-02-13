@@ -15,9 +15,15 @@ const char *metric_names[NUMBER_OF_METRICS] = {
     [METRIC_ALIGNMENT_FAULTS]      = "METRIC_ALIGNMENT_FAULTS",
 };
 
-const event_group_t eg_ipc = {
-    .event_group_id = EVENT_GROUP_IPC,
-    .size = 3,
+const char *event_group_names[NUMBER_OF_EVENT_GROUPS] = {
+    [EVENT_GROUP_IPC]               = "EVENT_GROUP_IPC",
+    //[EVENT_GROUP_FEND_VS_BEND]      = "EVENT_GROUP_FEND_VS_BEND",
+    //[EVENT_GROUP_BRANCH_EFFICIENCY] = "EVENT_GROUP_BRANCH_EFFICIENCY",
+};
+
+static const event_group_t egroup_ipc = {
+    .id = EVENT_GROUP_IPC,
+    .size = MAX_EVENT_GROUP_SIZE,
     .event_ids[0] = METRIC_CPU_CYCLES,
     .event_ids[1] = METRIC_REF_CPU_CYCLES,
     .event_ids[2] = METRIC_INSTRUCTIONS,
@@ -27,8 +33,12 @@ const event_group_t *get_event_group(int event_group_id)
 {
     switch (event_group_id) {
         case EVENT_GROUP_IPC:
-            return &eg_ipc;
+            return &egroup_ipc;
         default:
-            return NULL;
+            break;
     }
+
+    abort();
+
+    return NULL;
 }
