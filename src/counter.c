@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "../include/event.h"
+#include "../include/counter.h"
 
 const char *metric_names[NUMBER_OF_CTRS] = {
     [CTR_CPU_CYCLES]            = "CTR_CPU_CYCLES",

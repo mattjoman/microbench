@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "../include/report.h"
-#include "../include/event.h"
+#include "../include/counter.h"
 #include "../include/analysis.h"
 
 void run_report(ctr_grp_t ctr_grp, analysis_t analysis)
@@ -11,7 +11,7 @@ void run_report(ctr_grp_t ctr_grp, analysis_t analysis)
 
     ctr_grp_name = ctr_grp_names[ctr_grp.id];
 
-    printf("\nEvent Group: %s\n\n", ctr_grp_name);
+    printf("\nCounter Group: %s\n\n", ctr_grp_name);
 
     for (int e = 0; e < MAX_CTR_GRP_SIZE; e++) {
         ctr_id = analysis.ctr_aggs[e].ctr_id;

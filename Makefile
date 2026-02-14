@@ -4,12 +4,12 @@ CFLAGS=-Iinclude -O0 -Wall -Wextra -std=gnu11 -g
 
 # Source files
 SRCS=src/main.c \
-		 src/benchmarks.c \
-		 src/workloads.c \
-		 src/experiments.c \
+		 src/bench.c \
+		 src/workload.c \
+		 src/experiment.c \
 		 src/analysis.c \
-		 src/metrics.c \
-		 src/reports.c
+		 src/counter.c \
+		 src/report.c
 
 OBJS=$(SRCS:.c=.o)
 

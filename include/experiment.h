@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "./event.h"
+#include "./counter.h"
 
 #define MAX_BENCH_BATCH_SIZE 100
 

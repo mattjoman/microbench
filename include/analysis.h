@@ -1,7 +1,7 @@
 #ifndef ANALYSIS_H
 #define ANALYSIS_H
 
-#include "./event.h"
+#include "./counter.h"
 #include "./experiment.h"
 
 typedef struct ctr_agg {

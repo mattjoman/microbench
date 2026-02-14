@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (ctr_grp_id < 0 || ctr_grp_id >= NUMBER_OF_CTR_GRPS) {
-        fprintf(stderr, "Invalid Event Group: %d\n", ctr_grp_id);
+        fprintf(stderr, "Invalid Counter Group: %d\n", ctr_grp_id);
         return 1;
     }
 

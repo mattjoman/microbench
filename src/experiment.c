@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../include/experiment.h"
-#include "../include/event.h"
+#include "../include/counter.h"
 #include "../include/bench.h"
 #include "../include/workload.h"
 #include "../include/analysis.h"
