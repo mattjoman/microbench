@@ -8,11 +8,11 @@
 int main(int argc, char *argv[]) {
 
     int workload_id = -1;
-    int egroup_id = -1;
+    int ctr_grp_id = -1;
 
     static struct option long_opts[] = {
         {"workload",    required_argument, 0, 'w'},
-        {"egroup", required_argument, 0, 'e'},
+        {"ctr-grp", required_argument, 0, 'e'},
         {0, 0, 0, 0}
     };
 
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
                 workload_id = atoi(optarg);
                 break;
             case 'e':
-                egroup_id = atoi(optarg);
+                ctr_grp_id = atoi(optarg);
                 break;
             default:
                 fprintf(stderr, "Usage\n");
@@ -37,12 +37,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (egroup_id < 0 || egroup_id >= NUMBER_OF_EVENT_GROUPS) {
-        fprintf(stderr, "Invalid Event Group: %d\n", egroup_id);
+    if (ctr_grp_id < 0 || ctr_grp_id >= NUMBER_OF_CTR_GRPS) {
+        fprintf(stderr, "Invalid Event Group: %d\n", ctr_grp_id);
         return 1;
     }
 
-    run_experiment(workload_id, egroup_id);
+    run_experiment(workload_id, ctr_grp_id);
 
     return 0;
 }

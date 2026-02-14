@@ -4,21 +4,21 @@
 #include "../include/event.h"
 #include "../include/analysis.h"
 
-void run_report(event_group_t egroup, analysis_t analysis)
+void run_report(ctr_grp_t ctr_grp, analysis_t analysis)
 {
-    const char *egroup_name;
-    int event_id;
+    const char *ctr_grp_name;
+    int ctr_id;
 
-    egroup_name = event_group_names[egroup.id];
+    ctr_grp_name = ctr_grp_names[ctr_grp.id];
 
-    printf("\nEvent Group: %s\n\n", egroup_name);
+    printf("\nEvent Group: %s\n\n", ctr_grp_name);
 
-    for (int e = 0; e < MAX_EVENT_GROUP_SIZE; e++) {
-        event_id = analysis.event_aggs[e].event_id;
-        printf("%s:\n", metric_names[event_id]);
-        printf("Min:    %ld\n", analysis.event_aggs[e].min);
-        printf("Median: %ld\n", analysis.event_aggs[e].median);
-        printf("Max:    %ld\n\n", analysis.event_aggs[e].max);
+    for (int e = 0; e < MAX_CTR_GRP_SIZE; e++) {
+        ctr_id = analysis.ctr_aggs[e].ctr_id;
+        printf("%s:\n", metric_names[ctr_id]);
+        printf("Min:    %ld\n", analysis.ctr_aggs[e].min);
+        printf("Median: %ld\n", analysis.ctr_aggs[e].median);
+        printf("Max:    %ld\n\n", analysis.ctr_aggs[e].max);
     }
 
     printf("RATIO:\n");

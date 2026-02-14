@@ -20,11 +20,11 @@ typedef struct run_result {
     struct {
         uint64_t value;
         uint64_t id;
-    } values[MAX_EVENT_GROUP_SIZE];
+    } values[MAX_CTR_GRP_SIZE];
 } run_result_t;
 
 typedef struct event_map {
-    int data[MAX_EVENT_GROUP_SIZE];
+    int data[MAX_CTR_GRP_SIZE];
 } event_map_t;
 
 static void pin_thread(void)
@@ -54,53 +54,53 @@ static struct perf_event_attr create_perf_config(int metric)
     memset(&pea, 0, sizeof(struct perf_event_attr));
 
     switch (metric) {
-        case METRIC_CPU_CYCLES:
+        case CTR_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CPU_CYCLES;
             break;
-        case METRIC_REF_CPU_CYCLES:
+        case CTR_REF_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_REF_CPU_CYCLES;
             break;
-        case METRIC_INSTRUCTIONS:
+        case CTR_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
-        case METRIC_CACHE_ACCESSES:
+        case CTR_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
             break;
-        case METRIC_CACHE_MISSES:
+        case CTR_CACHE_MISSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_MISSES;
             break;
-        case METRIC_L1_CACHE_MISSES:
+        case CTR_L1_CACHE_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
-        case METRIC_BRANCH_INSTRUCTIONS:
+        case CTR_BRANCH_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
             break;
-        case METRIC_BRANCH_MISPREDICTIONS:
+        case CTR_BRANCH_MISPREDICTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_MISSES;
             break;
-        case METRIC_PAGE_FAULTS:
+        case CTR_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
             break;
-        case METRIC_CPU_CLOCK_NS:
+        case CTR_CPU_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_CPU_CLOCK;
             break;
-        case METRIC_TASK_CLOCK_NS:
+        case CTR_TASK_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_TASK_CLOCK;
             break;
-        case METRIC_ALIGNMENT_FAULTS:
+        case CTR_ALIGNMENT_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_ALIGNMENT_FAULTS;
             break;
@@ -161,16 +161,16 @@ static void perf_store_results(batch_t *batch, run_result_t run_results[],
                                                         uint64_t counter_ids[])
 {
     event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
-                                                    batch->event_group_size);
+                                                    batch->ctr_grp_size);
 
     for (int run_idx = 0; run_idx < batch->batch_runs; run_idx++) {
 
-        for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++) {
+        for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++) {
 
             uint64_t value = run_results[run_idx].values[evt_idx].value;
             int batch_evt_idx = event_map.data[evt_idx];
 
-            batch->results[batch->event_group[batch_evt_idx]][run_idx] = value;
+            batch->results[batch->ctr_grp[batch_evt_idx]][run_idx] = value;
         }
     }
 }
@@ -190,16 +190,16 @@ uint64_t bench_rdtscp(void (*test_func)(void))
 
 int bench_perf_event(batch_t *batch, void (*workload)(void))
 {
-    struct perf_event_attr attrs[MAX_EVENT_GROUP_SIZE];
-    int counter_fds[MAX_EVENT_GROUP_SIZE];
-    uint64_t counter_ids[MAX_EVENT_GROUP_SIZE];
+    struct perf_event_attr attrs[MAX_CTR_GRP_SIZE];
+    int counter_fds[MAX_CTR_GRP_SIZE];
+    uint64_t counter_ids[MAX_CTR_GRP_SIZE];
     run_result_t run_results[MAX_BENCH_BATCH_SIZE];
 
-    for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++)
-        attrs[evt_idx] = create_perf_config(batch->event_group[evt_idx]);
+    for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++)
+        attrs[evt_idx] = create_perf_config(batch->ctr_grp[evt_idx]);
 
     perf_open_counters(attrs, counter_fds, counter_ids,
-                                                    batch->event_group_size);
+                                                    batch->ctr_grp_size);
 
     pin_thread();
 
@@ -222,7 +222,7 @@ int bench_perf_event(batch_t *batch, void (*workload)(void))
         read(counter_fds[0], &run_results[run_num], sizeof(run_result_t));
     }
 
-    for (int evt_idx = 0; evt_idx < batch->event_group_size; evt_idx++) {
+    for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++) {
         if (close(counter_fds[evt_idx]) == -1)
             exit(1);
     }

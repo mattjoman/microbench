@@ -31,16 +31,16 @@ static int cmp_double(const void *a, const void *b)
     return 0;
 }
 
-static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
+static ctr_agg_t aggregate_ctr(uint64_t batch_ctr_results[], int batch_runs)
 {
-    metric_agg_t agg;
+    ctr_agg_t agg;
     uint64_t array_cpy[MAX_BENCH_BATCH_SIZE];
 
-    memcpy(array_cpy, batch_metric_results, batch_runs * sizeof(uint64_t));
+    memcpy(array_cpy, batch_ctr_results, batch_runs * sizeof(uint64_t));
 
     qsort(array_cpy, batch_runs, sizeof(uint64_t), cmp_uint64);
 
-    memset(&agg, 0, sizeof(metric_agg_t));
+    memset(&agg, 0, sizeof(ctr_agg_t));
 
     agg.min = array_cpy[0];
     agg.max = array_cpy[batch_runs - 1];
@@ -49,7 +49,7 @@ static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
     return agg;
 }
 
-static ratio_agg_t ratio_agg(double ratios[], int batch_runs)
+static ratio_agg_t aggregate_ratio(double ratios[], int batch_runs)
 {
     ratio_agg_t agg;
     double array_cpy[MAX_BENCH_BATCH_SIZE];
@@ -76,35 +76,35 @@ static void calc_ratios(double results[], uint64_t numerators[],
     }
 }
 
-analysis_t run_analysis(batch_t *batch, event_group_t egroup)
+analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
 {
     analysis_t analysis;
-    metric_agg_t e_agg;
+    ctr_agg_t ctr_agg;
     ratio_agg_t r_agg;
 
-    for (int e = 0; e < MAX_EVENT_GROUP_SIZE; e++) {
+    for (int c = 0; c < MAX_CTR_GRP_SIZE; c++) {
 
-        int event_id = egroup.event_ids[e];
+        int ctr_id = ctr_grp.ctr_ids[c];
 
-        e_agg = metric_agg(batch->results[event_id], batch->batch_runs);
-        e_agg.event_id = event_id;
+        ctr_agg = aggregate_ctr(batch->results[ctr_id], batch->batch_runs);
+        ctr_agg.ctr_id = ctr_id;
 
-        analysis.event_aggs[e] = e_agg;
+        analysis.ctr_aggs[c] = ctr_agg;
     }
 
     double ratios[MAX_BENCH_BATCH_SIZE];
 
-    switch (egroup.id) {
-        case EVENT_GROUP_IPC:
-            calc_ratios(ratios, batch->results[METRIC_INSTRUCTIONS],
-                                batch->results[METRIC_CPU_CYCLES],
+    switch (ctr_grp.id) {
+        case CTR_GRP_IPC:
+            calc_ratios(ratios, batch->results[CTR_INSTRUCTIONS],
+                                batch->results[CTR_CPU_CYCLES],
                                 batch->batch_runs);
             break;
         default:
             break;
     }
 
-    r_agg = ratio_agg(ratios, batch->batch_runs);
+    r_agg = aggregate_ratio(ratios, batch->batch_runs);
 
     analysis.ratio_agg = r_agg;
 

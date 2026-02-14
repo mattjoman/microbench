@@ -9,12 +9,12 @@
 #include "../include/report.h"
 
 static batch_t batch_init(int warmup_runs, int batch_runs,
-                                           event_group_t event_group)
+                                           ctr_grp_t ctr_grp)
 {
     if (batch_runs < 1 || batch_runs > MAX_BENCH_BATCH_SIZE)
         abort();
 
-    if (event_group.size < 1 || event_group.size > MAX_EVENT_GROUP_SIZE)
+    if (ctr_grp.size < 1 || ctr_grp.size > MAX_CTR_GRP_SIZE)
         abort();
 
     batch_t batch;
@@ -22,27 +22,27 @@ static batch_t batch_init(int warmup_runs, int batch_runs,
 
     batch.warmup_runs = warmup_runs;
     batch.batch_runs = batch_runs;
-    batch.event_group_size = event_group.size;
+    batch.ctr_grp_size = ctr_grp.size;
 
-    memcpy(batch.event_group, event_group.event_ids,
-                              event_group.size * sizeof(int));
+    memcpy(batch.ctr_grp, ctr_grp.ctr_ids,
+                              ctr_grp.size * sizeof(int));
 
     return batch;
 }
 
-void run_experiment(int workload_id, int egroup_id)
+void run_experiment(int workload_id, int ctr_grp_id)
 {
     batch_t batch;
     workload_t workload;
-    event_group_t event_group;
+    ctr_grp_t ctr_grp;
     analysis_t analysis;
 
     int batch_runs = MAX_BENCH_BATCH_SIZE;
     int warmup_runs = 5;
 
-    event_group = *get_event_group(egroup_id);
+    ctr_grp = *get_ctr_grp(ctr_grp_id);
 
-    batch = batch_init(warmup_runs, batch_runs, event_group);
+    batch = batch_init(warmup_runs, batch_runs, ctr_grp);
 
     workload = *get_workload(workload_id);
 
@@ -50,7 +50,7 @@ void run_experiment(int workload_id, int egroup_id)
     bench_perf_event(&batch, workload.workload);
     workload.clean();
 
-    analysis = run_analysis(&batch, event_group);
+    analysis = run_analysis(&batch, ctr_grp);
 
-    run_report(event_group, analysis);
+    run_report(ctr_grp, analysis);
 }

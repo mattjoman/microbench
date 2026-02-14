@@ -4,6 +4,6 @@
 #include "./analysis.h"
 #include "./event.h"
 
-void run_report(event_group_t egroup, analysis_t analysis);
+void run_report(ctr_grp_t ctr_grp, analysis_t analysis);
 
 #endif

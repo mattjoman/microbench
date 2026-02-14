@@ -1,41 +1,39 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#define MAX_EVENT_GROUP_SIZE 3
+#define MAX_CTR_GRP_SIZE 3
 
-typedef struct event_group {
+typedef struct ctr_grp {
     int id;
     int size;
-    int event_ids[MAX_EVENT_GROUP_SIZE];
-} event_group_t;
+    int ctr_ids[MAX_CTR_GRP_SIZE];
+} ctr_grp_t;
 
 enum {
-    METRIC_CPU_CYCLES,
-    METRIC_REF_CPU_CYCLES,
-    METRIC_INSTRUCTIONS,
-    METRIC_CACHE_ACCESSES,
-    METRIC_CACHE_MISSES,
-    METRIC_L1_CACHE_MISSES,
-    METRIC_BRANCH_INSTRUCTIONS,
-    METRIC_BRANCH_MISPREDICTIONS,
-    METRIC_PAGE_FAULTS,
-    METRIC_CPU_CLOCK_NS,
-    METRIC_TASK_CLOCK_NS,
-    METRIC_ALIGNMENT_FAULTS,
-    NUMBER_OF_METRICS,
+    CTR_CPU_CYCLES,
+    CTR_REF_CPU_CYCLES,
+    CTR_INSTRUCTIONS,
+    CTR_CACHE_ACCESSES,
+    CTR_CACHE_MISSES,
+    CTR_L1_CACHE_MISSES,
+    CTR_BRANCH_INSTRUCTIONS,
+    CTR_BRANCH_MISPREDICTIONS,
+    CTR_PAGE_FAULTS,
+    CTR_CPU_CLOCK_NS,
+    CTR_TASK_CLOCK_NS,
+    CTR_ALIGNMENT_FAULTS,
+    NUMBER_OF_CTRS,
 };
 
-extern const char *metric_names[NUMBER_OF_METRICS];
+extern const char *metric_names[NUMBER_OF_CTRS];
 
 enum {
-    EVENT_GROUP_IPC,
-    //EVENT_GROUP_FEND_VS_BEND,
-    //EVENT_GROUP_BRANCH_EFFICIENCY,
-    NUMBER_OF_EVENT_GROUPS,
+    CTR_GRP_IPC,
+    NUMBER_OF_CTR_GRPS,
 };
 
-extern const char *event_group_names[NUMBER_OF_EVENT_GROUPS];
+extern const char *ctr_grp_names[NUMBER_OF_CTR_GRPS];
 
-const event_group_t *get_event_group(int event_group_id);
+const ctr_grp_t *get_ctr_grp(int ctr_grp_id);
 
 #endif

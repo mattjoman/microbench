@@ -4,12 +4,12 @@
 #include "./event.h"
 #include "./experiment.h"
 
-typedef struct metric_agg {
-    int event_id;
+typedef struct ctr_agg {
+    int ctr_id;
     uint64_t min;
     uint64_t max;
     uint64_t median;
-} metric_agg_t;
+} ctr_agg_t;
 
 typedef struct ratio_agg {
     double min;
@@ -18,10 +18,10 @@ typedef struct ratio_agg {
 } ratio_agg_t;
 
 typedef struct analysis {
-    metric_agg_t event_aggs[MAX_EVENT_GROUP_SIZE];
+    ctr_agg_t ctr_aggs[MAX_CTR_GRP_SIZE];
     ratio_agg_t ratio_agg;
 } analysis_t;
 
-analysis_t run_analysis(batch_t *batch, event_group_t egroup);
+analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp);
 
 #endif
