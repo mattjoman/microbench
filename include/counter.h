@@ -25,7 +25,7 @@ enum {
     NUMBER_OF_CTRS,
 };
 
-extern const char *metric_names[NUMBER_OF_CTRS];
+extern const char *counter_names[NUMBER_OF_CTRS];
 
 enum {
     CTR_GRP_IPC,

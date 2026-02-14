@@ -2,7 +2,7 @@
 
 #include "../include/counter.h"
 
-const char *metric_names[NUMBER_OF_CTRS] = {
+const char *counter_names[NUMBER_OF_CTRS] = {
     [CTR_CPU_CYCLES]            = "CTR_CPU_CYCLES",
     [CTR_REF_CPU_CYCLES]        = "CTR_REF_CPU_CYCLES",
     [CTR_INSTRUCTIONS]          = "CTR_INSTRUCTIONS",

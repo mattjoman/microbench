@@ -34,7 +34,7 @@ static int cmp_double(const void *a, const void *b)
 static ctr_agg_t aggregate_ctr(uint64_t batch_ctr_results[], int batch_runs)
 {
     ctr_agg_t agg;
-    uint64_t array_cpy[MAX_BENCH_BATCH_SIZE];
+    uint64_t array_cpy[MAX_BATCH_SIZE];
 
     memcpy(array_cpy, batch_ctr_results, batch_runs * sizeof(uint64_t));
 
@@ -52,7 +52,7 @@ static ctr_agg_t aggregate_ctr(uint64_t batch_ctr_results[], int batch_runs)
 static ratio_agg_t aggregate_ratio(double ratios[], int batch_runs)
 {
     ratio_agg_t agg;
-    double array_cpy[MAX_BENCH_BATCH_SIZE];
+    double array_cpy[MAX_BATCH_SIZE];
 
     memcpy(array_cpy, ratios, batch_runs * sizeof(double));
 
@@ -92,7 +92,7 @@ analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
         analysis.ctr_aggs[c] = ctr_agg;
     }
 
-    double ratios[MAX_BENCH_BATCH_SIZE];
+    double ratios[MAX_BATCH_SIZE];
 
     switch (ctr_grp.id) {
         case CTR_GRP_IPC:

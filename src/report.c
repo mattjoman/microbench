@@ -15,7 +15,7 @@ void run_report(ctr_grp_t ctr_grp, analysis_t analysis)
 
     for (int e = 0; e < MAX_CTR_GRP_SIZE; e++) {
         ctr_id = analysis.ctr_aggs[e].ctr_id;
-        printf("%s:\n", metric_names[ctr_id]);
+        printf("%s:\n", counter_names[ctr_id]);
         printf("Min:    %ld\n", analysis.ctr_aggs[e].min);
         printf("Median: %ld\n", analysis.ctr_aggs[e].median);
         printf("Max:    %ld\n\n", analysis.ctr_aggs[e].max);

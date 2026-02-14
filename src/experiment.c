@@ -11,7 +11,7 @@
 static batch_t batch_init(int warmup_runs, int batch_runs,
                                            ctr_grp_t ctr_grp)
 {
-    if (batch_runs < 1 || batch_runs > MAX_BENCH_BATCH_SIZE)
+    if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
         abort();
 
     if (ctr_grp.size < 1 || ctr_grp.size > MAX_CTR_GRP_SIZE)
@@ -37,7 +37,7 @@ void run_experiment(int workload_id, int ctr_grp_id)
     ctr_grp_t ctr_grp;
     analysis_t analysis;
 
-    int batch_runs = MAX_BENCH_BATCH_SIZE;
+    int batch_runs = MAX_BATCH_SIZE;
     int warmup_runs = 5;
 
     ctr_grp = *get_ctr_grp(ctr_grp_id);

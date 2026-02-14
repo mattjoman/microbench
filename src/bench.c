@@ -193,7 +193,7 @@ int bench_perf_event(batch_t *batch, void (*workload)(void))
     struct perf_event_attr attrs[MAX_CTR_GRP_SIZE];
     int counter_fds[MAX_CTR_GRP_SIZE];
     uint64_t counter_ids[MAX_CTR_GRP_SIZE];
-    run_result_t run_results[MAX_BENCH_BATCH_SIZE];
+    run_result_t run_results[MAX_BATCH_SIZE];
 
     for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++)
         attrs[evt_idx] = create_perf_config(batch->ctr_grp[evt_idx]);
