@@ -6,7 +6,7 @@ CFLAGS=-Iinclude -O0 -Wall -Wextra -std=gnu11 -g
 SRCS=src/main.c \
 		 src/bench.c \
 		 src/workload.c \
-		 src/experiment.c \
+		 src/batch.c \
 		 src/analysis.c \
 		 src/counter.c \
 		 src/report.c

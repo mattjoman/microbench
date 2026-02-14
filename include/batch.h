@@ -1,5 +1,5 @@
-#ifndef EXPERIMENT_H
-#define EXPERIMENT_H
+#ifndef BATCH_H
+#define BATCH_H
 
 #include <stdint.h>
 
@@ -15,6 +15,6 @@ typedef struct batch {
     uint64_t results[NUMBER_OF_COUNTERS][MAX_BATCH_SIZE];
 } batch_t;
 
-void run_experiment(int workload_id, int ctr_grp_id);
+void run_batch(int workload_id, int ctr_grp_id);
 
 #endif

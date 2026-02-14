@@ -1,7 +1,7 @@
 #ifndef BENCH_H
 #define BENCH_H
 
-#include "./experiment.h"
+#include "./batch.h"
 
 uint64_t bench_rdtscp(void (*test_func)(void));
 

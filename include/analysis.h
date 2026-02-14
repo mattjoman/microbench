@@ -2,7 +2,7 @@
 #define ANALYSIS_H
 
 #include "./counter.h"
-#include "./experiment.h"
+#include "./batch.h"
 
 typedef struct ctr_agg {
     int ctr_id;

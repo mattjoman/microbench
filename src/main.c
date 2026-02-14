@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include "../include/experiment.h"
+#include "../include/batch.h"
 #include "../include/workload.h"
 
 int main(int argc, char *argv[]) {
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    run_experiment(workload_id, ctr_grp_id);
+    run_batch(workload_id, ctr_grp_id);
 
     return 0;
 }

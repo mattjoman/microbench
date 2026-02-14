@@ -1,14 +1,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../include/experiment.h"
+#include "../include/batch.h"
 #include "../include/counter.h"
 #include "../include/bench.h"
 #include "../include/workload.h"
 #include "../include/analysis.h"
 #include "../include/report.h"
 
-static batch_t batch_init(int warmup_runs, int batch_runs,
+static batch_t init_batch(int warmup_runs, int batch_runs,
                                            ctr_grp_t ctr_grp)
 {
     if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
@@ -30,7 +30,7 @@ static batch_t batch_init(int warmup_runs, int batch_runs,
     return batch;
 }
 
-void run_experiment(int workload_id, int ctr_grp_id)
+void run_batch(int workload_id, int ctr_grp_id)
 {
     batch_t batch;
     workload_t workload;
@@ -42,7 +42,7 @@ void run_experiment(int workload_id, int ctr_grp_id)
 
     ctr_grp = *get_ctr_grp(ctr_grp_id);
 
-    batch = batch_init(warmup_runs, batch_runs, ctr_grp);
+    batch = init_batch(warmup_runs, batch_runs, ctr_grp);
 
     workload = *get_workload(workload_id);
 
