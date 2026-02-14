@@ -30,7 +30,7 @@ static int cmp_double(const void *a, const void *b)
     return 0;
 }
 
-static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs, int event_id)
+static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs)
 {
     metric_agg_t agg;
     uint64_t array_cpy[MAX_BENCH_BATCH_SIZE];
@@ -41,7 +41,6 @@ static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs, 
 
     memset(&agg, 0, sizeof(metric_agg_t));
 
-    agg.event_id = event_id;
     agg.min = array_cpy[0];
     agg.max = array_cpy[batch_runs - 1];
     agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
@@ -85,8 +84,9 @@ analysis_t run_analysis(batch_t *batch, event_group_t egroup)
     for (int e = 0; e < MAX_EVENT_GROUP_SIZE; e++) {
 
         int event_id = egroup.event_ids[e];
-        e_agg = metric_agg(batch->results[event_id], batch->batch_runs,
-                                                     event_id);
+
+        e_agg = metric_agg(batch->results[event_id], batch->batch_runs);
+        e_agg.event_id = event_id;
 
         analysis.event_aggs[e] = e_agg;
     }
