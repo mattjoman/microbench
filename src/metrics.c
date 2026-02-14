@@ -1,4 +1,6 @@
-#include "../include/include.h"
+#include <stdlib.h>
+
+#include "../include/event.h"
 
 const char *metric_names[NUMBER_OF_METRICS] = {
     [METRIC_CPU_CYCLES]            = "METRIC_CPU_CYCLES",

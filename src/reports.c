@@ -1,6 +1,8 @@
 #include <stdio.h>
 
-#include "../include/include.h"
+#include "../include/report.h"
+#include "../include/event.h"
+#include "../include/analysis.h"
 
 void run_report(event_group_t egroup, analysis_t analysis)
 {

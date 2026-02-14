@@ -1,6 +1,12 @@
 #include <string.h>
+#include <stdlib.h>
 
-#include "../include/include.h"
+#include "../include/experiment.h"
+#include "../include/event.h"
+#include "../include/bench.h"
+#include "../include/workload.h"
+#include "../include/analysis.h"
+#include "../include/report.h"
 
 static batch_t batch_init(int warmup_runs, int batch_runs,
                                            event_group_t event_group)

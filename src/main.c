@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include "../include/include.h"
+#include "../include/experiment.h"
+#include "../include/workload.h"
 
 int main(int argc, char *argv[]) {
 

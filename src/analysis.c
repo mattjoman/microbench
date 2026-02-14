@@ -1,6 +1,7 @@
 #include <string.h>
+#include <stdlib.h>
 
-#include "../include/include.h"
+#include "../include/analysis.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -109,38 +110,3 @@ analysis_t run_analysis(batch_t *batch, event_group_t egroup)
 
     return analysis;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

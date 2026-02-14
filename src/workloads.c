@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../include/include.h"
+#include "../include/workload.h"
 
 const char *workload_names[NUMBER_OF_WORKLOADS] = {
     [WL_CONTIGUOUS_ARRAY] = "WL_CONTIGUOUS_ARRAY",

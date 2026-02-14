@@ -9,7 +9,8 @@
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
 #include <string.h>
-#include "../include/include.h"
+
+#include "../include/bench.h"
 
 /* matches kernel abi */
 typedef struct run_result {
@@ -174,6 +175,10 @@ static void perf_store_results(batch_t *batch, run_result_t run_results[],
     }
 }
 
+/*
+ * This is just a placeholder for now.
+ * Might make this function usable at some point.
+ */
 uint64_t bench_rdtscp(void (*test_func)(void))
 {
     uint64_t start, end;
