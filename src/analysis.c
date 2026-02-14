@@ -82,7 +82,7 @@ analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
     ctr_agg_t ctr_agg;
     ratio_agg_t r_agg;
 
-    for (int c = 0; c < MAX_CTR_GRP_SIZE; c++) {
+    for (int c = 0; c < MAX_COUNTER_GRP_SIZE; c++) {
 
         int ctr_id = ctr_grp.ctr_ids[c];
 
@@ -95,9 +95,9 @@ analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
     double ratios[MAX_BATCH_SIZE];
 
     switch (ctr_grp.id) {
-        case CTR_GRP_IPC:
-            calc_ratios(ratios, batch->results[CTR_INSTRUCTIONS],
-                                batch->results[CTR_CPU_CYCLES],
+        case COUNTER_GRP_IPC:
+            calc_ratios(ratios, batch->results[COUNTER_INSTRUCTIONS],
+                                batch->results[COUNTER_CPU_CYCLES],
                                 batch->batch_runs);
             break;
         default:

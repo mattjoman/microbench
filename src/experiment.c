@@ -14,7 +14,7 @@ static batch_t batch_init(int warmup_runs, int batch_runs,
     if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
         abort();
 
-    if (ctr_grp.size < 1 || ctr_grp.size > MAX_CTR_GRP_SIZE)
+    if (ctr_grp.size < 1 || ctr_grp.size > MAX_COUNTER_GRP_SIZE)
         abort();
 
     batch_t batch;

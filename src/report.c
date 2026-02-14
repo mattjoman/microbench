@@ -9,11 +9,11 @@ void run_report(ctr_grp_t ctr_grp, analysis_t analysis)
     const char *ctr_grp_name;
     int ctr_id;
 
-    ctr_grp_name = ctr_grp_names[ctr_grp.id];
+    ctr_grp_name = counter_grp_names[ctr_grp.id];
 
     printf("\nCounter Group: %s\n\n", ctr_grp_name);
 
-    for (int e = 0; e < MAX_CTR_GRP_SIZE; e++) {
+    for (int e = 0; e < MAX_COUNTER_GRP_SIZE; e++) {
         ctr_id = analysis.ctr_aggs[e].ctr_id;
         printf("%s:\n", counter_names[ctr_id]);
         printf("Min:    %ld\n", analysis.ctr_aggs[e].min);

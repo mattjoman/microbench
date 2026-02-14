@@ -20,11 +20,11 @@ typedef struct run_result {
     struct {
         uint64_t value;
         uint64_t id;
-    } values[MAX_CTR_GRP_SIZE];
+    } values[MAX_COUNTER_GRP_SIZE];
 } run_result_t;
 
 typedef struct event_map {
-    int data[MAX_CTR_GRP_SIZE];
+    int data[MAX_COUNTER_GRP_SIZE];
 } event_map_t;
 
 static void pin_thread(void)
@@ -54,53 +54,53 @@ static struct perf_event_attr create_perf_config(int metric)
     memset(&pea, 0, sizeof(struct perf_event_attr));
 
     switch (metric) {
-        case CTR_CPU_CYCLES:
+        case COUNTER_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CPU_CYCLES;
             break;
-        case CTR_REF_CPU_CYCLES:
+        case COUNTER_REF_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_REF_CPU_CYCLES;
             break;
-        case CTR_INSTRUCTIONS:
+        case COUNTER_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
-        case CTR_CACHE_ACCESSES:
+        case COUNTER_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
             break;
-        case CTR_CACHE_MISSES:
+        case COUNTER_CACHE_MISSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_MISSES;
             break;
-        case CTR_L1_CACHE_MISSES:
+        case COUNTER_L1_CACHE_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
-        case CTR_BRANCH_INSTRUCTIONS:
+        case COUNTER_BRANCH_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
             break;
-        case CTR_BRANCH_MISPREDICTIONS:
+        case COUNTER_BRANCH_MISPREDICTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_MISSES;
             break;
-        case CTR_PAGE_FAULTS:
+        case COUNTER_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
             break;
-        case CTR_CPU_CLOCK_NS:
+        case COUNTER_CPU_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_CPU_CLOCK;
             break;
-        case CTR_TASK_CLOCK_NS:
+        case COUNTER_TASK_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_TASK_CLOCK;
             break;
-        case CTR_ALIGNMENT_FAULTS:
+        case COUNTER_ALIGNMENT_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_ALIGNMENT_FAULTS;
             break;
@@ -190,9 +190,9 @@ uint64_t bench_rdtscp(void (*test_func)(void))
 
 int bench_perf_event(batch_t *batch, void (*workload)(void))
 {
-    struct perf_event_attr attrs[MAX_CTR_GRP_SIZE];
-    int counter_fds[MAX_CTR_GRP_SIZE];
-    uint64_t counter_ids[MAX_CTR_GRP_SIZE];
+    struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
+    int counter_fds[MAX_COUNTER_GRP_SIZE];
+    uint64_t counter_ids[MAX_COUNTER_GRP_SIZE];
     run_result_t run_results[MAX_BATCH_SIZE];
 
     for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++)

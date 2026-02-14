@@ -18,7 +18,7 @@ typedef struct ratio_agg {
 } ratio_agg_t;
 
 typedef struct analysis {
-    ctr_agg_t ctr_aggs[MAX_CTR_GRP_SIZE];
+    ctr_agg_t ctr_aggs[MAX_COUNTER_GRP_SIZE];
     ratio_agg_t ratio_agg;
 } analysis_t;
 

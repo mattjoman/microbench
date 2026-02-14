@@ -2,37 +2,37 @@
 
 #include "../include/counter.h"
 
-const char *counter_names[NUMBER_OF_CTRS] = {
-    [CTR_CPU_CYCLES]            = "CTR_CPU_CYCLES",
-    [CTR_REF_CPU_CYCLES]        = "CTR_REF_CPU_CYCLES",
-    [CTR_INSTRUCTIONS]          = "CTR_INSTRUCTIONS",
-    [CTR_CACHE_ACCESSES]        = "CTR_CACHE_ACCESSES",
-    [CTR_CACHE_MISSES]          = "CTR_CACHE_MISSES",
-    [CTR_L1_CACHE_MISSES]       = "CTR_L1_CACHE_MISSES",
-    [CTR_BRANCH_INSTRUCTIONS]   = "CTR_BRANCH_INSTRUCTIONS",
-    [CTR_BRANCH_MISPREDICTIONS] = "CTR_BRANCH_MISPREDICTIONS",
-    [CTR_PAGE_FAULTS]           = "CTR_PAGE_FAULTS",
-    [CTR_CPU_CLOCK_NS]          = "CTR_CPU_CLOCK_NS",
-    [CTR_TASK_CLOCK_NS]         = "CTR_TASK_CLOCK_NS",
-    [CTR_ALIGNMENT_FAULTS]      = "CTR_ALIGNMENT_FAULTS",
+const char *counter_names[NUMBER_OF_COUNTERS] = {
+    [COUNTER_CPU_CYCLES]            = "COUNTER_CPU_CYCLES",
+    [COUNTER_REF_CPU_CYCLES]        = "COUNTER_REF_CPU_CYCLES",
+    [COUNTER_INSTRUCTIONS]          = "COUNTER_INSTRUCTIONS",
+    [COUNTER_CACHE_ACCESSES]        = "COUNTER_CACHE_ACCESSES",
+    [COUNTER_CACHE_MISSES]          = "COUNTER_CACHE_MISSES",
+    [COUNTER_L1_CACHE_MISSES]       = "COUNTER_L1_CACHE_MISSES",
+    [COUNTER_BRANCH_INSTRUCTIONS]   = "COUNTER_BRANCH_INSTRUCTIONS",
+    [COUNTER_BRANCH_MISPREDICTIONS] = "COUNTER_BRANCH_MISPREDICTIONS",
+    [COUNTER_PAGE_FAULTS]           = "COUNTER_PAGE_FAULTS",
+    [COUNTER_CPU_CLOCK_NS]          = "COUNTER_CPU_CLOCK_NS",
+    [COUNTER_TASK_CLOCK_NS]         = "COUNTER_TASK_CLOCK_NS",
+    [COUNTER_ALIGNMENT_FAULTS]      = "COUNTER_ALIGNMENT_FAULTS",
 };
 
-const char *ctr_grp_names[NUMBER_OF_CTR_GRPS] = {
-    [CTR_GRP_IPC]               = "CTR_GRP_IPC",
+const char *counter_grp_names[NUMBER_OF_COUNTER_GRPS] = {
+    [COUNTER_GRP_IPC]               = "COUNTER_GRP_IPC",
 };
 
 static const ctr_grp_t ctr_grp_ipc = {
-    .id = CTR_GRP_IPC,
-    .size = MAX_CTR_GRP_SIZE,
-    .ctr_ids[0] = CTR_CPU_CYCLES,
-    .ctr_ids[1] = CTR_REF_CPU_CYCLES,
-    .ctr_ids[2] = CTR_INSTRUCTIONS,
+    .id = COUNTER_GRP_IPC,
+    .size = MAX_COUNTER_GRP_SIZE,
+    .ctr_ids[0] = COUNTER_CPU_CYCLES,
+    .ctr_ids[1] = COUNTER_REF_CPU_CYCLES,
+    .ctr_ids[2] = COUNTER_INSTRUCTIONS,
 };
 
 const ctr_grp_t *get_ctr_grp(int ctr_grp_id)
 {
     switch (ctr_grp_id) {
-        case CTR_GRP_IPC:
+        case COUNTER_GRP_IPC:
             return &ctr_grp_ipc;
         default:
             break;

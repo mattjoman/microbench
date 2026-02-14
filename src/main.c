@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (ctr_grp_id < 0 || ctr_grp_id >= NUMBER_OF_CTR_GRPS) {
+    if (ctr_grp_id < 0 || ctr_grp_id >= NUMBER_OF_COUNTER_GRPS) {
         fprintf(stderr, "Invalid Counter Group: %d\n", ctr_grp_id);
         return 1;
     }
