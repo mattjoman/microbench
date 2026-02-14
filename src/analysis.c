@@ -2,44 +2,32 @@
 
 #include "../include/include.h"
 
-static void sort_swap(uint64_t *a, uint64_t *b)
+static int cmp_uint64(const void *a, const void *b)
 {
-    uint64_t tmp;
+    uint64_t x = *(const uint64_t *)a;
+    uint64_t y = *(const uint64_t *)b;
 
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
+    if (x < y)
+        return -1;
+
+    if (x > y)
+        return 1;
+
+    return 0;
 }
 
-static int sort_partition(uint64_t array[], int low, int high)
+static int cmp_double(const void *a, const void *b)
 {
-    uint64_t pivot;
-    int i, j;
+    double x = *(const double *)a;
+    double y = *(const double *)b;
 
-    i = low - 1;
-    pivot = array[high];
+    if (x < y)
+        return -1;
 
-    for (j = low; j < high; j++) {
-        if (array[j] <= pivot) {
-            i++;
-            sort_swap(&array[i], &array[j]);
-        }
-    }
+    if (x > y)
+        return 1;
 
-    sort_swap(&array[i + 1], &array[high]);
-
-    return i + 1;
-}
-
-static void sort(uint64_t array[], int low, int high)
-{
-    int p;
-
-    if (low < high) {
-        p = sort_partition(array, low, high);
-        sort(array, low, p - 1);
-        sort(array, p + 1, high);
-    }
+    return 0;
 }
 
 static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs, int event_id)
@@ -49,7 +37,7 @@ static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs, 
 
     memcpy(array_cpy, batch_metric_results, batch_runs * sizeof(uint64_t));
 
-    sort(array_cpy, 0, batch_runs - 1);
+    qsort(array_cpy, batch_runs, sizeof(uint64_t), cmp_uint64);
 
     memset(&agg, 0, sizeof(metric_agg_t));
 
@@ -57,55 +45,8 @@ static metric_agg_t metric_agg(uint64_t batch_metric_results[], int batch_runs, 
     agg.min = array_cpy[0];
     agg.max = array_cpy[batch_runs - 1];
     agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
-    //agg.median = array_cpy[batch_runs / 2]; // upper median
 
     return agg;
-}
-
-
-
-
-
-
-
-static void r_sort_swap(double *a, double *b)
-{
-    double tmp;
-
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
-static int r_sort_partition(double array[], int low, int high)
-{
-    double pivot;
-    int i, j;
-
-    i = low - 1;
-    pivot = array[high];
-
-    for (j = low; j < high; j++) {
-        if (array[j] <= pivot) {
-            i++;
-            r_sort_swap(&array[i], &array[j]);
-        }
-    }
-
-    r_sort_swap(&array[i + 1], &array[high]);
-
-    return i + 1;
-}
-
-static void r_sort(double array[], int low, int high)
-{
-    int p;
-
-    if (low < high) {
-        p = r_sort_partition(array, low, high);
-        r_sort(array, low, p - 1);
-        r_sort(array, p + 1, high);
-    }
 }
 
 static ratio_agg_t ratio_agg(double ratios[], int batch_runs)
@@ -115,21 +56,16 @@ static ratio_agg_t ratio_agg(double ratios[], int batch_runs)
 
     memcpy(array_cpy, ratios, batch_runs * sizeof(double));
 
-    r_sort(array_cpy, 0, batch_runs - 1);
+    qsort(array_cpy, batch_runs, sizeof(double), cmp_double);
 
     memset(&agg, 0, sizeof(ratio_agg_t));
+
     agg.min = array_cpy[0];
     agg.max = array_cpy[batch_runs - 1];
     agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
-    //agg.median = array_cpy[batch_runs / 2]; // upper median
 
     return agg;
 }
-
-
-
-
-
 
 static void calc_ratios(double results[], uint64_t numerators[],
                                    uint64_t denominators[],
