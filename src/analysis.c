@@ -84,7 +84,7 @@ analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
 
     for (int c = 0; c < MAX_COUNTER_GRP_SIZE; c++) {
 
-        int ctr_id = ctr_grp.ctr_ids[c];
+        int ctr_id = ctr_grp.counters[c].id;
 
         ctr_agg = aggregate_ctr(batch->results[ctr_id], batch->batch_runs);
         ctr_agg.ctr_id = ctr_id;

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "./counter.h"
+#include "./counter_group.h"
 
 #define MAX_BATCH_SIZE 100
 

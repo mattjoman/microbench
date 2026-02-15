@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../include/batch.h"
-#include "../include/counter.h"
+#include "../include/counter_group.h"
 #include "../include/bench.h"
 #include "../include/workload.h"
 #include "../include/analysis.h"
@@ -30,13 +30,13 @@ void run_batch(int workload_id, int ctr_grp_id)
 {
     batch_t batch;
     workload_t workload;
-    ctr_grp_t ctr_grp;
+    //ctr_grp_t ctr_grp;
     analysis_t analysis;
 
     int batch_runs = MAX_BATCH_SIZE;
     int warmup_runs = 5;
 
-    ctr_grp = *get_ctr_grp(ctr_grp_id);
+    ctr_grp_t ctr_grp = *get_ctr_grp(ctr_grp_id);
 
     batch = init_batch(warmup_runs, batch_runs, ctr_grp);
 

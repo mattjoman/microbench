@@ -171,7 +171,7 @@ static void perf_store_results(batch_t *batch, run_result_t run_results[],
             uint64_t value = run_results[run_idx].values[evt_idx].value;
             int batch_evt_idx = event_map.data[evt_idx];
 
-            batch->results[ctr_grp.ctr_ids[batch_evt_idx]][run_idx] = value;
+            batch->results[ctr_grp.counters[batch_evt_idx].id][run_idx] = value;
         }
     }
 }
@@ -197,7 +197,7 @@ int bench_perf_event(batch_t *batch, void (*workload)(void), ctr_grp_t ctr_grp)
     run_result_t run_results[MAX_BATCH_SIZE];
 
     for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++)
-        attrs[evt_idx] = create_perf_config(ctr_grp.ctr_ids[evt_idx]);
+        attrs[evt_idx] = create_perf_config(ctr_grp.counters[evt_idx].id);
 
     perf_open_counters(attrs, counter_fds, counter_ids,
                                                     ctr_grp.size);
