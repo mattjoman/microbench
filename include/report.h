@@ -4,6 +4,6 @@
 #include "./analysis.h"
 #include "./counter_group.h"
 
-void run_report(ctr_grp_t ctr_grp, analysis_t analysis);
+void run_report(counter_grp_t ctr_grp, analysis_t analysis);
 
 #endif

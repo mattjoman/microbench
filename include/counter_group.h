@@ -24,18 +24,18 @@ typedef struct counter {
     char name[64];
 } counter_t;
 
-typedef struct ctr_grp {
+typedef struct counter_grp {
     int id;
     char name[64];
     int size;
     const counter_t counters[MAX_COUNTER_GRP_SIZE];
-} ctr_grp_t;
+} counter_grp_t;
 
 enum {
     COUNTER_GRP_IPC,
     NUMBER_OF_COUNTER_GRPS,
 };
 
-const ctr_grp_t *get_ctr_grp(int ctr_grp_id);
+const counter_grp_t *get_counter_grp(int ctr_grp_id);
 
 #endif

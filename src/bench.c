@@ -159,7 +159,7 @@ static void perf_open_counters(struct perf_event_attr attrs[],
 
 static void perf_store_results(batch_t *batch, run_result_t run_results[],
                                                         uint64_t counter_ids[],
-                                                        ctr_grp_t ctr_grp)
+                                                        counter_grp_t ctr_grp)
 {
     event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
                                                     ctr_grp.size);
@@ -189,7 +189,8 @@ uint64_t bench_rdtscp(void (*test_func)(void))
     return end - start;
 }
 
-int bench_perf_event(batch_t *batch, void (*workload)(void), ctr_grp_t ctr_grp)
+int bench_perf_event(batch_t *batch, void (*workload)(void),
+                                     counter_grp_t ctr_grp)
 {
     struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
     int counter_fds[MAX_COUNTER_GRP_SIZE];

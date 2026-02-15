@@ -17,7 +17,7 @@ const counter_t counter_instructions = {
     .name = "COUNTER_INSTRUCTIONS",
 };
 
-static ctr_grp_t ctr_grp_ipc = {
+static counter_grp_t ctr_grp_ipc = {
     .id = COUNTER_GRP_IPC,
     .name = "COUNTER_GRP_IPC",
     .size = MAX_COUNTER_GRP_SIZE,
@@ -28,7 +28,7 @@ static ctr_grp_t ctr_grp_ipc = {
     },
 };
 
-const ctr_grp_t *get_ctr_grp(int ctr_grp_id)
+const counter_grp_t *get_counter_grp(int ctr_grp_id)
 {
     switch (ctr_grp_id) {
 

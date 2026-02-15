@@ -9,7 +9,7 @@
 #include "../include/report.h"
 
 static batch_t init_batch(int warmup_runs, int batch_runs,
-                                           ctr_grp_t ctr_grp)
+                                           counter_grp_t ctr_grp)
 {
     if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
         abort();
@@ -34,7 +34,7 @@ void run_batch(int workload_id, int ctr_grp_id)
     int batch_runs = MAX_BATCH_SIZE;
     int warmup_runs = 5;
 
-    ctr_grp_t ctr_grp = *get_ctr_grp(ctr_grp_id);
+    counter_grp_t ctr_grp = *get_counter_grp(ctr_grp_id);
     workload_t workload = *get_workload(workload_id);
 
     batch = init_batch(warmup_runs, batch_runs, ctr_grp);

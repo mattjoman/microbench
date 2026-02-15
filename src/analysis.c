@@ -31,16 +31,16 @@ static int cmp_double(const void *a, const void *b)
     return 0;
 }
 
-static ctr_agg_t aggregate_ctr(uint64_t batch_ctr_results[], int batch_runs)
+static counter_agg_t aggregate_ctr(uint64_t batch_ctr_results[], int batch_runs)
 {
-    ctr_agg_t agg;
+    counter_agg_t agg;
     uint64_t array_cpy[MAX_BATCH_SIZE];
 
     memcpy(array_cpy, batch_ctr_results, batch_runs * sizeof(uint64_t));
 
     qsort(array_cpy, batch_runs, sizeof(uint64_t), cmp_uint64);
 
-    memset(&agg, 0, sizeof(ctr_agg_t));
+    memset(&agg, 0, sizeof(counter_agg_t));
 
     agg.min = array_cpy[0];
     agg.max = array_cpy[batch_runs - 1];
@@ -76,18 +76,18 @@ static void calc_ratios(double results[], uint64_t numerators[],
     }
 }
 
-analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
+analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
 {
     analysis_t analysis;
-    ctr_agg_t ctr_agg;
-    ratio_agg_t r_agg;
+    counter_agg_t ctr_agg;
+    ratio_agg_t ratio_agg;
 
-    for (int c = 0; c < MAX_COUNTER_GRP_SIZE; c++) {
+    for (int c = 0; c < ctr_grp.size; c++) {
 
         int ctr_id = ctr_grp.counters[c].id;
 
         ctr_agg = aggregate_ctr(batch->results[ctr_id], batch->batch_runs);
-        ctr_agg.ctr_id = ctr_id;
+        ctr_agg.counter_id = ctr_id;
 
         analysis.ctr_aggs[c] = ctr_agg;
     }
@@ -104,9 +104,9 @@ analysis_t run_analysis(batch_t *batch, ctr_grp_t ctr_grp)
             break;
     }
 
-    r_agg = aggregate_ratio(ratios, batch->batch_runs);
+    ratio_agg = aggregate_ratio(ratios, batch->batch_runs);
 
-    analysis.ratio_agg = r_agg;
+    analysis.ratio_agg = ratio_agg;
 
     return analysis;
 }
