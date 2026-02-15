@@ -2,6 +2,7 @@
 #define BENCH_H
 
 #include "./batch.h"
+#include "./counter_group.h"
 
 uint64_t bench_rdtscp(void (*test_func)(void));
 

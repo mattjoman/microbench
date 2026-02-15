@@ -3,6 +3,7 @@
 #include <getopt.h>
 
 #include "../include/batch.h"
+#include "../include/counter_group.h"
 #include "../include/workload.h"
 
 int main(int argc, char *argv[]) {

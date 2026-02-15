@@ -1,7 +1,7 @@
 #ifndef ANALYSIS_H
 #define ANALYSIS_H
 
-#include "./counter.h"
+#include "./counter_group.h"
 #include "./batch.h"
 
 typedef struct ctr_agg {
