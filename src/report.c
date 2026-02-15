@@ -11,11 +11,11 @@ void run_report(counter_grp_t ctr_grp, analysis_t analysis)
     printf("\nCounter Group: %s\n\n", ctr_grp.name);
 
     for (int c = 0; c < ctr_grp.size; c++) {
-        ctr_id = analysis.ctr_aggs[c].counter_id;
+        ctr_id = analysis.counter_aggs[c].counter_id;
         printf("%s:\n", ctr_grp.counters[ctr_id].name);
-        printf("Min:    %ld\n", analysis.ctr_aggs[c].min);
-        printf("Median: %ld\n", analysis.ctr_aggs[c].median);
-        printf("Max:    %ld\n\n", analysis.ctr_aggs[c].max);
+        printf("Min:    %ld\n", analysis.counter_aggs[c].min);
+        printf("Median: %ld\n", analysis.counter_aggs[c].median);
+        printf("Max:    %ld\n\n", analysis.counter_aggs[c].max);
     }
 
     printf("RATIO:\n");

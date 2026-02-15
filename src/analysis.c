@@ -89,7 +89,7 @@ analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
         ctr_agg = aggregate_ctr(batch->results[ctr_id], batch->batch_runs);
         ctr_agg.counter_id = ctr_id;
 
-        analysis.ctr_aggs[c] = ctr_agg;
+        analysis.counter_aggs[c] = ctr_agg;
     }
 
     double ratios[MAX_BATCH_SIZE];
