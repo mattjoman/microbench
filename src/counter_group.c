@@ -17,6 +17,28 @@ const counter_t counter_instructions = {
     .name = "COUNTER_INSTRUCTIONS",
 };
 
+const counter_t *get_counter(int counter_id)
+{
+    switch (counter_id) {
+
+        case COUNTER_CPU_CYCLES:
+            return &counter_cpu_cycles;
+
+        case COUNTER_REF_CPU_CYCLES:
+            return &counter_ref_cpu_cycles;
+
+        case COUNTER_INSTRUCTIONS:
+            return &counter_instructions;
+
+        default:
+            break;
+    }
+
+    abort();
+
+    return NULL;
+}
+
 static counter_grp_t ctr_grp_ipc = {
     .id = COUNTER_GRP_IPC,
     .name = "COUNTER_GRP_IPC",
