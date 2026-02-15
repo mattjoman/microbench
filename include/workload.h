@@ -7,9 +7,9 @@ enum {
     NUMBER_OF_WORKLOADS,
 };
 
-extern const char *workload_names[NUMBER_OF_WORKLOADS];
-
 typedef struct workload {
+    int id;
+    char name[64];
     void (*init)(void);
     void (*clean)(void);
     void (*workload)(void);

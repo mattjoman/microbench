@@ -3,11 +3,6 @@
 
 #include "../include/workload.h"
 
-const char *workload_names[NUMBER_OF_WORKLOADS] = {
-    [WL_CONTIGUOUS_ARRAY] = "WL_CONTIGUOUS_ARRAY",
-    [WL_SCATTERED_ARRAY]  = "WL_SCATTERED_ARRAY",
-};
-
 //#define BIG_NUMBER_1 777777
 #define BIG_NUMBER_1 10000000
 
@@ -63,12 +58,16 @@ static void scattered_array_func(void)
 }
 
 static const workload_t wl_contiguous_array = {
+    .id = WL_CONTIGUOUS_ARRAY,
+    .name = "WL_CONTIGUOUS_ARRAY",
     .init = init_contiguous_array,
     .clean = clean_contiguous_array,
     .workload = contiguous_array_func,
 };
 
 static const workload_t wl_scattered_array = {
+    .id = WL_CONTIGUOUS_ARRAY,
+    .name = "WL_CONTIGUOUS_ARRAY",
     .init = init_scattered_array,
     .clean = clean_scattered_array,
     .workload = scattered_array_func,
@@ -77,10 +76,13 @@ static const workload_t wl_scattered_array = {
 const workload_t *get_workload(int workload_id)
 {
     switch (workload_id) {
+
         case WL_CONTIGUOUS_ARRAY:
             return &wl_contiguous_array;
+
         case WL_SCATTERED_ARRAY:
             return &wl_scattered_array;
+
         default:
             break;
     }
