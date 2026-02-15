@@ -158,19 +158,20 @@ static void perf_open_counters(struct perf_event_attr attrs[],
 }
 
 static void perf_store_results(batch_t *batch, run_result_t run_results[],
-                                                        uint64_t counter_ids[])
+                                                        uint64_t counter_ids[],
+                                                        ctr_grp_t ctr_grp)
 {
     event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
-                                                    batch->ctr_grp_size);
+                                                    ctr_grp.size);
 
     for (int run_idx = 0; run_idx < batch->batch_runs; run_idx++) {
 
-        for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++) {
+        for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++) {
 
             uint64_t value = run_results[run_idx].values[evt_idx].value;
             int batch_evt_idx = event_map.data[evt_idx];
 
-            batch->results[batch->ctr_grp[batch_evt_idx]][run_idx] = value;
+            batch->results[ctr_grp.ctr_ids[batch_evt_idx]][run_idx] = value;
         }
     }
 }
@@ -188,18 +189,18 @@ uint64_t bench_rdtscp(void (*test_func)(void))
     return end - start;
 }
 
-int bench_perf_event(batch_t *batch, void (*workload)(void))
+int bench_perf_event(batch_t *batch, void (*workload)(void), ctr_grp_t ctr_grp)
 {
     struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
     int counter_fds[MAX_COUNTER_GRP_SIZE];
     uint64_t counter_ids[MAX_COUNTER_GRP_SIZE];
     run_result_t run_results[MAX_BATCH_SIZE];
 
-    for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++)
-        attrs[evt_idx] = create_perf_config(batch->ctr_grp[evt_idx]);
+    for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++)
+        attrs[evt_idx] = create_perf_config(ctr_grp.ctr_ids[evt_idx]);
 
     perf_open_counters(attrs, counter_fds, counter_ids,
-                                                    batch->ctr_grp_size);
+                                                    ctr_grp.size);
 
     pin_thread();
 
@@ -222,12 +223,12 @@ int bench_perf_event(batch_t *batch, void (*workload)(void))
         read(counter_fds[0], &run_results[run_num], sizeof(run_result_t));
     }
 
-    for (int evt_idx = 0; evt_idx < batch->ctr_grp_size; evt_idx++) {
+    for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++) {
         if (close(counter_fds[evt_idx]) == -1)
             exit(1);
     }
 
-    perf_store_results(batch, run_results, counter_ids);
+    perf_store_results(batch, run_results, counter_ids, ctr_grp);
 
     return 0;
 }

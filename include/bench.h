@@ -5,6 +5,7 @@
 
 uint64_t bench_rdtscp(void (*test_func)(void));
 
-int bench_perf_event(batch_t *batch, void (*workload)(void));
+int bench_perf_event(batch_t *batch, void (*workload)(void),
+                                     ctr_grp_t ctr_grp);
 
 #endif

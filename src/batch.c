@@ -22,10 +22,6 @@ static batch_t init_batch(int warmup_runs, int batch_runs,
 
     batch.warmup_runs = warmup_runs;
     batch.batch_runs = batch_runs;
-    batch.ctr_grp_size = ctr_grp.size;
-
-    memcpy(batch.ctr_grp, ctr_grp.ctr_ids,
-                              ctr_grp.size * sizeof(int));
 
     return batch;
 }
@@ -47,7 +43,7 @@ void run_batch(int workload_id, int ctr_grp_id)
     workload = *get_workload(workload_id);
 
     workload.init();
-    bench_perf_event(&batch, workload.workload);
+    bench_perf_event(&batch, workload.workload, ctr_grp);
     workload.clean();
 
     analysis = run_analysis(&batch, ctr_grp);
