@@ -29,18 +29,15 @@ static batch_t init_batch(int warmup_runs, int batch_runs,
 void run_batch(int workload_id, int ctr_grp_id)
 {
     batch_t batch;
-    workload_t workload;
-    //ctr_grp_t ctr_grp;
     analysis_t analysis;
 
     int batch_runs = MAX_BATCH_SIZE;
     int warmup_runs = 5;
 
     ctr_grp_t ctr_grp = *get_ctr_grp(ctr_grp_id);
+    workload_t workload = *get_workload(workload_id);
 
     batch = init_batch(warmup_runs, batch_runs, ctr_grp);
-
-    workload = *get_workload(workload_id);
 
     workload.init();
     bench_perf_event(&batch, workload.workload, ctr_grp);
