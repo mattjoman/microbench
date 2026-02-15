@@ -27,8 +27,10 @@ $(OUT): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean
 clean:
+	rm -f $(OBJS)
+
+clear:
 	rm -f $(OBJS) $(OUT)
 
 .PHONY: all clean

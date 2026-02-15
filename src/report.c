@@ -13,7 +13,7 @@ void run_report(ctr_grp_t ctr_grp, analysis_t analysis)
 
     printf("\nCounter Group: %s\n\n", ctr_grp_name);
 
-    for (int e = 0; e < MAX_COUNTER_GRP_SIZE; e++) {
+    for (int e = 0; e < ctr_grp.size; e++) {
         ctr_id = analysis.ctr_aggs[e].ctr_id;
         printf("%s:\n", counter_names[ctr_id]);
         printf("Min:    %ld\n", analysis.ctr_aggs[e].min);
