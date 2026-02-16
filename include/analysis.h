@@ -35,8 +35,6 @@ typedef struct aggregate {
 } aggregate_t;
 
 typedef struct analysis {
-    //counter_agg_t counter_aggs[MAX_COUNTER_GRP_SIZE];
-    //ratio_agg_t ratio_agg;
     int n_aggs;
     aggregate_t aggregates[MAX_COUNTER_GRP_SIZE + MAX_RATIO_AGGS];
 } analysis_t;

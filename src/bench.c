@@ -12,21 +12,6 @@
 
 #include "../include/bench.h"
 
-/* matches kernel abi */
-typedef struct run_result {
-    uint64_t nr;
-    uint64_t time_enabled;
-    uint64_t time_running;
-    struct {
-        uint64_t value;
-        uint64_t id;
-    } values[MAX_COUNTER_GRP_SIZE];
-} run_result_t;
-
-typedef struct event_map {
-    int data[MAX_COUNTER_GRP_SIZE];
-} event_map_t;
-
 static void pin_thread(void)
 {
     cpu_set_t cpuset;
@@ -120,22 +105,7 @@ static struct perf_event_attr create_perf_config(int metric)
     return pea;
 }
 
-struct event_map calculate_event_map(run_result_t run_result,
-                                uint64_t counter_ids[], int event_group_size)
-{
-    event_map_t event_map;
-
-    for (int rr_idx = 0; rr_idx < event_group_size; rr_idx++) {
-        for (int cid_idx = 0; cid_idx < event_group_size; cid_idx++) {
-            if (run_result.values[rr_idx].id == counter_ids[cid_idx])
-                event_map.data[rr_idx] = cid_idx;
-        }
-    }
-
-    return event_map;
-}
-
-static void perf_open_counters(struct perf_event_attr attrs[],
+static void open_perf_counters(struct perf_event_attr attrs[],
         int counter_fds[], uint64_t counter_ids[], int event_group_size)
 {
     counter_fds[0] = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0);
@@ -157,21 +127,72 @@ static void perf_open_counters(struct perf_event_attr attrs[],
     }
 }
 
-static void perf_store_results(batch_t *batch, run_result_t run_results[],
-                                                        uint64_t counter_ids[],
-                                                        counter_grp_t ctr_grp)
+/* matches kernel abi */
+typedef struct perf_result {
+    uint64_t nr;
+    uint64_t time_enabled;
+    uint64_t time_running;
+    struct {
+        uint64_t value;
+        uint64_t id;
+    } values[MAX_COUNTER_GRP_SIZE];
+} perf_result_t;
+
+/*
+ * Maps the indices of perf_result.values
+ * to the indices of perf_ctr_ids.
+ *
+ * The indices of perf_ctr_ids directly
+ * correspond to the indices of ctr_grp.counters.
+ *
+ * Usage:
+ *      ctr_idx = event_map.data[perf_result_idx];
+ */
+typedef struct event_map {
+    int data[MAX_COUNTER_GRP_SIZE];
+} event_map_t;
+
+event_map_t calculate_event_map(perf_result_t perf_result,
+                                uint64_t perf_ctr_ids[], int ctr_grp_size)
 {
-    event_map_t event_map = calculate_event_map(run_results[0], counter_ids,
+    event_map_t event_map;
+
+    for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
+
+        for (int pci_idx = 0; pci_idx < ctr_grp_size; pci_idx++) {
+
+            uint64_t perf_counter_id = perf_result.values[pr_idx].id;
+
+            if (perf_counter_id == perf_ctr_ids[pci_idx]) {
+
+                event_map.data[pr_idx] = pci_idx;
+                break;
+            }
+        }
+    }
+
+    return event_map;
+}
+
+static void store_perf_results(batch_t *batch, perf_result_t perf_results[],
+                                               uint64_t perf_ctr_ids[],
+                                               counter_grp_t ctr_grp)
+{
+    event_map_t event_map = calculate_event_map(perf_results[0], perf_ctr_ids,
                                                     ctr_grp.size);
 
-    for (int run_idx = 0; run_idx < batch->batch_runs; run_idx++) {
+    for (int run = 0; run < batch->batch_runs; run++) {
 
-        for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++) {
+        perf_result_t perf_result = perf_results[run];
 
-            uint64_t value = run_results[run_idx].values[evt_idx].value;
-            int batch_evt_idx = event_map.data[evt_idx];
+        for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
 
-            batch->results[ctr_grp.counters[batch_evt_idx].id][run_idx] = value;
+            uint64_t value = perf_result.values[pr_idx].value;
+
+            int ctr_idx = event_map.data[pr_idx];
+            int counter_id = ctr_grp.counters[ctr_idx].id;
+
+            batch->results[counter_id][run] = value;
         }
     }
 }
@@ -193,25 +214,33 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
                                      counter_grp_t ctr_grp)
 {
     struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
-    int counter_fds[MAX_COUNTER_GRP_SIZE];
-    uint64_t counter_ids[MAX_COUNTER_GRP_SIZE];
-    run_result_t run_results[MAX_BATCH_SIZE];
+    int                    perf_ctr_fds[MAX_COUNTER_GRP_SIZE];
+    uint64_t               perf_ctr_ids[MAX_COUNTER_GRP_SIZE];
 
-    for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++)
-        attrs[evt_idx] = create_perf_config(ctr_grp.counters[evt_idx].id);
+    perf_result_t perf_results[MAX_BATCH_SIZE];
 
-    perf_open_counters(attrs, counter_fds, counter_ids,
-                                                    ctr_grp.size);
+    for (int i = 0; i < ctr_grp.size; i++) {
+
+        int counter_id = ctr_grp.counters[i].id;
+        attrs[i] = create_perf_config(counter_id);
+    }
+
+    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, ctr_grp.size);
 
     pin_thread();
 
-    for (int wu_num = 0; wu_num < batch->warmup_runs; wu_num++)
+    for (int i = 0; i < batch->warmup_runs; i++)
         workload();
 
-    for (int run_num = 0; run_num < batch->batch_runs; run_num++) {
+    /*
+     * This is the main benchmark loop.
+     * Keep it as clean and minimal as possible
+     * to reduce noise.
+     */
+    for (int run = 0; run < batch->batch_runs; run++) {
 
-        ioctl(counter_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
-        ioctl(counter_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
+        ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
+        ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
 
         asm volatile("" ::: "memory");
 
@@ -219,17 +248,17 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
 
         asm volatile("" ::: "memory");
 
-        ioctl(counter_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
+        ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
 
-        read(counter_fds[0], &run_results[run_num], sizeof(run_result_t));
+        read(perf_ctr_fds[0], &perf_results[run], sizeof(perf_result_t));
     }
 
-    for (int evt_idx = 0; evt_idx < ctr_grp.size; evt_idx++) {
-        if (close(counter_fds[evt_idx]) == -1)
+    for (int i = 0; i < ctr_grp.size; i++) {
+        if (close(perf_ctr_fds[i]) == -1)
             exit(1);
     }
 
-    perf_store_results(batch, run_results, counter_ids, ctr_grp);
+    store_perf_results(batch, perf_results, perf_ctr_ids, ctr_grp);
 
     return 0;
 }
