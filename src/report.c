@@ -18,19 +18,30 @@ static void print_table_cell_right_align(char *text)
     printf("%s", cell_buf);
 }
 
-static void print_table_row(counter_agg_t ctr_agg, char *row_name)
+static void print_table_row(aggregate_t agg)
 {
     char name_buf[MAX_NAME_LEN];
-    sprintf(name_buf, "%s", row_name);
-
     char min_buf[TABLE_COLUMN_WIDTH];
-    sprintf(min_buf, "%ld", ctr_agg.min);
-
     char max_buf[TABLE_COLUMN_WIDTH];
-    sprintf(max_buf, "%ld", ctr_agg.max);
-
     char median_buf[TABLE_COLUMN_WIDTH];
-    sprintf(median_buf, "%ld", ctr_agg.median);
+
+    if (agg.agg_type == AGG_TYPE_COUNTER) {
+
+        counter_t ctr = *get_counter(agg.agg_data.counter_agg.counter_id);
+
+        sprintf(name_buf, "%s", ctr.name);
+        sprintf(min_buf, "%ld", agg.agg_data.counter_agg.min);
+        sprintf(max_buf, "%ld", agg.agg_data.counter_agg.max);
+        sprintf(median_buf, "%ld", agg.agg_data.counter_agg.median);
+
+    } else {
+
+        sprintf(name_buf, "%s", "RATIO");
+        sprintf(min_buf, "%f", agg.agg_data.ratio_agg.min);
+        sprintf(max_buf, "%f", agg.agg_data.ratio_agg.max);
+        sprintf(median_buf, "%f", agg.agg_data.ratio_agg.median);
+
+    }
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);
@@ -50,13 +61,7 @@ void run_report(analysis_t analysis)
 
         agg = analysis.aggregates[agg_idx];
 
-        if (agg.agg_type == AGG_TYPE_RATIO)
-            continue;
-
-        counter_agg_t ctr_agg = analysis.aggregates[agg_idx].agg_data.counter_agg;
-        counter_t ctr = *get_counter(ctr_agg.counter_id);
-
-        print_table_row(ctr_agg, ctr.name);
+        print_table_row(agg);
     }
 
     printf("\n");
