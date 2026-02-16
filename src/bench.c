@@ -9,6 +9,7 @@
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <assert.h>
 
 #include "../include/bench.h"
 
@@ -138,59 +139,17 @@ typedef struct perf_result {
     } values[MAX_COUNTER_GRP_SIZE];
 } perf_result_t;
 
-/*
- * Maps the indices of perf_result.values
- * to the indices of perf_ctr_ids.
- *
- * The indices of perf_ctr_ids directly
- * correspond to the indices of ctr_grp.counters.
- *
- * Usage:
- *      ctr_idx = event_map.data[perf_result_idx];
- */
-typedef struct event_map {
-    int data[MAX_COUNTER_GRP_SIZE];
-} event_map_t;
-
-event_map_t calculate_event_map(perf_result_t perf_result,
-                                uint64_t perf_ctr_ids[], int ctr_grp_size)
-{
-    event_map_t event_map;
-
-    for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
-
-        for (int pci_idx = 0; pci_idx < ctr_grp_size; pci_idx++) {
-
-            uint64_t perf_counter_id = perf_result.values[pr_idx].id;
-
-            if (perf_counter_id == perf_ctr_ids[pci_idx]) {
-
-                event_map.data[pr_idx] = pci_idx;
-                break;
-            }
-        }
-    }
-
-    return event_map;
-}
-
 static void store_perf_results(batch_t *batch, perf_result_t perf_results[],
-                                               uint64_t perf_ctr_ids[],
                                                counter_grp_t ctr_grp)
 {
-    event_map_t event_map = calculate_event_map(perf_results[0], perf_ctr_ids,
-                                                    ctr_grp.size);
-
     for (int run = 0; run < batch->batch_runs; run++) {
 
         perf_result_t perf_result = perf_results[run];
 
         for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
 
+            int counter_id = ctr_grp.counters[pr_idx].id;
             uint64_t value = perf_result.values[pr_idx].value;
-
-            int ctr_idx = event_map.data[pr_idx];
-            int counter_id = ctr_grp.counters[ctr_idx].id;
 
             batch->results[counter_id][run] = value;
         }
@@ -258,7 +217,10 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
             exit(1);
     }
 
-    store_perf_results(batch, perf_results, perf_ctr_ids, ctr_grp);
+    for (int i = 0; i < ctr_grp.size; i++)
+        assert(perf_results[0].values[i].id == perf_ctr_ids[i]);
+
+    store_perf_results(batch, perf_results, ctr_grp);
 
     return 0;
 }
