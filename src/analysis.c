@@ -81,15 +81,22 @@ analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
     analysis_t analysis;
     counter_agg_t ctr_agg;
     ratio_agg_t ratio_agg;
+    aggregate_t agg;
+    int agg_idx;
 
-    for (int c = 0; c < ctr_grp.size; c++) {
+    for (agg_idx = 0; agg_idx < ctr_grp.size; agg_idx++) {
 
-        int ctr_id = ctr_grp.counters[c].id;
+        int ctr_id = ctr_grp.counters[agg_idx].id;
 
         ctr_agg = aggregate_ctr(batch->results[ctr_id], batch->batch_runs);
-        ctr_agg.counter_id = ctr_id;
 
-        analysis.counter_aggs[c] = ctr_agg;
+        agg.agg_type = AGG_TYPE_COUNTER;
+        agg.agg_data.counter_agg.counter_id = ctr_id;
+        agg.agg_data.counter_agg.min = ctr_agg.min;
+        agg.agg_data.counter_agg.max = ctr_agg.max;
+        agg.agg_data.counter_agg.median = ctr_agg.median;
+
+        analysis.aggregates[agg_idx] = agg;
     }
 
     double ratios[MAX_BATCH_SIZE];
@@ -106,7 +113,14 @@ analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
 
     ratio_agg = aggregate_ratio(ratios, batch->batch_runs);
 
-    analysis.ratio_agg = ratio_agg;
+    agg.agg_type = AGG_TYPE_RATIO;
+    agg.agg_data.ratio_agg.min = ratio_agg.min;
+    agg.agg_data.ratio_agg.max = ratio_agg.max;
+    agg.agg_data.ratio_agg.median = ratio_agg.median;
+
+    analysis.aggregates[agg_idx] = agg;
+
+    analysis.n_aggs = 4;
 
     return analysis;
 }

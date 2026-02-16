@@ -45,5 +45,5 @@ void run_batch(int workload_id, int ctr_grp_id)
 
     analysis = run_analysis(&batch, ctr_grp);
 
-    run_report(ctr_grp, analysis);
+    run_report(analysis);
 }

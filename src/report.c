@@ -40,29 +40,24 @@ static void print_table_row(counter_agg_t ctr_agg, char *row_name)
     printf("\n");
 }
 
-void run_report(counter_grp_t ctr_grp, analysis_t analysis)
+void run_report(analysis_t analysis)
 {
-    int ctr_id;
+    aggregate_t agg;
 
-    printf("\nCounter Group: %s\n\n", ctr_grp.name);
+    printf("\n");
 
-    for (int c = 0; c < ctr_grp.size; c++) {
-        ctr_id = analysis.counter_aggs[c].counter_id;
-        printf("%s:\n", ctr_grp.counters[ctr_id].name);
-        printf("Min:    %ld\n", analysis.counter_aggs[c].min);
-        printf("Median: %ld\n", analysis.counter_aggs[c].median);
-        printf("Max:    %ld\n\n", analysis.counter_aggs[c].max);
-    }
+    for (int agg_idx = 0; agg_idx < analysis.n_aggs; agg_idx++) {
 
-    printf("RATIO:\n");
-    printf("Min:    %f\n", analysis.ratio_agg.min);
-    printf("Median: %f\n", analysis.ratio_agg.median);
-    printf("Max:    %f\n\n", analysis.ratio_agg.max);
+        agg = analysis.aggregates[agg_idx];
 
-    for (int c = 0; c < ctr_grp.size; c++) {
-        counter_agg_t ctr_agg = analysis.counter_aggs[c];
+        if (agg.agg_type == AGG_TYPE_RATIO)
+            continue;
+
+        counter_agg_t ctr_agg = analysis.aggregates[agg_idx].agg_data.counter_agg;
         counter_t ctr = *get_counter(ctr_agg.counter_id);
+
         print_table_row(ctr_agg, ctr.name);
     }
+
     printf("\n");
 }
