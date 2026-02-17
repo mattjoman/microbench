@@ -31,40 +31,40 @@ static int cmp_double(const void *a, const void *b)
     return 0;
 }
 
-static counter_agg_t aggregate_ctr(uint64_t batch_ctr_results[], int batch_runs)
+static counter_metric_t build_ctr_metric(uint64_t batch_ctr_results[], int batch_runs)
 {
-    counter_agg_t agg;
+    counter_metric_t metric;
     uint64_t array_cpy[MAX_BATCH_SIZE];
 
     memcpy(array_cpy, batch_ctr_results, batch_runs * sizeof(uint64_t));
 
     qsort(array_cpy, batch_runs, sizeof(uint64_t), cmp_uint64);
 
-    memset(&agg, 0, sizeof(counter_agg_t));
+    memset(&metric, 0, sizeof(counter_metric_t));
 
-    agg.min = array_cpy[0];
-    agg.max = array_cpy[batch_runs - 1];
-    agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
+    metric.min = array_cpy[0];
+    metric.max = array_cpy[batch_runs - 1];
+    metric.median = array_cpy[(batch_runs - 1) / 2]; // lower median
 
-    return agg;
+    return metric;
 }
 
-static ratio_agg_t aggregate_ratio(double ratios[], int batch_runs)
+static ratio_metric_t build_ratio_metric(double ratios[], int batch_runs)
 {
-    ratio_agg_t agg;
+    ratio_metric_t metric;
     double array_cpy[MAX_BATCH_SIZE];
 
     memcpy(array_cpy, ratios, batch_runs * sizeof(double));
 
     qsort(array_cpy, batch_runs, sizeof(double), cmp_double);
 
-    memset(&agg, 0, sizeof(ratio_agg_t));
+    memset(&metric, 0, sizeof(ratio_metric_t));
 
-    agg.min = array_cpy[0];
-    agg.max = array_cpy[batch_runs - 1];
-    agg.median = array_cpy[(batch_runs - 1) / 2]; // lower median
+    metric.min = array_cpy[0];
+    metric.max = array_cpy[batch_runs - 1];
+    metric.median = array_cpy[(batch_runs - 1) / 2]; // lower median
 
-    return agg;
+    return metric;
 }
 
 static void calc_ratios(double results[], uint64_t numerators[],
@@ -79,24 +79,24 @@ static void calc_ratios(double results[], uint64_t numerators[],
 analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
 {
     analysis_t analysis;
-    counter_agg_t ctr_agg;
-    ratio_agg_t ratio_agg;
-    aggregate_t agg;
-    int agg_idx;
+    counter_metric_t ctr_metric;
+    ratio_metric_t ratio_metric;
+    metric_t metric;
+    int metric_idx;
 
-    for (agg_idx = 0; agg_idx < ctr_grp.size; agg_idx++) {
+    for (metric_idx = 0; metric_idx < ctr_grp.size; metric_idx++) {
 
-        int ctr_id = ctr_grp.counters[agg_idx].id;
+        int ctr_id = ctr_grp.counters[metric_idx].id;
 
-        ctr_agg = aggregate_ctr(batch->results[ctr_id], batch->batch_runs);
+        ctr_metric = build_ctr_metric(batch->results[ctr_id], batch->batch_runs);
 
-        agg.agg_type = AGG_TYPE_COUNTER;
-        agg.agg_data.counter_agg.counter_id = ctr_id;
-        agg.agg_data.counter_agg.min = ctr_agg.min;
-        agg.agg_data.counter_agg.max = ctr_agg.max;
-        agg.agg_data.counter_agg.median = ctr_agg.median;
+        metric.metric_type = METRIC_TYPE_COUNTER;
+        metric.metric.counter.counter_id = ctr_id;
+        metric.metric.counter.min = ctr_metric.min;
+        metric.metric.counter.max = ctr_metric.max;
+        metric.metric.counter.median = ctr_metric.median;
 
-        analysis.aggregates[agg_idx] = agg;
+        analysis.metrics[metric_idx] = metric;
     }
 
     double ratios[MAX_BATCH_SIZE];
@@ -111,16 +111,16 @@ analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
             break;
     }
 
-    ratio_agg = aggregate_ratio(ratios, batch->batch_runs);
+    ratio_metric = build_ratio_metric(ratios, batch->batch_runs);
 
-    agg.agg_type = AGG_TYPE_RATIO;
-    agg.agg_data.ratio_agg.min = ratio_agg.min;
-    agg.agg_data.ratio_agg.max = ratio_agg.max;
-    agg.agg_data.ratio_agg.median = ratio_agg.median;
+    metric.metric_type = METRIC_TYPE_RATIO;
+    metric.metric.ratio.min = ratio_metric.min;
+    metric.metric.ratio.max = ratio_metric.max;
+    metric.metric.ratio.median = ratio_metric.median;
 
-    analysis.aggregates[agg_idx] = agg;
+    analysis.metrics[metric_idx] = metric;
 
-    analysis.n_aggs = 4;
+    analysis.n_metrics = 4;
 
     return analysis;
 }

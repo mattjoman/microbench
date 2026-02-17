@@ -18,28 +18,28 @@ static void print_table_cell_right_align(char *text)
     printf("%s", cell_buf);
 }
 
-static void print_table_row(aggregate_t agg)
+static void print_table_row(metric_t metric)
 {
     char name_buf[MAX_NAME_LEN];
     char min_buf[TABLE_COLUMN_WIDTH];
     char max_buf[TABLE_COLUMN_WIDTH];
     char median_buf[TABLE_COLUMN_WIDTH];
 
-    if (agg.agg_type == AGG_TYPE_COUNTER) {
+    if (metric.metric_type == METRIC_TYPE_COUNTER) {
 
-        counter_t ctr = *get_counter(agg.agg_data.counter_agg.counter_id);
+        counter_t ctr = *get_counter(metric.metric.counter.counter_id);
 
         sprintf(name_buf, "%s", ctr.name);
-        sprintf(min_buf, "%ld", agg.agg_data.counter_agg.min);
-        sprintf(max_buf, "%ld", agg.agg_data.counter_agg.max);
-        sprintf(median_buf, "%ld", agg.agg_data.counter_agg.median);
+        sprintf(min_buf, "%ld", metric.metric.counter.min);
+        sprintf(max_buf, "%ld", metric.metric.counter.max);
+        sprintf(median_buf, "%ld", metric.metric.counter.median);
 
     } else {
 
         sprintf(name_buf, "%s", "RATIO");
-        sprintf(min_buf, "%f", agg.agg_data.ratio_agg.min);
-        sprintf(max_buf, "%f", agg.agg_data.ratio_agg.max);
-        sprintf(median_buf, "%f", agg.agg_data.ratio_agg.median);
+        sprintf(min_buf, "%f", metric.metric.ratio.min);
+        sprintf(max_buf, "%f", metric.metric.ratio.max);
+        sprintf(median_buf, "%f", metric.metric.ratio.median);
 
     }
 
@@ -53,15 +53,15 @@ static void print_table_row(aggregate_t agg)
 
 void run_report(analysis_t analysis)
 {
-    aggregate_t agg;
+    metric_t metric;
 
     printf("\n");
 
-    for (int agg_idx = 0; agg_idx < analysis.n_aggs; agg_idx++) {
+    for (int metric_idx = 0; metric_idx < analysis.n_metrics; metric_idx++) {
 
-        agg = analysis.aggregates[agg_idx];
+        metric = analysis.metrics[metric_idx];
 
-        print_table_row(agg);
+        print_table_row(metric);
     }
 
     printf("\n");

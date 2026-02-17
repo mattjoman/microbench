@@ -39,9 +39,15 @@ const counter_t *get_counter(int counter_id)
     return NULL;
 }
 
+static const char ctr_grp_ipc_description[] =
+"This counter group is used to\n"
+"calculate instructions per cycle (IPC).\n"
+"It includes the following counters:\n";
+
 static counter_grp_t ctr_grp_ipc = {
     .id = COUNTER_GRP_IPC,
     .name = "COUNTER_GRP_IPC",
+    .description = ctr_grp_ipc_description,
     .size = MAX_COUNTER_GRP_SIZE,
     .counters = {
         counter_cpu_cycles,

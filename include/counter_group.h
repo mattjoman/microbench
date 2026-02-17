@@ -29,6 +29,7 @@ typedef struct counter {
 typedef struct counter_grp {
     int id;
     char name[MAX_NAME_LEN];
+    const char *description;
     int size;
     const counter_t counters[MAX_COUNTER_GRP_SIZE];
 } counter_grp_t;
