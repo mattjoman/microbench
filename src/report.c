@@ -5,14 +5,18 @@
 #include "../include/counter_group.h"
 #include "../include/metric.h"
 
-#define TABLE_COLUMN_WIDTH 24
+#define TABLE_COLUMN_WIDTH 18
 
-static void print_table_cell_right_align(char *text)
+static void print_table_cell_right_align(const char *text)
 {
     int text_len = strlen(text);
-    char cell_buf[TABLE_COLUMN_WIDTH];
 
-    memset(cell_buf, ' ', sizeof(cell_buf));
+    if (text_len > TABLE_COLUMN_WIDTH)
+        text_len = TABLE_COLUMN_WIDTH;
+
+    char cell_buf[TABLE_COLUMN_WIDTH + 1] = { '\0' };
+
+    memset(cell_buf, ' ', sizeof(cell_buf) - 1);
     memcpy(&cell_buf[TABLE_COLUMN_WIDTH - text_len], text, text_len);
 
     printf("%s", cell_buf);
@@ -20,15 +24,15 @@ static void print_table_cell_right_align(char *text)
 
 static void print_counter_table_row(counter_metric_t metric)
 {
-    char name_buf[MAX_NAME_LEN];
-    char min_buf[TABLE_COLUMN_WIDTH];
-    char max_buf[TABLE_COLUMN_WIDTH];
-    char median_buf[TABLE_COLUMN_WIDTH];
+    char name_buf[32];
+    char min_buf[32];
+    char max_buf[32];
+    char median_buf[32];
 
-    sprintf(name_buf, "%s", metric.name);
-    sprintf(min_buf, "%ld", metric.min);
-    sprintf(max_buf, "%ld", metric.max);
-    sprintf(median_buf, "%ld", metric.median);
+    snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
+    snprintf(min_buf, sizeof(min_buf), "%ld", metric.min);
+    snprintf(max_buf, sizeof(max_buf), "%ld", metric.max);
+    snprintf(median_buf, sizeof(median_buf), "%ld", metric.median);
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);
@@ -40,15 +44,15 @@ static void print_counter_table_row(counter_metric_t metric)
 
 static void print_ratio_table_row(ratio_metric_t metric)
 {
-    char name_buf[MAX_NAME_LEN];
-    char min_buf[TABLE_COLUMN_WIDTH];
-    char max_buf[TABLE_COLUMN_WIDTH];
-    char median_buf[TABLE_COLUMN_WIDTH];
+    char name_buf[32];
+    char min_buf[32];
+    char max_buf[32];
+    char median_buf[32];
 
-    sprintf(name_buf, "%s", metric.name);
-    sprintf(min_buf, "%f", metric.min);
-    sprintf(max_buf, "%f", metric.max);
-    sprintf(median_buf, "%f", metric.median);
+    snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
+    snprintf(min_buf, sizeof(min_buf), "%.2f", metric.min);
+    snprintf(max_buf, sizeof(max_buf), "%.2f", metric.max);
+    snprintf(median_buf, sizeof(median_buf), "%.2f", metric.median);
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);
