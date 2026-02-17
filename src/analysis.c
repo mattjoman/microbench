@@ -3,6 +3,27 @@
 
 #include "../include/analysis.h"
 
+static const ratio_t ratio_ipc = {
+    .id = RATIO_IPC,
+    .name = "RATIO_IPC",
+};
+
+const ratio_t *get_ratio(int ratio_id)
+{
+    switch (ratio_id) {
+
+        case RATIO_IPC:
+            return &ratio_ipc;
+
+        default:
+            break;
+    }
+
+    abort();
+
+    return NULL;
+}
+
 static int cmp_uint64(const void *a, const void *b)
 {
     uint64_t x = *(const uint64_t *)a;
@@ -90,7 +111,7 @@ analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
 
         ctr_metric = build_ctr_metric(batch->results[ctr_id], batch->batch_runs);
 
-        metric.metric_type = METRIC_TYPE_COUNTER;
+        metric.type = METRIC_TYPE_COUNTER;
         metric.metric.counter.counter_id = ctr_id;
         metric.metric.counter.min = ctr_metric.min;
         metric.metric.counter.max = ctr_metric.max;
@@ -113,7 +134,7 @@ analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
 
     ratio_metric = build_ratio_metric(ratios, batch->batch_runs);
 
-    metric.metric_type = METRIC_TYPE_RATIO;
+    metric.type = METRIC_TYPE_RATIO;
     metric.metric.ratio.min = ratio_metric.min;
     metric.metric.ratio.max = ratio_metric.max;
     metric.metric.ratio.median = ratio_metric.median;

@@ -30,7 +30,7 @@ typedef enum {
 } metric_type_t;
 
 typedef struct metric {
-    metric_type_t metric_type;
+    metric_type_t type;
     metric_union_t metric;
 } metric_t;
 
@@ -38,6 +38,17 @@ typedef struct analysis {
     int n_metrics;
     metric_t metrics[MAX_COUNTER_GRP_SIZE + MAX_RATIO_METRICS];
 } analysis_t;
+
+enum {
+    RATIO_IPC,
+};
+
+typedef struct {
+    int id;
+    char name[MAX_NAME_LEN];
+} ratio_t;
+
+const ratio_t *get_ratio(int ratio_id);
 
 analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp);
 

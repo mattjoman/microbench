@@ -25,7 +25,7 @@ static void print_table_row(metric_t metric)
     char max_buf[TABLE_COLUMN_WIDTH];
     char median_buf[TABLE_COLUMN_WIDTH];
 
-    if (metric.metric_type == METRIC_TYPE_COUNTER) {
+    if (metric.type == METRIC_TYPE_COUNTER) {
 
         counter_t ctr = *get_counter(metric.metric.counter.counter_id);
 
