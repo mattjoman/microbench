@@ -2,7 +2,7 @@
 
 #include "../include/metric.h"
 #include "../include/counter_group.h"
-#include "../include/analysis.h"
+#include "../include/data_processing.h"
 
 /*
  * XXX: This would be unnecessary if I use the same

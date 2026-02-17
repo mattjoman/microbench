@@ -5,7 +5,7 @@
 #include "../include/counter_group.h"
 #include "../include/bench.h"
 #include "../include/workload.h"
-#include "../include/analysis.h"
+#include "../include/data_processing.h"
 #include "../include/report.h"
 
 static batch_t init_batch(int warmup_runs, int batch_runs,
