@@ -2,43 +2,6 @@
 
 #include "../include/counter_group.h"
 
-const counter_t counter_cpu_cycles = {
-    .id = COUNTER_CPU_CYCLES,
-    .name = "COUNTER_CPU_CYCLES",
-};
-
-const counter_t counter_ref_cpu_cycles = {
-    .id = COUNTER_REF_CPU_CYCLES,
-    .name = "COUNTER_REF_CPU_CYCLES",
-};
-
-const counter_t counter_instructions = {
-    .id = COUNTER_INSTRUCTIONS,
-    .name = "COUNTER_INSTRUCTIONS",
-};
-
-const counter_t *get_counter(int counter_id)
-{
-    switch (counter_id) {
-
-        case COUNTER_CPU_CYCLES:
-            return &counter_cpu_cycles;
-
-        case COUNTER_REF_CPU_CYCLES:
-            return &counter_ref_cpu_cycles;
-
-        case COUNTER_INSTRUCTIONS:
-            return &counter_instructions;
-
-        default:
-            break;
-    }
-
-    abort();
-
-    return NULL;
-}
-
 static const char ctr_grp_ipc_description[] =
 "This counter group is used to\n"
 "calculate instructions per cycle (IPC).\n"
@@ -49,10 +12,10 @@ static counter_grp_t ctr_grp_ipc = {
     .name = "COUNTER_GRP_IPC",
     .description = ctr_grp_ipc_description,
     .size = MAX_COUNTER_GRP_SIZE,
-    .counters = {
-        counter_cpu_cycles,
-        counter_ref_cpu_cycles,
-        counter_instructions,
+    .counter_ids = {
+        COUNTER_CPU_CYCLES,
+        COUNTER_REF_CPU_CYCLES,
+        COUNTER_INSTRUCTIONS,
     },
 };
 

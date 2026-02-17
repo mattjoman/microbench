@@ -21,25 +21,18 @@ enum {
     NUMBER_OF_COUNTERS,
 };
 
-typedef struct counter {
-    int id;
-    char name[MAX_NAME_LEN];
-} counter_t;
-
 typedef struct counter_grp {
     int id;
     char name[MAX_NAME_LEN];
     const char *description;
     int size;
-    const counter_t counters[MAX_COUNTER_GRP_SIZE];
+    int counter_ids[MAX_COUNTER_GRP_SIZE];
 } counter_grp_t;
 
 enum {
     COUNTER_GRP_IPC,
     NUMBER_OF_COUNTER_GRPS,
 };
-
-const counter_t *get_counter(int counter_id);
 
 const counter_grp_t *get_counter_grp(int ctr_grp_id);
 

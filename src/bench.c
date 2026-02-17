@@ -152,7 +152,7 @@ static void store_perf_results(batch_t *batch, perf_result_t perf_results[],
 
         for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
 
-            int counter_id = ctr_grp.counters[pr_idx].id;
+            int counter_id = ctr_grp.counter_ids[pr_idx];
             uint64_t value = perf_result.values[pr_idx].value;
 
             batch->results[counter_id][run] = value;
@@ -184,7 +184,7 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
 
     for (int i = 0; i < ctr_grp.size; i++) {
 
-        int counter_id = ctr_grp.counters[i].id;
+        int counter_id = ctr_grp.counter_ids[i];
 
         int is_leader = 0;
         if (i == 0)

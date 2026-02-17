@@ -48,7 +48,7 @@ batch_res_t init_batch_res(batch_t *batch, counter_grp_t ctr_grp)
 
     for (int i = 0; i < ctr_grp.size; i++) {
 
-        int counter_id = ctr_grp.counters[i].id;
+        int counter_id = ctr_grp.counter_ids[i];
 
         uint64_agg_t c_agg = aggregate_uint64(batch->results[counter_id], batch->batch_runs);
 
