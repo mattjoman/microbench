@@ -33,7 +33,7 @@ static uint64_t rdtscp()
     return ((uint64_t)hi << 32) | lo;
 }
 
-static struct perf_event_attr create_perf_config(int metric)
+static struct perf_event_attr create_perf_config(int metric, int is_leader)
 {
     struct perf_event_attr pea;
 
@@ -95,6 +95,8 @@ static struct perf_event_attr create_perf_config(int metric)
     }
     pea.size = sizeof(struct perf_event_attr);
     pea.disabled = 1;
+    if (is_leader)
+        pea.pinned = 1;
     pea.exclude_kernel = 1;
     pea.exclude_hv = 1;
     pea.exclude_idle = 1;
@@ -146,6 +148,8 @@ static void store_perf_results(batch_t *batch, perf_result_t perf_results[],
 
         perf_result_t perf_result = perf_results[run];
 
+        assert(perf_result.time_running == perf_result.time_enabled);
+
         for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
 
             int counter_id = ctr_grp.counters[pr_idx].id;
@@ -181,12 +185,17 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
     for (int i = 0; i < ctr_grp.size; i++) {
 
         int counter_id = ctr_grp.counters[i].id;
-        attrs[i] = create_perf_config(counter_id);
+
+        int is_leader = 0;
+        if (i == 0)
+            is_leader = 1;
+
+        attrs[i] = create_perf_config(counter_id, is_leader);
     }
 
-    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, ctr_grp.size);
-
     pin_thread();
+
+    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, ctr_grp.size);
 
     for (int i = 0; i < batch->warmup_runs; i++)
         workload();
@@ -209,7 +218,11 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
 
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
 
-        read(perf_ctr_fds[0], &perf_results[run], sizeof(perf_result_t));
+        ssize_t size = read(perf_ctr_fds[0], &perf_results[run],
+                                             sizeof(perf_result_t));
+
+        /* Check for corrupt read() data */
+        assert(size == sizeof(perf_result_t));
     }
 
     for (int i = 0; i < ctr_grp.size; i++) {
