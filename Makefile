@@ -9,6 +9,7 @@ SRCS=src/main.c \
 		 src/batch.c \
 		 src/analysis.c \
 		 src/counter_group.c \
+		 src/metric.c \
 		 src/report.c
 
 OBJS=$(SRCS:.c=.o)

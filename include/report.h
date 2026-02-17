@@ -1,9 +1,8 @@
 #ifndef REPORT_H
 #define REPORT_H
 
-#include "./analysis.h"
-#include "./counter_group.h"
+#include "./metric.h"
 
-void run_report(analysis_t analysis);
+void run_report(batch_res_t batch_res);
 
 #endif

@@ -4,52 +4,24 @@
 #include "./counter_group.h"
 #include "./batch.h"
 
-#define MAX_RATIO_METRICS 2
-
-typedef struct counter_metric {
-    int counter_id;
+typedef struct uint64_agg {
     uint64_t min;
     uint64_t max;
     uint64_t median;
-} counter_metric_t;
+} uint64_agg_t;
 
-typedef struct ratio_metric {
+typedef struct double_agg {
     double min;
     double max;
     double median;
-} ratio_metric_t;
+} double_agg_t;
 
-typedef union metric_union {
-    counter_metric_t counter;
-    ratio_metric_t ratio;
-} metric_union_t;
+uint64_agg_t aggregate_uint64(uint64_t array[], int size);
 
-typedef enum {
-    METRIC_TYPE_COUNTER,
-    METRIC_TYPE_RATIO,
-} metric_type_t;
+double_agg_t aggregate_double(double array[], int size);
 
-typedef struct metric {
-    metric_type_t type;
-    metric_union_t metric;
-} metric_t;
-
-typedef struct analysis {
-    int n_metrics;
-    metric_t metrics[MAX_COUNTER_GRP_SIZE + MAX_RATIO_METRICS];
-} analysis_t;
-
-enum {
-    RATIO_IPC,
-};
-
-typedef struct {
-    int id;
-    char name[MAX_NAME_LEN];
-} ratio_t;
-
-const ratio_t *get_ratio(int ratio_id);
-
-analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp);
+void calc_ratios(double results[], uint64_t numerators[],
+                                   uint64_t denominators[],
+                                   int size);
 
 #endif

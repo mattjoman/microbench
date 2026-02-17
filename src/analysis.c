@@ -2,27 +2,7 @@
 #include <stdlib.h>
 
 #include "../include/analysis.h"
-
-static const ratio_t ratio_ipc = {
-    .id = RATIO_IPC,
-    .name = "RATIO_IPC",
-};
-
-const ratio_t *get_ratio(int ratio_id)
-{
-    switch (ratio_id) {
-
-        case RATIO_IPC:
-            return &ratio_ipc;
-
-        default:
-            break;
-    }
-
-    abort();
-
-    return NULL;
-}
+#include "../include/metric.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -52,96 +32,47 @@ static int cmp_double(const void *a, const void *b)
     return 0;
 }
 
-static counter_metric_t build_ctr_metric(uint64_t batch_ctr_results[], int batch_runs)
+uint64_agg_t aggregate_uint64(uint64_t array[], int size)
 {
-    counter_metric_t metric;
+    uint64_agg_t agg;
     uint64_t array_cpy[MAX_BATCH_SIZE];
 
-    memcpy(array_cpy, batch_ctr_results, batch_runs * sizeof(uint64_t));
+    memcpy(array_cpy, array, size * sizeof(uint64_t));
 
-    qsort(array_cpy, batch_runs, sizeof(uint64_t), cmp_uint64);
+    qsort(array_cpy, size, sizeof(uint64_t), cmp_uint64);
 
-    memset(&metric, 0, sizeof(counter_metric_t));
+    memset(&agg, 0, sizeof(uint64_agg_t));
 
-    metric.min = array_cpy[0];
-    metric.max = array_cpy[batch_runs - 1];
-    metric.median = array_cpy[(batch_runs - 1) / 2]; // lower median
+    agg.min = array_cpy[0];
+    agg.max = array_cpy[size - 1];
+    agg.median = array_cpy[(size - 1) / 2]; // lower median
 
-    return metric;
+    return agg;
 }
 
-static ratio_metric_t build_ratio_metric(double ratios[], int batch_runs)
+double_agg_t aggregate_double(double array[], int size)
 {
-    ratio_metric_t metric;
+    double_agg_t agg;
     double array_cpy[MAX_BATCH_SIZE];
 
-    memcpy(array_cpy, ratios, batch_runs * sizeof(double));
+    memcpy(array_cpy, array, size * sizeof(double));
 
-    qsort(array_cpy, batch_runs, sizeof(double), cmp_double);
+    qsort(array_cpy, size, sizeof(double), cmp_double);
 
-    memset(&metric, 0, sizeof(ratio_metric_t));
+    memset(&agg, 0, sizeof(double_agg_t));
 
-    metric.min = array_cpy[0];
-    metric.max = array_cpy[batch_runs - 1];
-    metric.median = array_cpy[(batch_runs - 1) / 2]; // lower median
+    agg.min = array_cpy[0];
+    agg.max = array_cpy[size - 1];
+    agg.median = array_cpy[(size - 1) / 2]; // lower median
 
-    return metric;
+    return agg;
 }
 
-static void calc_ratios(double results[], uint64_t numerators[],
+void calc_ratios(double results[], uint64_t numerators[],
                                    uint64_t denominators[],
-                                   int batch_runs)
+                                   int size)
 {
-    for (int i = 0; i < batch_runs; i++) {
+    for (int i = 0; i < size; i++) {
         results[i] = numerators[i] / (1.0 * denominators[i]);
     }
-}
-
-analysis_t run_analysis(batch_t *batch, counter_grp_t ctr_grp)
-{
-    analysis_t analysis;
-    counter_metric_t ctr_metric;
-    ratio_metric_t ratio_metric;
-    metric_t metric;
-    int metric_idx;
-
-    for (metric_idx = 0; metric_idx < ctr_grp.size; metric_idx++) {
-
-        int ctr_id = ctr_grp.counters[metric_idx].id;
-
-        ctr_metric = build_ctr_metric(batch->results[ctr_id], batch->batch_runs);
-
-        metric.type = METRIC_TYPE_COUNTER;
-        metric.metric.counter.counter_id = ctr_id;
-        metric.metric.counter.min = ctr_metric.min;
-        metric.metric.counter.max = ctr_metric.max;
-        metric.metric.counter.median = ctr_metric.median;
-
-        analysis.metrics[metric_idx] = metric;
-    }
-
-    double ratios[MAX_BATCH_SIZE];
-
-    switch (ctr_grp.id) {
-        case COUNTER_GRP_IPC:
-            calc_ratios(ratios, batch->results[COUNTER_INSTRUCTIONS],
-                                batch->results[COUNTER_CPU_CYCLES],
-                                batch->batch_runs);
-            break;
-        default:
-            break;
-    }
-
-    ratio_metric = build_ratio_metric(ratios, batch->batch_runs);
-
-    metric.type = METRIC_TYPE_RATIO;
-    metric.metric.ratio.min = ratio_metric.min;
-    metric.metric.ratio.max = ratio_metric.max;
-    metric.metric.ratio.median = ratio_metric.median;
-
-    analysis.metrics[metric_idx] = metric;
-
-    analysis.n_metrics = 4;
-
-    return analysis;
 }

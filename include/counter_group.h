@@ -1,6 +1,8 @@
 #ifndef COUNTER_GROUP_H
 #define COUNTER_GROUP_H
 
+#include "./microbench.h"
+
 #define MAX_COUNTER_GRP_SIZE 3
 
 enum {
@@ -18,8 +20,6 @@ enum {
     COUNTER_ALIGNMENT_FAULTS,
     NUMBER_OF_COUNTERS,
 };
-
-#define MAX_NAME_LEN 24
 
 typedef struct counter {
     int id;

@@ -3,9 +3,8 @@
 
 #include <stdint.h>
 
+#include "./microbench.h"
 #include "./counter_group.h"
-
-#define MAX_BATCH_SIZE 100
 
 typedef struct batch {
     int warmup_runs;
