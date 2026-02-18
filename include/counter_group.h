@@ -23,8 +23,6 @@ enum {
 
 typedef struct counter_grp {
     int id;
-    char name[MAX_NAME_LEN];
-    const char *description;
     int size;
     int counter_ids[MAX_COUNTER_GRP_SIZE];
 } counter_grp_t;
