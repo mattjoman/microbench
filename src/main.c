@@ -7,12 +7,29 @@
 #include "../include/counter_group.h"
 #include "../include/workload.h"
 
+static const char help_text[] =
+"Usage: microbench [OPTIONS]\n"
+"\n"
+"Options:\n"
+"  -h, --help                       Display this message\n"
+"  -w, --workload WORKLOAD          Select workload to benchmark\n"
+"  -c, --counter-group GROUP        Select a group of metrics to record\n"
+"\n"
+"Workloads:\n"
+"  contiguous-array                 Process a contiguous in array\n"
+"  scattered-array                  Process an array of heap in pointers\n"
+"\n"
+"Counter groups:\n"
+"  ipc                              Record cycles & instructions to get ipc\n"
+"";
+
 int main(int argc, char *argv[]) {
 
     char *workload_str = NULL;
     char *ctr_grp_str  = NULL;
 
     static struct option long_opts[] = {
+        {"help",    required_argument, 0, 'h'},
         {"workload",    required_argument, 0, 'w'},
         {"ctr-grp", required_argument, 0, 'c'},
         {0, 0, 0, 0}
@@ -20,15 +37,16 @@ int main(int argc, char *argv[]) {
 
     int opt;
 
-    while ((opt = getopt_long(argc, argv, "w:c:", long_opts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "w:c:h", long_opts, NULL)) != -1) {
         switch (opt) {
+            case 'h':
+                fputs(help_text, stdout);
+                return 0;
             case 'w':
-                //workload_id = atoi(optarg);
                 workload_str = optarg;
                 break;
             case 'c':
                 ctr_grp_str = optarg;
-                //ctr_grp_id = atoi(optarg);
                 break;
             default:
                 fprintf(stderr, "Usage 1\n");
