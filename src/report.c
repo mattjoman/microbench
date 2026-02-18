@@ -62,11 +62,27 @@ static void print_ratio_table_row(ratio_metric_t metric)
     printf("\n");
 }
 
+static void print_table_column_headers()
+{
+    print_table_cell_right_align("Metric");
+    print_table_cell_right_align("Min");
+    print_table_cell_right_align("Max");
+    print_table_cell_right_align("Median");
+    printf("\n");
+
+    for (int i = 0; i < TABLE_COLUMN_WIDTH * 4; i++) {
+        putchar('=');
+    }
+    putchar('\n');
+}
+
 void run_report(batch_res_t batch_res)
 {
     counter_metric_t ctr_metric;
 
     printf("\n");
+
+    print_table_column_headers();
 
     for (int i = 0; i < batch_res.n_ctr_metrics; i++) {
 
