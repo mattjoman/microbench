@@ -1,7 +1,6 @@
 #ifndef ANALYSIS_H
 #define ANALYSIS_H
 
-#include "./counter_group.h"
 #include "./batch.h"
 
 typedef struct uint64_agg {

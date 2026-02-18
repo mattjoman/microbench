@@ -40,53 +40,53 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
     memset(&pea, 0, sizeof(struct perf_event_attr));
 
     switch (metric) {
-        case COUNTER_CPU_CYCLES:
+        case METRIC_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CPU_CYCLES;
             break;
-        case COUNTER_REF_CPU_CYCLES:
+        case METRIC_REF_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_REF_CPU_CYCLES;
             break;
-        case COUNTER_INSTRUCTIONS:
+        case METRIC_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
-        case COUNTER_CACHE_ACCESSES:
+        case METRIC_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
             break;
-        case COUNTER_CACHE_MISSES:
+        case METRIC_CACHE_MISSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_MISSES;
             break;
-        case COUNTER_L1_CACHE_MISSES:
+        case METRIC_L1_CACHE_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
-        case COUNTER_BRANCH_INSTRUCTIONS:
+        case METRIC_BRANCH_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
             break;
-        case COUNTER_BRANCH_MISPREDICTIONS:
+        case METRIC_BRANCH_MISPREDICTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_MISSES;
             break;
-        case COUNTER_PAGE_FAULTS:
+        case METRIC_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
             break;
-        case COUNTER_CPU_CLOCK_NS:
+        case METRIC_CPU_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_CPU_CLOCK;
             break;
-        case COUNTER_TASK_CLOCK_NS:
+        case METRIC_TASK_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_TASK_CLOCK;
             break;
-        case COUNTER_ALIGNMENT_FAULTS:
+        case METRIC_ALIGNMENT_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_ALIGNMENT_FAULTS;
             break;
@@ -141,21 +141,17 @@ typedef struct perf_result {
     } values[MAX_COUNTER_GRP_SIZE];
 } perf_result_t;
 
-static void store_perf_results(batch_t *batch, perf_result_t perf_results[],
-                                               counter_grp_t ctr_grp)
+static void store_perf_results(batch_metrics_t *batch_metrics, perf_result_t perf_results[])
 {
-    for (int run = 0; run < batch->batch_runs; run++) {
+    for (int run = 0; run < batch_metrics->batch_runs; run++) {
 
         perf_result_t perf_result = perf_results[run];
-
         assert(perf_result.time_running == perf_result.time_enabled);
 
         for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
 
-            int counter_id = ctr_grp.counter_ids[pr_idx];
             uint64_t value = perf_result.values[pr_idx].value;
-
-            batch->results[counter_id][run] = value;
+            batch_metrics->counters[pr_idx].raw[run] = value;
         }
     }
 }
@@ -173,8 +169,7 @@ uint64_t bench_rdtscp(void (*test_func)(void))
     return end - start;
 }
 
-int bench_perf_event(batch_t *batch, void (*workload)(void),
-                                     counter_grp_t ctr_grp)
+int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void))
 {
     struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
     int                    perf_ctr_fds[MAX_COUNTER_GRP_SIZE];
@@ -182,9 +177,9 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
 
     perf_result_t perf_results[MAX_BATCH_SIZE];
 
-    for (int i = 0; i < ctr_grp.size; i++) {
+    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++) {
 
-        int counter_id = ctr_grp.counter_ids[i];
+        int counter_id = batch_metrics->counters[i].id;
 
         int is_leader = 0;
         if (i == 0)
@@ -195,9 +190,9 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
 
     pin_thread();
 
-    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, ctr_grp.size);
+    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, batch_metrics->metric_grp.n_counters);
 
-    for (int i = 0; i < batch->warmup_runs; i++)
+    for (int i = 0; i < batch_metrics->warmup_runs; i++)
         workload();
 
     /*
@@ -205,7 +200,7 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
      * Keep it as clean and minimal as possible
      * to reduce noise.
      */
-    for (int run = 0; run < batch->batch_runs; run++) {
+    for (int run = 0; run < batch_metrics->batch_runs; run++) {
 
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
@@ -225,15 +220,15 @@ int bench_perf_event(batch_t *batch, void (*workload)(void),
         assert(size == sizeof(perf_result_t));
     }
 
-    for (int i = 0; i < ctr_grp.size; i++) {
+    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++) {
         if (close(perf_ctr_fds[i]) == -1)
             exit(1);
     }
 
-    for (int i = 0; i < ctr_grp.size; i++)
+    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++)
         assert(perf_results[0].values[i].id == perf_ctr_ids[i]);
 
-    store_perf_results(batch, perf_results, ctr_grp);
+    store_perf_results(batch_metrics, perf_results);
 
     return 0;
 }

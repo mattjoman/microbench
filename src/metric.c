@@ -1,84 +1,94 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "../include/metric.h"
-#include "../include/counter_group.h"
 #include "../include/data_processing.h"
 
-/*
- * XXX: This would be unnecessary if I use the same
- * enum for metrics as for counters (the counter IDs
- * are a subset of the metric IDs).
- */
-static counter_metric_t init_counter_metric(int counter_id)
+static metric_grp_t get_metric_grp(metric_grp_id_t id)
 {
-    counter_metric_t metric;
-    memset(&metric, 0, sizeof(counter_metric_t));
+    switch (id) {
 
-    switch (counter_id) {
-
-        case COUNTER_CPU_CYCLES:
-            metric.id = METRIC_CPU_CYCLES;
-            strcpy(metric.name, "CPU_CYCLES");
-            break;
-
-        case COUNTER_REF_CPU_CYCLES:
-            metric.id = METRIC_REF_CPU_CYCLES;
-            strcpy(metric.name, "REF_CPU_CYCLES");
-            break;
-
-        case COUNTER_INSTRUCTIONS:
-            metric.id = METRIC_INSTRUCTIONS;
-            strcpy(metric.name, "INSTRUCTIONS");
-            break;
+        case METRIC_GRP_IPC:
+            metric_grp_t metric_grp = {
+                .id = METRIC_GRP_IPC,
+                .n_counters = 3,
+                .n_ratios = 1,
+                .counter_ids = {
+                    METRIC_CPU_CYCLES,
+                    METRIC_REF_CPU_CYCLES,
+                    METRIC_INSTRUCTIONS,
+                },
+                .ratio_ids = {
+                    METRIC_INSTRUCTIONS_PER_CYCLE,
+                },
+            };
+            return metric_grp;
 
         default:
-            break;
+            const metric_grp_t null_grp = { 0 };
+            return null_grp;
     }
-
-    return metric;
 }
 
-batch_metrics_t init_batch_metrics(batch_t *batch, counter_grp_t ctr_grp)
+batch_metrics_t init_batch_metrics(int warmup_runs, int batch_runs, metric_grp_id_t id)
 {
+    metric_grp_t metric_grp = get_metric_grp(id);
+
+    if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
+        abort();
+
+    if (metric_grp.n_counters < 1 || metric_grp.n_counters > MAX_COUNTER_GRP_SIZE)
+        abort();
+
     batch_metrics_t batch_metrics;
 
-    batch_metrics.runs = batch->batch_runs;
-    batch_metrics.n_ctr_metrics = ctr_grp.size;
-    batch_metrics.n_ratio_metrics = 1;
+    batch_metrics.metric_grp = metric_grp;
+    batch_metrics.warmup_runs = warmup_runs;
+    batch_metrics.batch_runs = batch_runs;
 
-    for (int i = 0; i < ctr_grp.size; i++) {
+    for (int i = 0; i < metric_grp.n_counters; i++) {
 
-        int counter_id = ctr_grp.counter_ids[i];
+        counter_metric_t counter;
+        counter.id = metric_grp.counter_ids[i];
 
-        uint64_agg_t c_agg = aggregate_uint64(batch->results[counter_id], batch->batch_runs);
-
-        counter_metric_t ctr_metric = init_counter_metric(counter_id);
-
-        ctr_metric.min = c_agg.min;
-        ctr_metric.max = c_agg.max;
-        ctr_metric.median = c_agg.median;
-
-        memcpy(ctr_metric.raw, batch->results[counter_id], batch->batch_runs * sizeof(uint64_t));
-
-        batch_metrics.ctr_metrics[i] = ctr_metric;
+        batch_metrics.counters[i] = counter;
     }
 
-    ratio_metric_t ratio_metric;
+    for (int i = 0; i < metric_grp.n_ratios; i++) {
 
-    ratio_metric.id = METRIC_INSTRUCTIONS_PER_CYCLE;
-    strcpy(ratio_metric.name, "IPC");
+        ratio_metric_t ratio;
+        ratio.id = metric_grp.ratio_ids[i];
 
-    calc_ratios(ratio_metric.raw, batch->results[COUNTER_INSTRUCTIONS],
-                                  batch->results[COUNTER_CPU_CYCLES],
-                                  batch->batch_runs);
-
-    double_agg_t r_agg = aggregate_double(ratio_metric.raw, batch->batch_runs);
-
-    ratio_metric.min = r_agg.min;
-    ratio_metric.max = r_agg.max;
-    ratio_metric.median = r_agg.median;
-
-    batch_metrics.ratio_metrics[0] = ratio_metric;
+        batch_metrics.ratios[i] = ratio;
+    }
 
     return batch_metrics;
+}
+
+void process_batch_metrics(batch_metrics_t *batch_metrics)
+{
+    int batch_runs = batch_metrics->batch_runs;
+
+    metric_id_t id_map[NUMBER_OF_METRICS];
+
+    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++) {
+
+        uint64_agg_t c_agg = aggregate_uint64(batch_metrics->counters[i].raw, batch_runs);
+
+        batch_metrics->counters[i].min = c_agg.min;
+        batch_metrics->counters[i].max = c_agg.max;
+        batch_metrics->counters[i].median = c_agg.median;
+
+        id_map[batch_metrics->counters[i].id] = i;
+    }
+
+    calc_ratios(batch_metrics->ratios[0].raw, batch_metrics->counters[id_map[METRIC_INSTRUCTIONS]].raw,
+                                              batch_metrics->counters[id_map[METRIC_CPU_CYCLES]].raw,
+                                              batch_runs);
+
+    double_agg_t r_agg = aggregate_double(batch_metrics->ratios[0].raw, batch_runs);
+
+    batch_metrics->ratios[0].min = r_agg.min;
+    batch_metrics->ratios[0].max = r_agg.max;
+    batch_metrics->ratios[0].median = r_agg.median;
 }

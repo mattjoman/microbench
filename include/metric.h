@@ -5,7 +5,7 @@
 
 #define MAX_RATIO_METRICS 1
 
-enum {
+typedef enum {
 
     /* counter metrics */
 
@@ -25,10 +25,19 @@ enum {
     /* metrics */
 
     METRIC_INSTRUCTIONS_PER_CYCLE,
-};
+
+    NUMBER_OF_METRICS,
+
+} metric_id_t;
+
+typedef enum {
+    METRIC_GRP_IPC,
+    NUMBER_OF_METRIC_GRPS,
+} metric_grp_id_t;
 
 typedef struct counter_metric {
     int id;
+    /* XXX: make this a char * */
     char name[MAX_NAME_LEN];
     uint64_t min;
     uint64_t max;
@@ -38,6 +47,7 @@ typedef struct counter_metric {
 
 typedef struct ratio_metric {
     int id;
+    /* XXX: make this a char * */
     char name[MAX_NAME_LEN];
     double min;
     double max;
@@ -45,14 +55,24 @@ typedef struct ratio_metric {
     double raw[MAX_BATCH_SIZE];
 } ratio_metric_t;
 
+typedef struct metric_grp {
+    int id;
+    int n_counters;
+    int n_ratios;
+    metric_id_t counter_ids[MAX_COUNTER_GRP_SIZE];
+    metric_id_t ratio_ids[MAX_COUNTER_GRP_SIZE];
+} metric_grp_t;
+
 typedef struct batch_metrics {
-    int runs;
-    int n_ctr_metrics;
-    int n_ratio_metrics;
-    counter_metric_t ctr_metrics[MAX_COUNTER_GRP_SIZE];
-    ratio_metric_t ratio_metrics[MAX_RATIO_METRICS];
+    int warmup_runs;
+    int batch_runs;
+    metric_grp_t metric_grp;
+    counter_metric_t counters[MAX_COUNTER_GRP_SIZE];
+    ratio_metric_t ratios[MAX_RATIO_METRICS];
 } batch_metrics_t;
 
-batch_metrics_t init_batch_metrics(batch_t *batch, counter_grp_t ctr_grp);
+batch_metrics_t init_batch_metrics(int warmup_runs, int batch_runs, metric_grp_id_t id);
+
+void process_batch_metrics(batch_metrics_t *batch_metrics);
 
 #endif

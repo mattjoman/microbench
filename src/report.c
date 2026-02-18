@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "../include/report.h"
-#include "../include/counter_group.h"
 #include "../include/metric.h"
 
 #define TABLE_COLUMN_WIDTH 18
@@ -29,7 +28,8 @@ static void print_counter_table_row(counter_metric_t metric)
     char max_buf[32];
     char median_buf[32];
 
-    snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
+    //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
+    snprintf(name_buf, sizeof(name_buf), "%s", "METRIC");
     snprintf(min_buf, sizeof(min_buf), "%ld", metric.min);
     snprintf(max_buf, sizeof(max_buf), "%ld", metric.max);
     snprintf(median_buf, sizeof(median_buf), "%ld", metric.median);
@@ -49,7 +49,8 @@ static void print_ratio_table_row(ratio_metric_t metric)
     char max_buf[32];
     char median_buf[32];
 
-    snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
+    //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
+    snprintf(name_buf, sizeof(name_buf), "%s", "METRIC");
     snprintf(min_buf, sizeof(min_buf), "%.2f", metric.min);
     snprintf(max_buf, sizeof(max_buf), "%.2f", metric.max);
     snprintf(median_buf, sizeof(median_buf), "%.2f", metric.median);
@@ -84,14 +85,14 @@ void run_report(batch_metrics_t batch_metrics)
 
     print_table_column_headers();
 
-    for (int i = 0; i < batch_metrics.n_ctr_metrics; i++) {
+    for (int i = 0; i < batch_metrics.metric_grp.n_counters; i++) {
 
-        ctr_metric = batch_metrics.ctr_metrics[i];
+        ctr_metric = batch_metrics.counters[i];
 
         print_counter_table_row(ctr_metric);
     }
     
-    print_ratio_table_row(batch_metrics.ratio_metrics[0]);
+    print_ratio_table_row(batch_metrics.ratios[0]);
 
     printf("\n");
 }

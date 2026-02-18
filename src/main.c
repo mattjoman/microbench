@@ -4,8 +4,8 @@
 #include <getopt.h>
 
 #include "../include/batch.h"
-#include "../include/counter_group.h"
 #include "../include/workload.h"
+#include "../include/metric.h"
 
 static const char help_text[] =
 "Usage: microbench [OPTIONS]\n"
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (strcmp(ctr_grp_str, "ipc") == 0) {
-        ctr_grp_id = COUNTER_GRP_IPC;
+        ctr_grp_id = METRIC_GRP_IPC;
     }
 
     if (workload_id < 0 || ctr_grp_id < 0) {

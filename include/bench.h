@@ -2,11 +2,10 @@
 #define BENCH_H
 
 #include "./batch.h"
-#include "./counter_group.h"
+#include "./metric.h"
 
 uint64_t bench_rdtscp(void (*test_func)(void));
 
-int bench_perf_event(batch_t *batch, void (*workload)(void),
-                                     counter_grp_t ctr_grp);
+int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void));
 
 #endif

@@ -8,7 +8,6 @@ SRCS=src/main.c \
 		 src/workload.c \
 		 src/batch.c \
 		 src/data_processing.c \
-		 src/counter_group.c \
 		 src/metric.c \
 		 src/report.c
 
