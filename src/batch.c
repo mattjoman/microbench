@@ -29,7 +29,7 @@ static batch_t init_batch(int warmup_runs, int batch_runs,
 void run_batch(int workload_id, int ctr_grp_id)
 {
     batch_t batch;
-    batch_res_t batch_res;
+    batch_metrics_t batch_metrics;
 
     int batch_runs = MAX_BATCH_SIZE;
     int warmup_runs = 5;
@@ -43,7 +43,7 @@ void run_batch(int workload_id, int ctr_grp_id)
     bench_perf_event(&batch, workload.workload, ctr_grp);
     workload.clean();
 
-    batch_res = init_batch_res(&batch, ctr_grp);
+    batch_metrics = init_batch_metrics(&batch, ctr_grp);
 
-    run_report(batch_res);
+    run_report(batch_metrics);
 }

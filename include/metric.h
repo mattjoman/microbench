@@ -45,14 +45,14 @@ typedef struct ratio_metric {
     double raw[MAX_BATCH_SIZE];
 } ratio_metric_t;
 
-typedef struct batch_res {
+typedef struct batch_metrics {
     int runs;
     int n_ctr_metrics;
     int n_ratio_metrics;
     counter_metric_t ctr_metrics[MAX_COUNTER_GRP_SIZE];
     ratio_metric_t ratio_metrics[MAX_RATIO_METRICS];
-} batch_res_t;
+} batch_metrics_t;
 
-batch_res_t init_batch_res(batch_t *batch, counter_grp_t ctr_grp);
+batch_metrics_t init_batch_metrics(batch_t *batch, counter_grp_t ctr_grp);
 
 #endif

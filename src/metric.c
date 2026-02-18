@@ -38,13 +38,13 @@ static counter_metric_t init_counter_metric(int counter_id)
     return metric;
 }
 
-batch_res_t init_batch_res(batch_t *batch, counter_grp_t ctr_grp)
+batch_metrics_t init_batch_metrics(batch_t *batch, counter_grp_t ctr_grp)
 {
-    batch_res_t batch_res;
+    batch_metrics_t batch_metrics;
 
-    batch_res.runs = batch->batch_runs;
-    batch_res.n_ctr_metrics = ctr_grp.size;
-    batch_res.n_ratio_metrics = 1;
+    batch_metrics.runs = batch->batch_runs;
+    batch_metrics.n_ctr_metrics = ctr_grp.size;
+    batch_metrics.n_ratio_metrics = 1;
 
     for (int i = 0; i < ctr_grp.size; i++) {
 
@@ -60,7 +60,7 @@ batch_res_t init_batch_res(batch_t *batch, counter_grp_t ctr_grp)
 
         memcpy(ctr_metric.raw, batch->results[counter_id], batch->batch_runs * sizeof(uint64_t));
 
-        batch_res.ctr_metrics[i] = ctr_metric;
+        batch_metrics.ctr_metrics[i] = ctr_metric;
     }
 
     ratio_metric_t ratio_metric;
@@ -78,7 +78,7 @@ batch_res_t init_batch_res(batch_t *batch, counter_grp_t ctr_grp)
     ratio_metric.max = r_agg.max;
     ratio_metric.median = r_agg.median;
 
-    batch_res.ratio_metrics[0] = ratio_metric;
+    batch_metrics.ratio_metrics[0] = ratio_metric;
 
-    return batch_res;
+    return batch_metrics;
 }

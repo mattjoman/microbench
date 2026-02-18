@@ -3,6 +3,6 @@
 
 #include "./metric.h"
 
-void run_report(batch_res_t batch_res);
+void run_report(batch_metrics_t batch_metrics);
 
 #endif
