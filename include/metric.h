@@ -65,6 +65,8 @@ typedef struct metric_grp {
     metric_id_t ratio_ids[MAX_COUNTER_GRP_SIZE];
 } metric_grp_t;
 
+extern const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS];
+
 typedef struct batch_metrics {
     int warmup_runs;
     int batch_runs;

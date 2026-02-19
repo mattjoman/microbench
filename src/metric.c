@@ -26,35 +26,25 @@ const char *metric_names[NUMBER_OF_METRICS] = {
     [METRIC_INSTRUCTIONS_PER_CYCLE] = "IPC",
 };
 
-static metric_grp_t get_metric_grp(metric_grp_id_t id)
-{
-    switch (id) {
-
-        case METRIC_GRP_IPC:
-            metric_grp_t metric_grp = {
-                .id = METRIC_GRP_IPC,
-                .n_counters = 3,
-                .n_ratios = 1,
-                .counter_ids = {
-                    METRIC_CPU_CYCLES,
-                    METRIC_REF_CPU_CYCLES,
-                    METRIC_INSTRUCTIONS,
-                },
-                .ratio_ids = {
-                    METRIC_INSTRUCTIONS_PER_CYCLE,
-                },
-            };
-            return metric_grp;
-
-        default:
-            const metric_grp_t null_grp = { 0 };
-            return null_grp;
-    }
-}
+const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
+    [METRIC_GRP_IPC] = {
+        .id = METRIC_GRP_IPC,
+        .n_counters = MAX_COUNTER_GRP_SIZE,
+        .n_ratios = 1,
+        .counter_ids = {
+            METRIC_CPU_CYCLES,
+            METRIC_REF_CPU_CYCLES,
+            METRIC_INSTRUCTIONS,
+        },
+        .ratio_ids = {
+            METRIC_INSTRUCTIONS_PER_CYCLE,
+        },
+    },
+};
 
 batch_metrics_t init_batch_metrics(int warmup_runs, int batch_runs, metric_grp_id_t id)
 {
-    metric_grp_t metric_grp = get_metric_grp(id);
+    metric_grp_t metric_grp = metric_grps[id];
 
     if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
         abort();
