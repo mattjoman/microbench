@@ -1,7 +1,9 @@
 #ifndef METRIC_H
 #define METRIC_H
 
-#include "./batch.h"
+#include <stdint.h>
+
+#include "./microbench.h"
 
 #define MAX_RATIO_METRICS 1
 
@@ -22,7 +24,7 @@ typedef enum {
     METRIC_TASK_CLOCK_NS,
     METRIC_ALIGNMENT_FAULTS,
 
-    /* metrics */
+    /* ratio metrics */
 
     METRIC_INSTRUCTIONS_PER_CYCLE,
 
@@ -66,17 +68,5 @@ typedef struct metric_grp {
 } metric_grp_t;
 
 extern const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS];
-
-typedef struct batch_metrics {
-    int warmup_runs;
-    int batch_runs;
-    metric_grp_t metric_grp;
-    counter_metric_t counters[MAX_COUNTER_GRP_SIZE];
-    ratio_metric_t ratios[MAX_RATIO_METRICS];
-} batch_metrics_t;
-
-batch_metrics_t init_batch_metrics(int warmup_runs, int batch_runs, metric_grp_id_t id);
-
-void process_batch_metrics(batch_metrics_t *batch_metrics);
 
 #endif
