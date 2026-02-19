@@ -141,9 +141,9 @@ typedef struct perf_result {
     } values[MAX_COUNTER_GRP_SIZE];
 } perf_result_t;
 
-static void store_perf_results(batch_metrics_t *batch_metrics, perf_result_t perf_results[])
+static void store_perf_results(batch_data_t *batch_data, perf_result_t perf_results[])
 {
-    for (int run = 0; run < batch_metrics->batch_runs; run++) {
+    for (int run = 0; run < batch_data->batch_runs; run++) {
 
         perf_result_t perf_result = perf_results[run];
         assert(perf_result.time_running == perf_result.time_enabled);
@@ -151,7 +151,7 @@ static void store_perf_results(batch_metrics_t *batch_metrics, perf_result_t per
         for (unsigned int pr_idx = 0; pr_idx < perf_result.nr; pr_idx++) {
 
             uint64_t value = perf_result.values[pr_idx].value;
-            batch_metrics->counters[pr_idx].raw[run] = value;
+            batch_data->counters[pr_idx].raw[run] = value;
         }
     }
 }
@@ -169,7 +169,7 @@ uint64_t bench_rdtscp(void (*test_func)(void))
     return end - start;
 }
 
-int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void))
+int bench_perf_event(batch_data_t *batch_data, void (*workload)(void))
 {
     struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
     int                    perf_ctr_fds[MAX_COUNTER_GRP_SIZE];
@@ -177,9 +177,9 @@ int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void))
 
     perf_result_t perf_results[MAX_BATCH_SIZE];
 
-    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++) {
+    for (int i = 0; i < batch_data->metric_grp.n_counters; i++) {
 
-        int counter_id = batch_metrics->counters[i].id;
+        int counter_id = batch_data->counters[i].id;
 
         int is_leader = 0;
         if (i == 0)
@@ -190,9 +190,9 @@ int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void))
 
     pin_thread();
 
-    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, batch_metrics->metric_grp.n_counters);
+    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, batch_data->metric_grp.n_counters);
 
-    for (int i = 0; i < batch_metrics->warmup_runs; i++)
+    for (int i = 0; i < batch_data->warmup_runs; i++)
         workload();
 
     /*
@@ -200,7 +200,7 @@ int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void))
      * Keep it as clean and minimal as possible
      * to reduce noise.
      */
-    for (int run = 0; run < batch_metrics->batch_runs; run++) {
+    for (int run = 0; run < batch_data->batch_runs; run++) {
 
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
@@ -220,15 +220,15 @@ int bench_perf_event(batch_metrics_t *batch_metrics, void (*workload)(void))
         assert(size == sizeof(perf_result_t));
     }
 
-    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++) {
+    for (int i = 0; i < batch_data->metric_grp.n_counters; i++) {
         if (close(perf_ctr_fds[i]) == -1)
             exit(1);
     }
 
-    for (int i = 0; i < batch_metrics->metric_grp.n_counters; i++)
+    for (int i = 0; i < batch_data->metric_grp.n_counters; i++)
         assert(perf_results[0].values[i].id == perf_ctr_ids[i]);
 
-    store_perf_results(batch_metrics, perf_results);
+    store_perf_results(batch_data, perf_results);
 
     return 0;
 }

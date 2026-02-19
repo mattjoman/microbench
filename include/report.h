@@ -3,6 +3,6 @@
 
 #include "./batch.h"
 
-void run_report(batch_metrics_t batch_metrics);
+void run_report(batch_data_t batch_data);
 
 #endif

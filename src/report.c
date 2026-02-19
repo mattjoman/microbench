@@ -77,7 +77,7 @@ static void print_table_column_headers()
     putchar('\n');
 }
 
-void run_report(batch_metrics_t batch_metrics)
+void run_report(batch_data_t batch_data)
 {
     counter_metric_t ctr_metric;
 
@@ -85,14 +85,14 @@ void run_report(batch_metrics_t batch_metrics)
 
     print_table_column_headers();
 
-    for (int i = 0; i < batch_metrics.metric_grp.n_counters; i++) {
+    for (int i = 0; i < batch_data.metric_grp.n_counters; i++) {
 
-        ctr_metric = batch_metrics.counters[i];
+        ctr_metric = batch_data.counters[i];
 
         print_counter_table_row(ctr_metric);
     }
     
-    print_ratio_table_row(batch_metrics.ratios[0]);
+    print_ratio_table_row(batch_data.ratios[0]);
 
     printf("\n");
 }
