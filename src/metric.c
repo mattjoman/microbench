@@ -4,6 +4,28 @@
 #include "../include/metric.h"
 #include "../include/data_processing.h"
 
+const char *metric_names[NUMBER_OF_METRICS] = {
+
+    /* counter metrics */
+
+    [METRIC_CPU_CYCLES]            = "CPU_CYCLES",
+    [METRIC_REF_CPU_CYCLES]        = "REF_CPU_CYCLES",
+    [METRIC_INSTRUCTIONS]          = "INSTRUCTIONS",
+    [METRIC_CACHE_ACCESSES]        = "CACHE_ACCESSES",
+    [METRIC_CACHE_MISSES]          = "CACHE_MISSES",
+    [METRIC_L1_CACHE_MISSES]       = "L1_CACHE_MISSES",
+    [METRIC_BRANCH_INSTRUCTIONS]   = "BRANCH_INSTRUCTIONS",
+    [METRIC_BRANCH_MISPREDICTIONS] = "BRANCH_MISPREDICTIONS",
+    [METRIC_PAGE_FAULTS]           = "PAGE_FAULTS",
+    [METRIC_CPU_CLOCK_NS]          = "CPU_CLOCK_NS",
+    [METRIC_TASK_CLOCK_NS]         = "TASK_CLOCK_NS",
+    [METRIC_ALIGNMENT_FAULTS]      = "ALIGNMENT_FAULTS",
+
+    /* ratio metrics */
+
+    [METRIC_INSTRUCTIONS_PER_CYCLE] = "IPC",
+};
+
 static metric_grp_t get_metric_grp(metric_grp_id_t id)
 {
     switch (id) {

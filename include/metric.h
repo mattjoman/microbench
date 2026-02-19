@@ -30,6 +30,8 @@ typedef enum {
 
 } metric_id_t;
 
+extern const char *metric_names[NUMBER_OF_METRICS];
+
 typedef enum {
     METRIC_GRP_IPC,
     NUMBER_OF_METRIC_GRPS,

@@ -29,7 +29,7 @@ static void print_counter_table_row(counter_metric_t metric)
     char median_buf[32];
 
     //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
-    snprintf(name_buf, sizeof(name_buf), "%s", "METRIC");
+    snprintf(name_buf, sizeof(name_buf), "%s", metric_names[metric.id]);
     snprintf(min_buf, sizeof(min_buf), "%ld", metric.min);
     snprintf(max_buf, sizeof(max_buf), "%ld", metric.max);
     snprintf(median_buf, sizeof(median_buf), "%ld", metric.median);
@@ -50,7 +50,7 @@ static void print_ratio_table_row(ratio_metric_t metric)
     char median_buf[32];
 
     //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
-    snprintf(name_buf, sizeof(name_buf), "%s", "METRIC");
+    snprintf(name_buf, sizeof(name_buf), "%s", metric_names[metric.id]);
     snprintf(min_buf, sizeof(min_buf), "%.2f", metric.min);
     snprintf(max_buf, sizeof(max_buf), "%.2f", metric.max);
     snprintf(median_buf, sizeof(median_buf), "%.2f", metric.median);
