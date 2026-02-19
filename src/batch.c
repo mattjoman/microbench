@@ -79,7 +79,6 @@ void run_batch(batch_conf_t batch_conf)
     batch_data_t batch_data;
     workload_t workload;
 
-
     batch_data = init_batch_data(batch_conf);
     workload = *get_workload(batch_conf.workload_id);
 
