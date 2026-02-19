@@ -70,7 +70,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    run_batch(workload_id, ctr_grp_id);
+    batch_conf_t batch_conf = {
+        .warmup_runs = 5,
+        .batch_runs = MAX_BATCH_SIZE,
+        .workload_id = workload_id,
+        .metric_grp_id = ctr_grp_id,
+    };
+    run_batch(batch_conf);
 
     return 0;
 }

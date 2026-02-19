@@ -77,16 +77,17 @@ static void print_table_column_headers()
     putchar('\n');
 }
 
-void run_report(batch_data_t batch_data)
+void run_report(batch_conf_t batch_conf, batch_data_t batch_data)
 {
-    counter_metric_t ctr_metric;
-
     printf("\n");
 
     print_table_column_headers();
 
-    for (int i = 0; i < batch_data.metric_grp.n_counters; i++) {
+    int n_counters = metric_grps[batch_conf.metric_grp_id].n_counters;
 
+    for (int i = 0; i < n_counters; i++) {
+
+        counter_metric_t ctr_metric;
         ctr_metric = batch_data.counters[i];
 
         print_counter_table_row(ctr_metric);

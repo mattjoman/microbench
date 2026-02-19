@@ -7,21 +7,26 @@
 #include "../include/data_processing.h"
 #include "../include/report.h"
 
-batch_data_t init_batch_data(int warmup_runs, int batch_runs, metric_grp_id_t id)
+batch_conf_t init_batch_conf(int warmup_runs, int batch_runs,int workload_id, metric_grp_id_t id)
 {
-    metric_grp_t metric_grp = metric_grps[id];
-
     if (batch_runs < 1 || batch_runs > MAX_BATCH_SIZE)
         abort();
 
-    if (metric_grp.n_counters < 1 || metric_grp.n_counters > MAX_COUNTER_GRP_SIZE)
-        abort();
+    batch_conf_t batch_conf = {
+        .warmup_runs   = warmup_runs,
+        .batch_runs    = batch_runs,
+        .workload_id   = workload_id,
+        .metric_grp_id = id,
+    };
+
+    return batch_conf;
+}
+
+static batch_data_t init_batch_data(batch_conf_t batch_conf)
+{
+    metric_grp_t metric_grp = metric_grps[batch_conf.metric_grp_id];
 
     batch_data_t batch_data;
-
-    batch_data.metric_grp = metric_grp;
-    batch_data.warmup_runs = warmup_runs;
-    batch_data.batch_runs = batch_runs;
 
     for (int i = 0; i < metric_grp.n_counters; i++) {
 
@@ -29,6 +34,7 @@ batch_data_t init_batch_data(int warmup_runs, int batch_runs, metric_grp_id_t id
         counter.id = metric_grp.counter_ids[i];
 
         batch_data.counters[i] = counter;
+        batch_data.metric_id_map[metric_grp.counter_ids[i]] = i;
     }
 
     for (int i = 0; i < metric_grp.n_ratios; i++) {
@@ -42,13 +48,12 @@ batch_data_t init_batch_data(int warmup_runs, int batch_runs, metric_grp_id_t id
     return batch_data;
 }
 
-void process_batch_data(batch_data_t *batch_data)
+static void process_batch_data(batch_conf_t batch_conf, batch_data_t *batch_data)
 {
-    int batch_runs = batch_data->batch_runs;
+    int batch_runs = batch_conf.batch_runs;
+    int n_counters = metric_grps[batch_conf.metric_grp_id].n_counters;
 
-    metric_id_t id_map[NUMBER_OF_METRICS];
-
-    for (int i = 0; i < batch_data->metric_grp.n_counters; i++) {
+    for (int i = 0; i < n_counters; i++) {
 
         uint64_agg_t c_agg = aggregate_uint64(batch_data->counters[i].raw, batch_runs);
 
@@ -56,11 +61,10 @@ void process_batch_data(batch_data_t *batch_data)
         batch_data->counters[i].max = c_agg.max;
         batch_data->counters[i].median = c_agg.median;
 
-        id_map[batch_data->counters[i].id] = i;
     }
 
-    calc_ratios(batch_data->ratios[0].raw, batch_data->counters[id_map[METRIC_INSTRUCTIONS]].raw,
-                                              batch_data->counters[id_map[METRIC_CPU_CYCLES]].raw,
+    calc_ratios(batch_data->ratios[0].raw, batch_data->counters[batch_data->metric_id_map[METRIC_INSTRUCTIONS]].raw,
+                                              batch_data->counters[batch_data->metric_id_map[METRIC_CPU_CYCLES]].raw,
                                               batch_runs);
 
     double_agg_t r_agg = aggregate_double(batch_data->ratios[0].raw, batch_runs);
@@ -70,22 +74,20 @@ void process_batch_data(batch_data_t *batch_data)
     batch_data->ratios[0].median = r_agg.median;
 }
 
-void run_batch(int workload_id, int ctr_grp_id)
+void run_batch(batch_conf_t batch_conf)
 {
     batch_data_t batch_data;
+    workload_t workload;
 
-    int batch_runs = MAX_BATCH_SIZE;
-    int warmup_runs = 5;
 
-    workload_t workload = *get_workload(workload_id);
-
-    batch_data = init_batch_data(warmup_runs, batch_runs, ctr_grp_id);
+    batch_data = init_batch_data(batch_conf);
+    workload = *get_workload(batch_conf.workload_id);
 
     workload.init();
-    bench_perf_event(&batch_data, workload.workload);
+    bench_perf_event(batch_conf, &batch_data, workload.workload);
     workload.clean();
 
-    process_batch_data(&batch_data);
+    process_batch_data(batch_conf, &batch_data);
 
-    run_report(batch_data);
+    run_report(batch_conf, batch_data);
 }
