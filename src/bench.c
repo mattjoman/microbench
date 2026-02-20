@@ -60,6 +60,12 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_MISSES;
             break;
+        case METRIC_L1_CACHE_ACCESSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_L1D
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
+            break;
         case METRIC_L1_CACHE_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
