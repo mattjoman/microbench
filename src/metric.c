@@ -26,6 +26,13 @@ const char *metric_names[NUMBER_OF_METRICS] = {
     [METRIC_INSTRUCTIONS_PER_CYCLE] = "IPC",
 };
 
+const ratio_conf_t ratio_confs[NUMBER_OF_METRICS] = {
+    [METRIC_INSTRUCTIONS_PER_CYCLE] = {
+        .numerator_id = METRIC_INSTRUCTIONS,
+        .denominator_id = METRIC_CPU_CYCLES,
+    },
+};
+
 const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
 
     [METRIC_GRP_IPC] = {

@@ -50,12 +50,14 @@ static batch_data_t init_batch_data(batch_conf_t batch_conf)
 
 static void process_batch_data(batch_conf_t batch_conf, batch_data_t *batch_data)
 {
+    metric_grp_id_t metric_grp_id = batch_conf.metric_grp_id;
     int batch_runs = batch_conf.batch_runs;
-    int n_counters = metric_grps[batch_conf.metric_grp_id].n_counters;
+    int n_counters = metric_grps[metric_grp_id].n_counters;
 
     for (int i = 0; i < n_counters; i++) {
 
-        uint64_agg_t c_agg = aggregate_uint64(batch_data->counters[i].raw, batch_runs);
+        uint64_agg_t c_agg = aggregate_uint64(batch_data->counters[i].raw,
+                                              batch_runs);
 
         batch_data->counters[i].min = c_agg.min;
         batch_data->counters[i].max = c_agg.max;
@@ -63,11 +65,21 @@ static void process_batch_data(batch_conf_t batch_conf, batch_data_t *batch_data
 
     }
 
-    calc_ratios(batch_data->ratios[0].raw, batch_data->counters[batch_data->metric_id_map[METRIC_INSTRUCTIONS]].raw,
-                                              batch_data->counters[batch_data->metric_id_map[METRIC_CPU_CYCLES]].raw,
-                                              batch_runs);
+    metric_id_t ratio_id = metric_grps[metric_grp_id].ratio_ids[0];
+    metric_id_t numerator_id = ratio_confs[ratio_id].numerator_id;
+    metric_id_t denominator_id = ratio_confs[ratio_id].denominator_id;
 
-    double_agg_t r_agg = aggregate_double(batch_data->ratios[0].raw, batch_runs);
+    int numerator_idx = batch_data->metric_id_map[numerator_id];
+    int denominator_idx = batch_data->metric_id_map[denominator_id];
+
+    uint64_t *numerators = batch_data->counters[numerator_idx].raw;
+    uint64_t *denominators = batch_data->counters[denominator_idx].raw;
+
+    calc_ratios(batch_data->ratios[0].raw, numerators, denominators,
+                                                       batch_runs);
+
+    double_agg_t r_agg = aggregate_double(batch_data->ratios[0].raw,
+                                          batch_runs);
 
     batch_data->ratios[0].min = r_agg.min;
     batch_data->ratios[0].max = r_agg.max;

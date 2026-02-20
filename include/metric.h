@@ -34,15 +34,21 @@ typedef enum {
 
 extern const char *metric_names[NUMBER_OF_METRICS];
 
+
 typedef enum {
     METRIC_GRP_IPC,
     NUMBER_OF_METRIC_GRPS,
 } metric_grp_id_t;
 
+typedef struct ratio_conf {
+    metric_id_t numerator_id;
+    metric_id_t denominator_id;
+} ratio_conf_t;
+
+extern const ratio_conf_t ratio_confs[NUMBER_OF_METRICS];
+
 typedef struct counter_metric {
     int id;
-    /* XXX: make this a char * */
-    char name[MAX_NAME_LEN];
     uint64_t min;
     uint64_t max;
     uint64_t median;
@@ -51,8 +57,6 @@ typedef struct counter_metric {
 
 typedef struct ratio_metric {
     int id;
-    /* XXX: make this a char * */
-    char name[MAX_NAME_LEN];
     double min;
     double max;
     double median;
