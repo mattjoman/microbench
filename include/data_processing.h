@@ -1,7 +1,7 @@
 #ifndef ANALYSIS_H
 #define ANALYSIS_H
 
-#include "./batch.h"
+#include <stdint.h>
 
 typedef struct uint64_agg {
     uint64_t min;

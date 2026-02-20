@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "./microbench.h"
+#include "./data_processing.h"
 
 #define MAX_RATIO_METRICS 1
 
@@ -49,18 +50,14 @@ extern const ratio_conf_t ratio_confs[NUMBER_OF_METRICS];
 
 typedef struct counter_metric {
     int id;
-    uint64_t min;
-    uint64_t max;
-    uint64_t median;
     uint64_t raw[MAX_BATCH_SIZE];
+    uint64_agg_t agg;
 } counter_metric_t;
 
 typedef struct ratio_metric {
     int id;
-    double min;
-    double max;
-    double median;
     double raw[MAX_BATCH_SIZE];
+    double_agg_t agg;
 } ratio_metric_t;
 
 typedef struct metric_grp {

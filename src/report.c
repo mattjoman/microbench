@@ -30,9 +30,9 @@ static void print_counter_table_row(counter_metric_t metric)
 
     //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
     snprintf(name_buf, sizeof(name_buf), "%s", metric_names[metric.id]);
-    snprintf(min_buf, sizeof(min_buf), "%ld", metric.min);
-    snprintf(max_buf, sizeof(max_buf), "%ld", metric.max);
-    snprintf(median_buf, sizeof(median_buf), "%ld", metric.median);
+    snprintf(min_buf, sizeof(min_buf), "%ld", metric.agg.min);
+    snprintf(max_buf, sizeof(max_buf), "%ld", metric.agg.max);
+    snprintf(median_buf, sizeof(median_buf), "%ld", metric.agg.median);
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);
@@ -51,9 +51,9 @@ static void print_ratio_table_row(ratio_metric_t metric)
 
     //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
     snprintf(name_buf, sizeof(name_buf), "%s", metric_names[metric.id]);
-    snprintf(min_buf, sizeof(min_buf), "%.2f", metric.min);
-    snprintf(max_buf, sizeof(max_buf), "%.2f", metric.max);
-    snprintf(median_buf, sizeof(median_buf), "%.2f", metric.median);
+    snprintf(min_buf, sizeof(min_buf), "%.2f", metric.agg.min);
+    snprintf(max_buf, sizeof(max_buf), "%.2f", metric.agg.max);
+    snprintf(median_buf, sizeof(median_buf), "%.2f", metric.agg.median);
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);

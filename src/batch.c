@@ -59,10 +59,7 @@ static void process_batch_data(batch_conf_t batch_conf, batch_data_t *batch_data
         uint64_agg_t c_agg = aggregate_uint64(batch_data->counters[i].raw,
                                               batch_runs);
 
-        batch_data->counters[i].min = c_agg.min;
-        batch_data->counters[i].max = c_agg.max;
-        batch_data->counters[i].median = c_agg.median;
-
+        batch_data->counters[i].agg = c_agg;
     }
 
     metric_id_t ratio_id = metric_grps[metric_grp_id].ratio_ids[0];
@@ -81,9 +78,7 @@ static void process_batch_data(batch_conf_t batch_conf, batch_data_t *batch_data
     double_agg_t r_agg = aggregate_double(batch_data->ratios[0].raw,
                                           batch_runs);
 
-    batch_data->ratios[0].min = r_agg.min;
-    batch_data->ratios[0].max = r_agg.max;
-    batch_data->ratios[0].median = r_agg.median;
+    batch_data->ratios[0].agg = r_agg;
 }
 
 void run_batch(batch_conf_t batch_conf)
