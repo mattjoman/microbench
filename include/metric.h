@@ -6,8 +6,6 @@
 #include "./microbench.h"
 #include "./data_processing.h"
 
-#define MAX_RATIO_METRICS 1
-
 typedef enum {
 
     /* counter metrics */
@@ -39,6 +37,7 @@ typedef enum {
     /* ratio metrics */
 
     RATIO_INSTRUCTIONS_PER_CYCLE,
+    RATIO_CYCLES_PER_INSTRUCTION,
     RATIO_L1_CACHE_READ_MISS_RATE,
     RATIO_BRANCH_MISPRED_RATE,
     RATIO_FE_VS_BE_STALLS,

@@ -32,6 +32,11 @@ const ratio_conf_t ratio_confs[NUMBER_OF_RATIOS] = {
         .numerator_id = COUNTER_INSTRUCTIONS,
         .denominator_id = COUNTER_CPU_CYCLES,
     },
+    [RATIO_CYCLES_PER_INSTRUCTION] = {
+        .name = "CPI",
+        .numerator_id = COUNTER_CPU_CYCLES,
+        .denominator_id = COUNTER_INSTRUCTIONS,
+    },
     [RATIO_L1_CACHE_READ_MISS_RATE] = {
         .name = "L1_READ_MISS_RATE",
         .numerator_id = COUNTER_L1_CACHE_MISSES,
@@ -54,7 +59,7 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
     [METRIC_GRP_IPC] = {
         .id = METRIC_GRP_IPC,
         .n_counters = MAX_COUNTER_GRP_SIZE,
-        .n_ratios = 1,
+        .n_ratios = 2,
         .counter_ids = {
             COUNTER_CPU_CYCLES,
             COUNTER_REF_CPU_CYCLES,
@@ -62,6 +67,7 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         },
         .ratio_ids = {
             RATIO_INSTRUCTIONS_PER_CYCLE,
+            RATIO_CYCLES_PER_INSTRUCTION,
         },
     },
 

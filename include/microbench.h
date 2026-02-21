@@ -4,5 +4,6 @@
 #define MAX_NAME_LEN 24
 #define MAX_BATCH_SIZE 100
 #define MAX_COUNTER_GRP_SIZE 3
+#define MAX_RATIO_METRICS 3
 
 #endif

@@ -27,23 +27,21 @@ int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
 static int init_batch_data(batch_data_t *batch_data, batch_conf_t batch_conf)
 {
     metric_grp_t metric_grp;
+    counter_metric_t counter;
+    ratio_metric_t ratio;
 
     metric_grp = metric_grps[batch_conf.metric_grp_id];
 
     for (int i = 0; i < metric_grp.n_counters; i++) {
 
-        counter_metric_t counter;
         counter.id = metric_grp.counter_ids[i];
-
         batch_data->counters[i] = counter;
         batch_data->counter_id_map[metric_grp.counter_ids[i]] = i;
     }
 
     for (int i = 0; i < metric_grp.n_ratios; i++) {
 
-        ratio_metric_t ratio;
         ratio.id = metric_grp.ratio_ids[i];
-
         batch_data->ratios[i] = ratio;
     }
 
@@ -78,30 +76,35 @@ static int process_batch_ratios(batch_conf_t batch_conf,
     double_agg_t agg;
     counter_metric_t *counters;
     ratio_metric_t *ratios;
-    int numerator_idx, denominator_idx, batch_runs;
+    int n_ratios, numerator_idx, denominator_idx, batch_runs;
     uint64_t *numerators, *denominators;
 
     metric_grp_id = batch_conf.metric_grp_id;
-    ratio_id = metric_grps[metric_grp_id].ratio_ids[0];
-    numerator_id = ratio_confs[ratio_id].numerator_id;
-    denominator_id = ratio_confs[ratio_id].denominator_id;
+    n_ratios = metric_grps[metric_grp_id].n_ratios;
 
-    counter_id_map = batch_data->counter_id_map;
+    for (int i = 0; i < n_ratios; i++) {
 
-    numerator_idx = counter_id_map[numerator_id];
-    denominator_idx = counter_id_map[denominator_id];
+        ratio_id = metric_grps[metric_grp_id].ratio_ids[i];
+        numerator_id = ratio_confs[ratio_id].numerator_id;
+        denominator_id = ratio_confs[ratio_id].denominator_id;
 
-    counters = batch_data->counters;
-    ratios = batch_data->ratios;
+        counter_id_map = batch_data->counter_id_map;
 
-    numerators = counters[numerator_idx].raw;
-    denominators = counters[denominator_idx].raw;
+        numerator_idx = counter_id_map[numerator_id];
+        denominator_idx = counter_id_map[denominator_id];
 
-    batch_runs = batch_conf.batch_runs;
-    calc_ratios(ratios[0].raw, numerators, denominators, batch_runs);
+        counters = batch_data->counters;
+        ratios = batch_data->ratios;
 
-    agg = aggregate_double(ratios[0].raw, batch_runs);
-    ratios[0].agg = agg;
+        numerators = counters[numerator_idx].raw;
+        denominators = counters[denominator_idx].raw;
+
+        batch_runs = batch_conf.batch_runs;
+        calc_ratios(ratios[i].raw, numerators, denominators, batch_runs);
+
+        agg = aggregate_double(ratios[i].raw, batch_runs);
+        ratios[i].agg = agg;
+    }
 
     return 0;
 }
