@@ -35,23 +35,23 @@ Microbench was designed to explicitly address these issues.
 
 To improve measurement fidelity, the tool uses the following strategies:
 
-- Limited counter group size (max 3 events):
+- **Limited counter group size (max 3 events):**
   Prevents kernel multiplexing and avoids scaled counter results.
 
-- Thread pinning:
+- **Thread pinning:**
   Pins the benchmarking thread to a single core to eliminate migration noise.
 
-- Warmup runs:
+- **Warmup runs:**
   Warms instruction/data caches and branch predictors before measurement.
 
-- Precise counter scoping
+- **Precise counter scoping**
   Enables the counter group immediately before the workload and disables it
   immediately after to minimize measurement pollution.
 
-- Result buffering:
+- **Result buffering:**
   Defers processing and aggregation to avoid perturbing the microarchitectural
   state of subsequent runs.
 
-- Per-run derived metrics:
+- **Per-run derived metrics:**
   Calculates ratios (e.g., IPC = instructions / cycles) per run before
   aggregation to avoid statistical distortion.
