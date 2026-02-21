@@ -27,8 +27,6 @@ int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
 static int init_batch_data(batch_data_t *batch_data, batch_conf_t batch_conf)
 {
     metric_grp_t metric_grp;
-    
-    memset(batch_data, 0, sizeof(batch_data_t));
 
     metric_grp = metric_grps[batch_conf.metric_grp_id];
 
@@ -77,6 +75,8 @@ static int process_batch_ratios(batch_conf_t batch_conf,
     metric_grp_id_t metric_grp_id;
     metric_id_t ratio_id, numerator_id, denominator_id, *metric_id_map;
     double_agg_t agg;
+    counter_metric_t *counters;
+    ratio_metric_t *ratios;
     int numerator_idx, denominator_idx, batch_runs;
     uint64_t *numerators, *denominators;
 
@@ -87,21 +87,20 @@ static int process_batch_ratios(batch_conf_t batch_conf,
 
     metric_id_map = batch_data->metric_id_map;
 
-    if (!metric_id_map[numerator_id] || !metric_id_map[denominator_id])
-        return -1;
-
     numerator_idx = metric_id_map[numerator_id];
     denominator_idx = metric_id_map[denominator_id];
 
-    numerators = batch_data->counters[numerator_idx].raw;
-    denominators = batch_data->counters[denominator_idx].raw;
+    counters = batch_data->counters;
+    ratios = batch_data->ratios;
+
+    numerators = counters[numerator_idx].raw;
+    denominators = counters[denominator_idx].raw;
 
     batch_runs = batch_conf.batch_runs;
-    calc_ratios(batch_data->ratios[0].raw, numerators, denominators,
-                                                       batch_runs);
+    calc_ratios(ratios[0].raw, numerators, denominators, batch_runs);
 
-    agg = aggregate_double(batch_data->ratios[0].raw, batch_runs);
-    batch_data->ratios[0].agg = agg;
+    agg = aggregate_double(ratios[0].raw, batch_runs);
+    ratios[0].agg = agg;
 
     return 0;
 }
@@ -109,8 +108,10 @@ static int process_batch_ratios(batch_conf_t batch_conf,
 static void process_batch_data(batch_conf_t batch_conf,
                                batch_data_t *batch_data)
 {
-    process_batch_ctrs(batch_conf, batch_data);
-    process_batch_ratios(batch_conf, batch_data);
+    if (process_batch_ctrs(batch_conf, batch_data) != 0)
+        exit(1);
+    if (process_batch_ratios(batch_conf, batch_data) != 0)
+        exit(1);
 }
 
 void run_batch(batch_conf_t batch_conf)
