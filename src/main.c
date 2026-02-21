@@ -65,6 +65,8 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(metric_grp_str, "ipc") == 0) {
         metric_grp_id = METRIC_GRP_IPC;
+    } else if (strcmp(metric_grp_str, "llc-cache") == 0) {
+        metric_grp_id = METRIC_GRP_LLC_CACHE;
     } else if (strcmp(metric_grp_str, "l1-cache") == 0) {
         metric_grp_id = METRIC_GRP_L1_CACHE_READS;
     } else if (strcmp(metric_grp_str, "branch") == 0) {

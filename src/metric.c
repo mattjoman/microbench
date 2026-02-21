@@ -11,8 +11,8 @@ const char *counter_names[NUMBER_OF_COUNTERS] = {
     [COUNTER_CPU_CYCLES]              = "CPU_CYCLES",
     [COUNTER_REF_CPU_CYCLES]          = "REF_CPU_CYCLES",
     [COUNTER_INSTRUCTIONS]            = "INSTRUCTIONS",
-    [COUNTER_CACHE_ACCESSES]          = "CACHE_ACCESSES",
-    [COUNTER_CACHE_MISSES]            = "CACHE_MISSES",
+    [COUNTER_CACHE_ACCESSES]          = "LLC_CACHE_ACCESSES",
+    [COUNTER_CACHE_MISSES]            = "LLC_CACHE_MISSES",
     [COUNTER_L1_CACHE_ACCESSES]       = "L1_CACHE_ACCESSES",
     [COUNTER_L1_CACHE_MISSES]         = "L1_CACHE_MISSES",
     [COUNTER_BRANCH_INSTRUCTIONS]     = "BRANCH_INSTRUCTIONS",
@@ -36,6 +36,11 @@ const ratio_conf_t ratio_confs[NUMBER_OF_RATIOS] = {
         .name = "CPI",
         .numerator_id = COUNTER_CPU_CYCLES,
         .denominator_id = COUNTER_INSTRUCTIONS,
+    },
+    [RATIO_LLC_CACHE_MISS_RATE] = {
+        .name = "LLC_MISS_RATE",
+        .numerator_id = COUNTER_CACHE_MISSES,
+        .denominator_id = COUNTER_CACHE_ACCESSES,
     },
     [RATIO_L1_CACHE_READ_MISS_RATE] = {
         .name = "L1_READ_MISS_RATE",
@@ -68,6 +73,20 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         .ratio_ids = {
             RATIO_INSTRUCTIONS_PER_CYCLE,
             RATIO_CYCLES_PER_INSTRUCTION,
+        },
+    },
+
+    [METRIC_GRP_LLC_CACHE] = {
+        .id = METRIC_GRP_LLC_CACHE,
+        .n_counters = MAX_COUNTER_GRP_SIZE,
+        .n_ratios = 1,
+        .counter_ids = {
+            COUNTER_CPU_CYCLES,
+            COUNTER_CACHE_ACCESSES,
+            COUNTER_CACHE_MISSES,
+        },
+        .ratio_ids = {
+            RATIO_LLC_CACHE_MISS_RATE,
         },
     },
 
