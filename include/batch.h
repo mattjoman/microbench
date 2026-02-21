@@ -20,6 +20,11 @@ typedef struct batch_data {
     ratio_metric_t ratios[MAX_RATIO_METRICS];
 } batch_data_t;
 
+int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
+                                              int batch_runs,
+                                              int workload_id,
+                                              metric_grp_id_t id);
+
 void run_batch(batch_conf_t batch_config);
 
 #endif

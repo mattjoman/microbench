@@ -76,12 +76,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    batch_conf_t batch_conf = {
-        .warmup_runs = 5,
-        .batch_runs = MAX_BATCH_SIZE,
-        .workload_id = workload_id,
-        .metric_grp_id = metric_grp_id,
-    };
+    int warmup_runs = 5;
+    int batch_runs = MAX_BATCH_SIZE;
+
+    batch_conf_t batch_conf;
+    init_batch_conf(&batch_conf, warmup_runs, batch_runs, workload_id,
+                                                          metric_grp_id);
     run_batch(batch_conf);
 
     return 0;
