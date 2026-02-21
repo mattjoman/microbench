@@ -12,35 +12,48 @@ typedef enum {
 
     /* counter metrics */
 
-    METRIC_CPU_CYCLES,
-    METRIC_REF_CPU_CYCLES,
-    METRIC_INSTRUCTIONS,
-    METRIC_CACHE_ACCESSES,
-    METRIC_CACHE_MISSES,
-    METRIC_L1_CACHE_ACCESSES,
-    METRIC_L1_CACHE_MISSES,
-    METRIC_BRANCH_INSTRUCTIONS,
-    METRIC_BRANCH_MISPREDICTIONS,
-    METRIC_STALLED_CYCLES_FRONTEND,
-    METRIC_STALLED_CYCLES_BACKEND,
-    METRIC_PAGE_FAULTS,
-    METRIC_CPU_CLOCK_NS,
-    METRIC_TASK_CLOCK_NS,
-    METRIC_ALIGNMENT_FAULTS,
+    COUNTER_CPU_CYCLES,
+    COUNTER_REF_CPU_CYCLES,
+    COUNTER_INSTRUCTIONS,
+    COUNTER_CACHE_ACCESSES,
+    COUNTER_CACHE_MISSES,
+    COUNTER_L1_CACHE_ACCESSES,
+    COUNTER_L1_CACHE_MISSES,
+    COUNTER_BRANCH_INSTRUCTIONS,
+    COUNTER_BRANCH_MISPREDICTIONS,
+    COUNTER_STALLED_CYCLES_FRONTEND,
+    COUNTER_STALLED_CYCLES_BACKEND,
+    COUNTER_PAGE_FAULTS,
+    COUNTER_CPU_CLOCK_NS,
+    COUNTER_TASK_CLOCK_NS,
+    COUNTER_ALIGNMENT_FAULTS,
+
+    NUMBER_OF_COUNTERS,
+
+} counter_id_t;
+
+extern const char *counter_names[NUMBER_OF_COUNTERS];
+
+typedef enum {
 
     /* ratio metrics */
 
-    METRIC_INSTRUCTIONS_PER_CYCLE,
-    METRIC_L1_CACHE_READ_MISS_RATE,
-    METRIC_BRANCH_MISPRED_RATE,
-    METRIC_FE_VS_BE_STALL_RATIO,
+    RATIO_INSTRUCTIONS_PER_CYCLE,
+    RATIO_L1_CACHE_READ_MISS_RATE,
+    RATIO_BRANCH_MISPRED_RATE,
+    RATIO_FE_VS_BE_STALLS,
 
-    NUMBER_OF_METRICS,
+    NUMBER_OF_RATIOS,
 
-} metric_id_t;
+} ratio_id_t;
 
-extern const char *metric_names[NUMBER_OF_METRICS];
+typedef struct ratio_conf {
+    const char *name;
+    counter_id_t numerator_id;
+    counter_id_t denominator_id;
+} ratio_conf_t;
 
+extern const ratio_conf_t ratio_confs[NUMBER_OF_RATIOS];
 
 typedef enum {
     METRIC_GRP_IPC,
@@ -49,13 +62,6 @@ typedef enum {
     METRIC_GRP_STALLED_CYCLES,
     NUMBER_OF_METRIC_GRPS,
 } metric_grp_id_t;
-
-typedef struct ratio_conf {
-    metric_id_t numerator_id;
-    metric_id_t denominator_id;
-} ratio_conf_t;
-
-extern const ratio_conf_t ratio_confs[NUMBER_OF_METRICS];
 
 typedef struct counter_metric {
     int id;
@@ -73,8 +79,8 @@ typedef struct metric_grp {
     int id;
     int n_counters;
     int n_ratios;
-    metric_id_t counter_ids[MAX_COUNTER_GRP_SIZE];
-    metric_id_t ratio_ids[MAX_COUNTER_GRP_SIZE];
+    counter_id_t counter_ids[MAX_COUNTER_GRP_SIZE];
+    ratio_id_t ratio_ids[MAX_RATIO_METRICS];
 } metric_grp_t;
 
 extern const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS];

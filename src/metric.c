@@ -4,53 +4,48 @@
 #include "../include/metric.h"
 #include "../include/data_processing.h"
 
-const char *metric_names[NUMBER_OF_METRICS] = {
+const char *counter_names[NUMBER_OF_COUNTERS] = {
 
     /* counter metrics */
 
-    [METRIC_CPU_CYCLES]            = "CPU_CYCLES",
-    [METRIC_REF_CPU_CYCLES]        = "REF_CPU_CYCLES",
-    [METRIC_INSTRUCTIONS]          = "INSTRUCTIONS",
-    [METRIC_CACHE_ACCESSES]        = "CACHE_ACCESSES",
-    [METRIC_CACHE_MISSES]          = "CACHE_MISSES",
-    [METRIC_L1_CACHE_ACCESSES]     = "L1_CACHE_ACCESSES",
-    [METRIC_L1_CACHE_MISSES]       = "L1_CACHE_MISSES",
-    [METRIC_BRANCH_INSTRUCTIONS]   = "BRANCH_INSTRUCTIONS",
-    [METRIC_BRANCH_MISPREDICTIONS] = "BRANCH_MISPREDICTIONS",
+    [COUNTER_CPU_CYCLES]              = "CPU_CYCLES",
+    [COUNTER_REF_CPU_CYCLES]          = "REF_CPU_CYCLES",
+    [COUNTER_INSTRUCTIONS]            = "INSTRUCTIONS",
+    [COUNTER_CACHE_ACCESSES]          = "CACHE_ACCESSES",
+    [COUNTER_CACHE_MISSES]            = "CACHE_MISSES",
+    [COUNTER_L1_CACHE_ACCESSES]       = "L1_CACHE_ACCESSES",
+    [COUNTER_L1_CACHE_MISSES]         = "L1_CACHE_MISSES",
+    [COUNTER_BRANCH_INSTRUCTIONS]     = "BRANCH_INSTRUCTIONS",
+    [COUNTER_BRANCH_MISPREDICTIONS]   = "BRANCH_MISPREDICTIONS",
+    [COUNTER_STALLED_CYCLES_FRONTEND] = "STALLED_CYCLES_FRONTEND",
+    [COUNTER_STALLED_CYCLES_BACKEND]  = "STALLED_CYCLES_BACKEND",
+    [COUNTER_PAGE_FAULTS]             = "PAGE_FAULTS",
+    [COUNTER_CPU_CLOCK_NS]            = "CPU_CLOCK_NS",
+    [COUNTER_TASK_CLOCK_NS]           = "TASK_CLOCK_NS",
+    [COUNTER_ALIGNMENT_FAULTS]        = "ALIGNMENT_FAULTS",
 
-    [METRIC_STALLED_CYCLES_FRONTEND] = "STALLED_CYCLES_FRONTEND",
-    [METRIC_STALLED_CYCLES_BACKEND] = "STALLED_CYCLES_BACKEND",
-
-    [METRIC_PAGE_FAULTS]           = "PAGE_FAULTS",
-    [METRIC_CPU_CLOCK_NS]          = "CPU_CLOCK_NS",
-    [METRIC_TASK_CLOCK_NS]         = "TASK_CLOCK_NS",
-    [METRIC_ALIGNMENT_FAULTS]      = "ALIGNMENT_FAULTS",
-
-    /* ratio metrics */
-
-    [METRIC_INSTRUCTIONS_PER_CYCLE] = "IPC",
-    [METRIC_L1_CACHE_READ_MISS_RATE] = "L1_READ_MISS_RATE",
-    [METRIC_BRANCH_MISPRED_RATE] = "BRANCH_MISPRED_RATE",
-
-    [METRIC_FE_VS_BE_STALL_RATIO] = "FE_VS_BE_STALLS",
 };
 
-const ratio_conf_t ratio_confs[NUMBER_OF_METRICS] = {
-    [METRIC_INSTRUCTIONS_PER_CYCLE] = {
-        .numerator_id = METRIC_INSTRUCTIONS,
-        .denominator_id = METRIC_CPU_CYCLES,
+const ratio_conf_t ratio_confs[NUMBER_OF_RATIOS] = {
+    [RATIO_INSTRUCTIONS_PER_CYCLE] = {
+        .name = "IPC",
+        .numerator_id = COUNTER_INSTRUCTIONS,
+        .denominator_id = COUNTER_CPU_CYCLES,
     },
-    [METRIC_L1_CACHE_READ_MISS_RATE] = {
-        .numerator_id = METRIC_L1_CACHE_MISSES,
-        .denominator_id = METRIC_L1_CACHE_ACCESSES,
+    [RATIO_L1_CACHE_READ_MISS_RATE] = {
+        .name = "L1_READ_MISS_RATE",
+        .numerator_id = COUNTER_L1_CACHE_MISSES,
+        .denominator_id = COUNTER_L1_CACHE_ACCESSES,
     },
-    [METRIC_BRANCH_MISPRED_RATE] = {
-        .numerator_id = METRIC_BRANCH_MISPREDICTIONS,
-        .denominator_id = METRIC_BRANCH_INSTRUCTIONS,
+    [RATIO_BRANCH_MISPRED_RATE] = {
+        .name = "BRANCH_MISPRED_RATE",
+        .numerator_id = COUNTER_BRANCH_MISPREDICTIONS,
+        .denominator_id = COUNTER_BRANCH_INSTRUCTIONS,
     },
-    [METRIC_FE_VS_BE_STALL_RATIO] = {
-        .numerator_id = METRIC_STALLED_CYCLES_FRONTEND,
-        .denominator_id = METRIC_STALLED_CYCLES_BACKEND,
+    [RATIO_FE_VS_BE_STALLS] = {
+        .name = "FE_VS_BE_STALLS",
+        .numerator_id = COUNTER_STALLED_CYCLES_FRONTEND,
+        .denominator_id = COUNTER_STALLED_CYCLES_BACKEND,
     },
 };
 
@@ -61,12 +56,12 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         .n_counters = MAX_COUNTER_GRP_SIZE,
         .n_ratios = 1,
         .counter_ids = {
-            METRIC_CPU_CYCLES,
-            METRIC_REF_CPU_CYCLES,
-            METRIC_INSTRUCTIONS,
+            COUNTER_CPU_CYCLES,
+            COUNTER_REF_CPU_CYCLES,
+            COUNTER_INSTRUCTIONS,
         },
         .ratio_ids = {
-            METRIC_INSTRUCTIONS_PER_CYCLE,
+            RATIO_INSTRUCTIONS_PER_CYCLE,
         },
     },
 
@@ -75,12 +70,12 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         .n_counters = MAX_COUNTER_GRP_SIZE,
         .n_ratios = 1,
         .counter_ids = {
-            METRIC_CPU_CYCLES,
-            METRIC_L1_CACHE_ACCESSES,
-            METRIC_L1_CACHE_MISSES,
+            COUNTER_CPU_CYCLES,
+            COUNTER_L1_CACHE_ACCESSES,
+            COUNTER_L1_CACHE_MISSES,
         },
         .ratio_ids = {
-            METRIC_L1_CACHE_READ_MISS_RATE,
+            RATIO_L1_CACHE_READ_MISS_RATE,
         },
     },
 
@@ -89,12 +84,12 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         .n_counters = MAX_COUNTER_GRP_SIZE,
         .n_ratios = 1,
         .counter_ids = {
-            METRIC_CPU_CYCLES,
-            METRIC_BRANCH_INSTRUCTIONS,
-            METRIC_BRANCH_MISPREDICTIONS,
+            COUNTER_CPU_CYCLES,
+            COUNTER_BRANCH_INSTRUCTIONS,
+            COUNTER_BRANCH_MISPREDICTIONS,
         },
         .ratio_ids = {
-            METRIC_BRANCH_MISPRED_RATE,
+            RATIO_BRANCH_MISPRED_RATE,
         },
     },
 
@@ -103,12 +98,12 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         .n_counters = MAX_COUNTER_GRP_SIZE,
         .n_ratios = 1,
         .counter_ids = {
-            METRIC_CPU_CYCLES,
-            METRIC_STALLED_CYCLES_FRONTEND,
-            METRIC_STALLED_CYCLES_BACKEND,
+            COUNTER_CPU_CYCLES,
+            COUNTER_STALLED_CYCLES_FRONTEND,
+            COUNTER_STALLED_CYCLES_BACKEND,
         },
         .ratio_ids = {
-            METRIC_FE_VS_BE_STALL_RATIO,
+            RATIO_FE_VS_BE_STALLS,
         },
     },
 

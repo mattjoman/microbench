@@ -15,7 +15,7 @@ typedef struct batch_conf {
 } batch_conf_t;
 
 typedef struct batch_data {
-    metric_id_t metric_id_map[NUMBER_OF_METRICS];
+    counter_id_t counter_id_map[NUMBER_OF_COUNTERS];
     counter_metric_t counters[MAX_COUNTER_GRP_SIZE];
     ratio_metric_t ratios[MAX_RATIO_METRICS];
 } batch_data_t;

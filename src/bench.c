@@ -40,67 +40,67 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
     memset(&pea, 0, sizeof(struct perf_event_attr));
 
     switch (metric) {
-        case METRIC_CPU_CYCLES:
+        case COUNTER_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CPU_CYCLES;
             break;
-        case METRIC_REF_CPU_CYCLES:
+        case COUNTER_REF_CPU_CYCLES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_REF_CPU_CYCLES;
             break;
-        case METRIC_INSTRUCTIONS:
+        case COUNTER_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
-        case METRIC_CACHE_ACCESSES:
+        case COUNTER_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
             break;
-        case METRIC_CACHE_MISSES:
+        case COUNTER_CACHE_MISSES:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_CACHE_MISSES;
             break;
-        case METRIC_L1_CACHE_ACCESSES:
+        case COUNTER_L1_CACHE_ACCESSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
             break;
-        case METRIC_L1_CACHE_MISSES:
+        case COUNTER_L1_CACHE_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
-        case METRIC_BRANCH_INSTRUCTIONS:
+        case COUNTER_BRANCH_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
             break;
-        case METRIC_BRANCH_MISPREDICTIONS:
+        case COUNTER_BRANCH_MISPREDICTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_MISSES;
             break;
-        case METRIC_STALLED_CYCLES_FRONTEND:
+        case COUNTER_STALLED_CYCLES_FRONTEND:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_STALLED_CYCLES_FRONTEND;
             break;
-        case METRIC_STALLED_CYCLES_BACKEND:
+        case COUNTER_STALLED_CYCLES_BACKEND:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_STALLED_CYCLES_BACKEND;
             break;
-        case METRIC_PAGE_FAULTS:
+        case COUNTER_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
             break;
-        case METRIC_CPU_CLOCK_NS:
+        case COUNTER_CPU_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_CPU_CLOCK;
             break;
-        case METRIC_TASK_CLOCK_NS:
+        case COUNTER_TASK_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_TASK_CLOCK;
             break;
-        case METRIC_ALIGNMENT_FAULTS:
+        case COUNTER_ALIGNMENT_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_ALIGNMENT_FAULTS;
             break;
