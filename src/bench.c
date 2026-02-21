@@ -80,6 +80,14 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_MISSES;
             break;
+        case METRIC_STALLED_CYCLES_FRONTEND:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_STALLED_CYCLES_FRONTEND;
+            break;
+        case METRIC_STALLED_CYCLES_BACKEND:
+            pea.type = PERF_TYPE_HARDWARE;
+            pea.config = PERF_COUNT_HW_STALLED_CYCLES_BACKEND;
+            break;
         case METRIC_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
@@ -129,6 +137,12 @@ static void open_perf_counters(struct perf_event_attr attrs[],
         counter_fds[evt_idx] = syscall(SYS_perf_event_open,
                                 &(attrs[evt_idx]), 0, -1, counter_fds[0], 0);
 
+        /*
+         * XXX: Improve error handling here.
+         * If there is an error, it might be because the event is not supported
+         * by the user's hardware.
+         * Check if errno is EOPNOTSUPP.
+         */
         if (counter_fds[evt_idx] == -1)
             exit(1);
 
@@ -147,7 +161,9 @@ typedef struct perf_result {
     } values[MAX_COUNTER_GRP_SIZE];
 } perf_result_t;
 
-static void store_perf_results(batch_data_t *batch_data, perf_result_t perf_results[], int batch_runs)
+static void store_perf_results(batch_data_t *batch_data,
+                               perf_result_t perf_results[],
+                               int batch_runs)
 {
     for (int run = 0; run < batch_runs; run++) {
 
@@ -175,7 +191,8 @@ uint64_t bench_rdtscp(void (*test_func)(void))
     return end - start;
 }
 
-int bench_perf_event(batch_conf_t batch_conf, batch_data_t *batch_data, void (*workload)(void))
+int bench_perf_event(batch_conf_t batch_conf, batch_data_t *batch_data,
+                                              void (*workload)(void))
 {
     struct perf_event_attr attrs[MAX_COUNTER_GRP_SIZE];
     int                    perf_ctr_fds[MAX_COUNTER_GRP_SIZE];

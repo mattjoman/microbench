@@ -12,7 +12,8 @@ I built **Microbench** to:
 - Develop intuition for how design decisions affect CPU performance
 - Learn how to diagnose bottlenecks using hardware performance counters
 - Explore the challenges of accurate microbenchmarking
-- Understand the tradeoffs between measurement accuracy and measurement overhead
+- Understand the tradeoffs between measurement accuracy and measurement
+  overhead
 
 While tools like perf are powerful, they are general-purpose.
 I wanted a minimal tool tailored specifically for controlled, repeatable

@@ -17,6 +17,10 @@ const char *metric_names[NUMBER_OF_METRICS] = {
     [METRIC_L1_CACHE_MISSES]       = "L1_CACHE_MISSES",
     [METRIC_BRANCH_INSTRUCTIONS]   = "BRANCH_INSTRUCTIONS",
     [METRIC_BRANCH_MISPREDICTIONS] = "BRANCH_MISPREDICTIONS",
+
+    [METRIC_STALLED_CYCLES_FRONTEND] = "STALLED_CYCLES_FRONTEND",
+    [METRIC_STALLED_CYCLES_BACKEND] = "STALLED_CYCLES_BACKEND",
+
     [METRIC_PAGE_FAULTS]           = "PAGE_FAULTS",
     [METRIC_CPU_CLOCK_NS]          = "CPU_CLOCK_NS",
     [METRIC_TASK_CLOCK_NS]         = "TASK_CLOCK_NS",
@@ -27,6 +31,8 @@ const char *metric_names[NUMBER_OF_METRICS] = {
     [METRIC_INSTRUCTIONS_PER_CYCLE] = "IPC",
     [METRIC_L1_CACHE_READ_MISS_RATE] = "L1_READ_MISS_RATE",
     [METRIC_BRANCH_MISPRED_RATE] = "BRANCH_MISPRED_RATE",
+
+    [METRIC_FE_VS_BE_STALL_RATIO] = "FE_VS_BE_STALLS",
 };
 
 const ratio_conf_t ratio_confs[NUMBER_OF_METRICS] = {
@@ -41,6 +47,10 @@ const ratio_conf_t ratio_confs[NUMBER_OF_METRICS] = {
     [METRIC_BRANCH_MISPRED_RATE] = {
         .numerator_id = METRIC_BRANCH_MISPREDICTIONS,
         .denominator_id = METRIC_BRANCH_INSTRUCTIONS,
+    },
+    [METRIC_FE_VS_BE_STALL_RATIO] = {
+        .numerator_id = METRIC_STALLED_CYCLES_FRONTEND,
+        .denominator_id = METRIC_STALLED_CYCLES_BACKEND,
     },
 };
 
@@ -85,6 +95,20 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         },
         .ratio_ids = {
             METRIC_BRANCH_MISPRED_RATE,
+        },
+    },
+
+    [METRIC_GRP_STALLED_CYCLES] = {
+        .id = METRIC_GRP_STALLED_CYCLES,
+        .n_counters = MAX_COUNTER_GRP_SIZE,
+        .n_ratios = 1,
+        .counter_ids = {
+            METRIC_CPU_CYCLES,
+            METRIC_STALLED_CYCLES_FRONTEND,
+            METRIC_STALLED_CYCLES_BACKEND,
+        },
+        .ratio_ids = {
+            METRIC_FE_VS_BE_STALL_RATIO,
         },
     },
 

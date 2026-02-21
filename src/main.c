@@ -69,6 +69,8 @@ int main(int argc, char *argv[]) {
         metric_grp_id = METRIC_GRP_L1_CACHE_READS;
     } else if (strcmp(metric_grp_str, "branch") == 0) {
         metric_grp_id = METRIC_GRP_BRANCH;
+    } else if (strcmp(metric_grp_str, "stalled-cycles") == 0) {
+        metric_grp_id = METRIC_GRP_STALLED_CYCLES;
     }
 
     if (workload_id < 0 || metric_grp_id < 0) {
