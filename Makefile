@@ -1,6 +1,6 @@
 # Compiler and flags
 CC=gcc
-CFLAGS=-Iinclude -O0 -Wall -Wextra -std=gnu11 -g
+CFLAGS?=$(BUILD_CFLAGS)
 
 # Source files
 SRCS=src/main.c \
@@ -33,5 +33,5 @@ clean:
 clear:
 	rm -f $(OBJS) $(OUT)
 
-.PHONY: all clean
+.PHONY: all clean clear
 
