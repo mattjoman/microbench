@@ -1,6 +1,8 @@
 #ifndef WORKLOAD_H
 #define WORKLOAD_H
 
+#define BIG_NUMBER_1 10000000
+
 enum {
     WL_CONTIGUOUS_ARRAY,
     WL_SCATTERED_ARRAY,
@@ -15,6 +17,9 @@ typedef struct workload {
     void (*workload)(void);
 } workload_t;
 
-extern const workload_t all_workloads[NUMBER_OF_WORKLOADS];
+extern workload_t *all_workloads[NUMBER_OF_WORKLOADS];
+
+extern workload_t wl_contiguous_array;
+extern workload_t wl_scattered_array;
 
 #endif

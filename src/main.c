@@ -21,7 +21,7 @@ static void print_workload_guide(void)
     printf("Workloads:\n\n");
 
     for (int i = 0; i < NUMBER_OF_WORKLOADS; i++) {
-        printf("  %s\n", all_workloads[i].name);
+        printf("  %s\n", all_workloads[i]->name);
     }
     printf("\n");
 }
