@@ -65,10 +65,14 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(metric_grp_str, "ipc") == 0) {
         metric_grp_id = METRIC_GRP_IPC;
-    } else if (strcmp(metric_grp_str, "llc-cache") == 0) {
-        metric_grp_id = METRIC_GRP_LLC_CACHE;
-    } else if (strcmp(metric_grp_str, "l1-cache") == 0) {
-        metric_grp_id = METRIC_GRP_L1_CACHE_READS;
+    } else if (strcmp(metric_grp_str, "llc-reads") == 0) {
+        metric_grp_id = METRIC_GRP_LLC_READS;
+    } else if (strcmp(metric_grp_str, "l1d-reads") == 0) {
+        metric_grp_id = METRIC_GRP_L1D_READS;
+    } else if (strcmp(metric_grp_str, "l1i-reads") == 0) {
+        metric_grp_id = METRIC_GRP_L1I_READS;
+    } else if (strcmp(metric_grp_str, "dtlb-reads") == 0) {
+        metric_grp_id = METRIC_GRP_DTLB_READS;
     } else if (strcmp(metric_grp_str, "branch") == 0) {
         metric_grp_id = METRIC_GRP_BRANCH;
     } else if (strcmp(metric_grp_str, "stalled-cycles") == 0) {

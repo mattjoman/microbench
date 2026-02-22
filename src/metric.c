@@ -11,10 +11,14 @@ const char *counter_confs[NUMBER_OF_COUNTERS] = {
     [COUNTER_CPU_CYCLES]              = "CPU_CYCLES",
     [COUNTER_REF_CPU_CYCLES]          = "REF_CPU_CYCLES",
     [COUNTER_INSTRUCTIONS]            = "INSTRUCTIONS",
-    [COUNTER_CACHE_ACCESSES]          = "LLC_CACHE_ACCESSES",
-    [COUNTER_CACHE_MISSES]            = "LLC_CACHE_MISSES",
-    [COUNTER_L1_CACHE_ACCESSES]       = "L1_CACHE_ACCESSES",
-    [COUNTER_L1_CACHE_MISSES]         = "L1_CACHE_MISSES",
+    [COUNTER_LLC_READ_ACCESSES]       = "LLC_READ_ACCESSES",
+    [COUNTER_LLC_READ_MISSES]         = "LLC_READ_MISSES",
+    [COUNTER_L1D_READ_ACCESSES]       = "L1D_READ_ACCESSES",
+    [COUNTER_L1D_READ_MISSES]         = "L1D_READ_MISSES",
+    [COUNTER_L1I_READ_ACCESSES]       = "L1I_READ_ACCESSES",
+    [COUNTER_L1I_READ_MISSES]         = "L1I_READ_MISSES",
+    [COUNTER_DTLB_READ_ACCESSES]      = "DTLB_READ_ACCESSES",
+    [COUNTER_DTLB_READ_MISSES]        = "DTLB_READ_MISSES",
     [COUNTER_BRANCH_INSTRUCTIONS]     = "BRANCH_INSTRUCTIONS",
     [COUNTER_BRANCH_MISPREDICTIONS]   = "BRANCH_MISPREDICTIONS",
     [COUNTER_STALLED_CYCLES_FRONTEND] = "STALLED_CYCLES_FRONTEND",
@@ -37,15 +41,25 @@ const ratio_conf_t ratio_confs[NUMBER_OF_RATIOS] = {
         .numerator_id = COUNTER_CPU_CYCLES,
         .denominator_id = COUNTER_INSTRUCTIONS,
     },
-    [RATIO_LLC_CACHE_MISS_RATE] = {
-        .name = "LLC_MISS_RATE",
-        .numerator_id = COUNTER_CACHE_MISSES,
-        .denominator_id = COUNTER_CACHE_ACCESSES,
+    [RATIO_LLC_READ_MISS_RATE] = {
+        .name = "LLC_READ_MISS_RATE",
+        .numerator_id = COUNTER_LLC_READ_MISSES,
+        .denominator_id = COUNTER_LLC_READ_ACCESSES,
     },
-    [RATIO_L1_CACHE_READ_MISS_RATE] = {
-        .name = "L1_READ_MISS_RATE",
-        .numerator_id = COUNTER_L1_CACHE_MISSES,
-        .denominator_id = COUNTER_L1_CACHE_ACCESSES,
+    [RATIO_L1D_READ_MISS_RATE] = {
+        .name = "L1D_READ_MISS_RATE",
+        .numerator_id = COUNTER_L1D_READ_MISSES,
+        .denominator_id = COUNTER_L1D_READ_ACCESSES,
+    },
+    [RATIO_L1I_READ_MISS_RATE] = {
+        .name = "L1I_READ_MISS_RATE",
+        .numerator_id = COUNTER_L1I_READ_MISSES,
+        .denominator_id = COUNTER_L1I_READ_ACCESSES,
+    },
+    [RATIO_DTLB_READ_MISS_RATE] = {
+        .name = "DTLB_READ_MISS_RATE",
+        .numerator_id = COUNTER_DTLB_READ_MISSES,
+        .denominator_id = COUNTER_DTLB_READ_ACCESSES,
     },
     [RATIO_BRANCH_MISPRED_RATE] = {
         .name = "BRANCH_MISPRED_RATE",
@@ -76,31 +90,59 @@ const metric_grp_t metric_grps[NUMBER_OF_METRIC_GRPS] = {
         },
     },
 
-    [METRIC_GRP_LLC_CACHE] = {
-        .id = METRIC_GRP_LLC_CACHE,
+    [METRIC_GRP_LLC_READS] = {
+        .id = METRIC_GRP_LLC_READS,
         .n_counters = MAX_COUNTER_GRP_SIZE,
         .n_ratios = 1,
         .counter_ids = {
             COUNTER_CPU_CYCLES,
-            COUNTER_CACHE_ACCESSES,
-            COUNTER_CACHE_MISSES,
+            COUNTER_LLC_READ_ACCESSES,
+            COUNTER_LLC_READ_MISSES,
         },
         .ratio_ids = {
-            RATIO_LLC_CACHE_MISS_RATE,
+            RATIO_LLC_READ_MISS_RATE,
         },
     },
 
-    [METRIC_GRP_L1_CACHE_READS] = {
-        .id = METRIC_GRP_L1_CACHE_READS,
+    [METRIC_GRP_L1D_READS] = {
+        .id = METRIC_GRP_L1D_READS,
         .n_counters = MAX_COUNTER_GRP_SIZE,
         .n_ratios = 1,
         .counter_ids = {
             COUNTER_CPU_CYCLES,
-            COUNTER_L1_CACHE_ACCESSES,
-            COUNTER_L1_CACHE_MISSES,
+            COUNTER_L1D_READ_ACCESSES,
+            COUNTER_L1D_READ_MISSES,
         },
         .ratio_ids = {
-            RATIO_L1_CACHE_READ_MISS_RATE,
+            RATIO_L1D_READ_MISS_RATE,
+        },
+    },
+
+    [METRIC_GRP_L1I_READS] = {
+        .id = METRIC_GRP_L1I_READS,
+        .n_counters = MAX_COUNTER_GRP_SIZE,
+        .n_ratios = 1,
+        .counter_ids = {
+            COUNTER_CPU_CYCLES,
+            COUNTER_L1I_READ_ACCESSES,
+            COUNTER_L1I_READ_MISSES,
+        },
+        .ratio_ids = {
+            RATIO_L1I_READ_MISS_RATE,
+        },
+    },
+
+    [METRIC_GRP_DTLB_READS] = {
+        .id = METRIC_GRP_DTLB_READS,
+        .n_counters = MAX_COUNTER_GRP_SIZE,
+        .n_ratios = 1,
+        .counter_ids = {
+            COUNTER_CPU_CYCLES,
+            COUNTER_DTLB_READ_ACCESSES,
+            COUNTER_DTLB_READ_MISSES,
+        },
+        .ratio_ids = {
+            RATIO_DTLB_READ_MISS_RATE,
         },
     },
 

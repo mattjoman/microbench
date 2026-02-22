@@ -52,23 +52,51 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_INSTRUCTIONS;
             break;
-        case COUNTER_CACHE_ACCESSES:
-            pea.type = PERF_TYPE_HARDWARE;
-            pea.config = PERF_COUNT_HW_CACHE_REFERENCES;
+        case COUNTER_LLC_READ_ACCESSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_LL
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
             break;
-        case COUNTER_CACHE_MISSES:
-            pea.type = PERF_TYPE_HARDWARE;
-            pea.config = PERF_COUNT_HW_CACHE_MISSES;
+        case COUNTER_LLC_READ_MISSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_LL
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
-        case COUNTER_L1_CACHE_ACCESSES:
+        case COUNTER_L1D_READ_ACCESSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
             break;
-        case COUNTER_L1_CACHE_MISSES:
+        case COUNTER_L1D_READ_MISSES:
             pea.type = PERF_TYPE_HW_CACHE;
             pea.config = PERF_COUNT_HW_CACHE_L1D
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
+            break;
+        case COUNTER_L1I_READ_ACCESSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_L1I
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
+            break;
+        case COUNTER_L1I_READ_MISSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_L1I
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
+            break;
+        case COUNTER_DTLB_READ_ACCESSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_DTLB
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
+            break;
+        case COUNTER_DTLB_READ_MISSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_DTLB
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
@@ -143,8 +171,10 @@ static void open_perf_counters(struct perf_event_attr attrs[],
          * by the user's hardware.
          * Check if errno is EOPNOTSUPP.
          */
-        if (counter_fds[evt_idx] == -1)
+        if (counter_fds[evt_idx] == -1) {
+            printf("Hardware probably doesn't support this event\n");
             exit(1);
+        }
 
         ioctl(counter_fds[evt_idx], PERF_EVENT_IOC_ID, &counter_ids[evt_idx]);
     }
