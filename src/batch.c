@@ -35,15 +35,17 @@ static int init_batch_data(batch_data_t *batch_data, batch_conf_t batch_conf)
     batch_data->n_counters = metric_grp.n_counters;
     batch_data->n_ratios = metric_grp.n_ratios;
 
-    for (int i = 0; i < metric_grp.n_counters; i++) {
+    for (int i = 0; i < NUMBER_OF_COUNTERS; i++) {
+        batch_data->counter_id_map[i] = -1;
+    }
 
+    for (int i = 0; i < metric_grp.n_counters; i++) {
         counter.id = metric_grp.counter_ids[i];
         batch_data->counters[i] = counter;
         batch_data->counter_id_map[metric_grp.counter_ids[i]] = i;
     }
 
     for (int i = 0; i < metric_grp.n_ratios; i++) {
-
         ratio.id = metric_grp.ratio_ids[i];
         batch_data->ratios[i] = ratio;
     }
@@ -79,6 +81,7 @@ static int process_batch_ratios(batch_conf_t batch_conf,
     int numerator_idx, denominator_idx, batch_runs, *counter_id_map;
     uint64_t *numerators, *denominators;
 
+    counter_id_map = batch_data->counter_id_map;
     metric_grp_id = batch_conf.metric_grp_id;
 
     for (int i = 0; i < batch_data->n_ratios; i++) {
@@ -87,10 +90,12 @@ static int process_batch_ratios(batch_conf_t batch_conf,
         numerator_id = ratio_confs[ratio_id].numerator_id;
         denominator_id = ratio_confs[ratio_id].denominator_id;
 
-        counter_id_map = batch_data->counter_id_map;
-
         numerator_idx = counter_id_map[numerator_id];
         denominator_idx = counter_id_map[denominator_id];
+
+        if (numerator_idx == -1 || denominator_idx == -1) {
+            return -1;
+        }
 
         counters = batch_data->counters;
         ratios = batch_data->ratios;

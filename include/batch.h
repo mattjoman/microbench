@@ -25,11 +25,15 @@ typedef struct batch_data {
     /*
      * Poor man's map - a sparse array which maps a counter id to an index of
      * the batch_data.counters[] array.
+     * Unused array elements should be set to -1.
      *
      * Usage:
      *
      *     int counter_array_idx = counter_id_map[COUNTER_ID];
      *     counter_metric_t counter = counters[counter_array_idx];
+     *     if (counter == -1) {
+     *         return -1; // error
+     *     }
      */
     int counter_id_map[NUMBER_OF_COUNTERS];
 } batch_data_t;
