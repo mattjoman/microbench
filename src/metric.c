@@ -4,7 +4,7 @@
 #include "../include/metric.h"
 #include "../include/data_processing.h"
 
-const char *counter_names[NUMBER_OF_COUNTERS] = {
+const char *counter_confs[NUMBER_OF_COUNTERS] = {
 
     /* counter metrics */
 

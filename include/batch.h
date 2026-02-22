@@ -15,9 +15,23 @@ typedef struct batch_conf {
 } batch_conf_t;
 
 typedef struct batch_data {
-    counter_id_t counter_id_map[NUMBER_OF_COUNTERS];
+
+    int n_counters;
     counter_metric_t counters[MAX_COUNTER_GRP_SIZE];
+
+    int n_ratios;
     ratio_metric_t ratios[MAX_RATIO_METRICS];
+
+    /*
+     * Poor man's map - a sparse array which maps a counter id to an index of
+     * the batch_data.counters[] array.
+     *
+     * Usage:
+     *
+     *     int counter_array_idx = counter_id_map[COUNTER_ID];
+     *     counter_metric_t counter = counters[counter_array_idx];
+     */
+    int counter_id_map[NUMBER_OF_COUNTERS];
 } batch_data_t;
 
 int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
@@ -25,6 +39,6 @@ int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
                                               int workload_id,
                                               metric_grp_id_t id);
 
-void run_batch(batch_conf_t batch_config);
+void run_batch(batch_conf_t batch_conf);
 
 #endif

@@ -30,7 +30,7 @@ typedef enum {
 
 } counter_id_t;
 
-extern const char *counter_names[NUMBER_OF_COUNTERS];
+extern const char *counter_confs[NUMBER_OF_COUNTERS];
 
 typedef enum {
 

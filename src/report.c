@@ -28,8 +28,7 @@ static void print_counter_table_row(counter_metric_t metric)
     char max_buf[32];
     char median_buf[32];
 
-    //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
-    snprintf(name_buf, sizeof(name_buf), "%s", counter_names[metric.id]);
+    snprintf(name_buf, sizeof(name_buf), "%s", counter_confs[metric.id]);
     snprintf(min_buf, sizeof(min_buf), "%ld", metric.agg.min);
     snprintf(max_buf, sizeof(max_buf), "%ld", metric.agg.max);
     snprintf(median_buf, sizeof(median_buf), "%ld", metric.agg.median);
@@ -49,7 +48,6 @@ static void print_ratio_table_row(ratio_metric_t metric)
     char max_buf[32];
     char median_buf[32];
 
-    //snprintf(name_buf, sizeof(name_buf), "%s", metric.name);
     snprintf(name_buf, sizeof(name_buf), "%s", ratio_confs[metric.id].name);
     snprintf(min_buf, sizeof(min_buf), "%.2f", metric.agg.min);
     snprintf(max_buf, sizeof(max_buf), "%.2f", metric.agg.max);
@@ -77,25 +75,29 @@ static void print_table_column_headers()
     putchar('\n');
 }
 
+static void print_batch_info(batch_conf_t batch_conf)
+{
+    printf("    Warmup runs: %d\n", batch_conf.warmup_runs);
+    printf("    Batch runs:  %d\n", batch_conf.batch_runs);
+    putchar('\n');
+}
+
 void run_report(batch_conf_t batch_conf, batch_data_t batch_data)
 {
     counter_metric_t ctr_metric;
     ratio_metric_t ratio_metric;
 
     printf("\n");
-
+    print_batch_info(batch_conf);
     print_table_column_headers();
 
-    int n_counters = metric_grps[batch_conf.metric_grp_id].n_counters;
-    int n_ratios = metric_grps[batch_conf.metric_grp_id].n_ratios;
-
-    for (int i = 0; i < n_counters; i++) {
+    for (int i = 0; i < batch_data.n_counters; i++) {
 
         ctr_metric = batch_data.counters[i];
         print_counter_table_row(ctr_metric);
     }
 
-    for (int i = 0; i < n_ratios; i++) {
+    for (int i = 0; i < batch_data.n_ratios; i++) {
 
         ratio_metric = batch_data.ratios[i];
         print_ratio_table_row(ratio_metric);
