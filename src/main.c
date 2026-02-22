@@ -96,10 +96,10 @@ int main(int argc, char *argv[])
     int workload_id = -1;
     int metric_grp_id = -1;
 
-    if (strcmp(workload_str, "CONTIGUOUS_ARRAY") == 0) {
+    if (strcmp(workload_str, all_workloads[WL_CONTIGUOUS_ARRAY]->name) == 0) {
         workload_id = WL_CONTIGUOUS_ARRAY;
 
-    } else if (strcmp(workload_str, "SCATTERED_ARRAY") == 0) {
+    } else if (strcmp(workload_str, all_workloads[WL_SCATTERED_ARRAY]->name) == 0) {
         workload_id = WL_SCATTERED_ARRAY;
 
     }
