@@ -73,10 +73,18 @@ int main(int argc, char *argv[]) {
         metric_grp_id = METRIC_GRP_L1I_READS;
     } else if (strcmp(metric_grp_str, "dtlb-reads") == 0) {
         metric_grp_id = METRIC_GRP_DTLB_READS;
+    } else if (strcmp(metric_grp_str, "itlb-reads") == 0) {
+        metric_grp_id = METRIC_GRP_ITLB_READS;
+    } else if (strcmp(metric_grp_str, "bpu-reads") == 0) {
+        metric_grp_id = METRIC_GRP_BPU_READS;
     } else if (strcmp(metric_grp_str, "branch") == 0) {
         metric_grp_id = METRIC_GRP_BRANCH;
     } else if (strcmp(metric_grp_str, "stalled-cycles") == 0) {
         metric_grp_id = METRIC_GRP_STALLED_CYCLES;
+    } else if (strcmp(metric_grp_str, "page-faults") == 0) {
+        metric_grp_id = METRIC_GRP_PAGE_FAULTS;
+    } else if (strcmp(metric_grp_str, "alignment-faults") == 0) {
+        metric_grp_id = METRIC_GRP_ALIGNMENT_FAULTS;
     }
 
     if (workload_id < 0 || metric_grp_id < 0) {

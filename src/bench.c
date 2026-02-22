@@ -100,6 +100,30 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
                 | (PERF_COUNT_HW_CACHE_OP_READ << 8)
                 | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
             break;
+        case COUNTER_ITLB_READ_ACCESSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_ITLB
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
+            break;
+        case COUNTER_ITLB_READ_MISSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_ITLB
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
+            break;
+        case COUNTER_BPU_READ_ACCESSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_BPU
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16);
+            break;
+        case COUNTER_BPU_READ_MISSES:
+            pea.type = PERF_TYPE_HW_CACHE;
+            pea.config = PERF_COUNT_HW_CACHE_BPU
+                | (PERF_COUNT_HW_CACHE_OP_READ << 8)
+                | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16);
+            break;
         case COUNTER_BRANCH_INSTRUCTIONS:
             pea.type = PERF_TYPE_HARDWARE;
             pea.config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
@@ -119,6 +143,14 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
         case COUNTER_PAGE_FAULTS:
             pea.type = PERF_TYPE_SOFTWARE;
             pea.config = PERF_COUNT_SW_PAGE_FAULTS;
+            break;
+        case COUNTER_PAGE_FAULTS_MAJ:
+            pea.type = PERF_TYPE_SOFTWARE;
+            pea.config = PERF_COUNT_SW_PAGE_FAULTS_MAJ;
+            break;
+        case COUNTER_PAGE_FAULTS_MIN:
+            pea.type = PERF_TYPE_SOFTWARE;
+            pea.config = PERF_COUNT_SW_PAGE_FAULTS_MIN;
             break;
         case COUNTER_CPU_CLOCK_NS:
             pea.type = PERF_TYPE_SOFTWARE;
@@ -272,7 +304,10 @@ int bench_perf_event(batch_conf_t batch_conf, batch_data_t *batch_data,
                                              sizeof(perf_result_t));
 
         /* Check for corrupt read() data */
-        assert(size == sizeof(perf_result_t));
+        if (size != sizeof(perf_result_t)) {
+            printf("Incorrect size returned from read()\n");
+            exit(1);
+        }
     }
 
     for (int i = 0; i < n_counters; i++) {
