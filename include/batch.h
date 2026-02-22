@@ -1,8 +1,6 @@
 #ifndef BATCH_H
 #define BATCH_H
 
-#include <stdint.h>
-
 #include "./microbench.h"
 #include "./metric.h"
 #include "./workload.h"

@@ -113,11 +113,18 @@ static int process_batch_ratios(batch_conf_t batch_conf,
     return 0;
 }
 
-static void process_batch_data(batch_conf_t batch_conf,
-                               batch_data_t *batch_data)
+static int process_batch_data(batch_conf_t batch_conf,
+                              batch_data_t *batch_data)
 {
-    process_batch_ctrs(batch_conf, batch_data);
-    process_batch_ratios(batch_conf, batch_data);
+    if(process_batch_ctrs(batch_conf, batch_data) != 0) {
+        return -1;
+    }
+
+    if(process_batch_ratios(batch_conf, batch_data) != 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 void run_batch(batch_conf_t batch_conf)
