@@ -19,8 +19,8 @@ uint64_agg_t aggregate_uint64(uint64_t array[], int size);
 
 double_agg_t aggregate_double(double array[], int size);
 
-void calc_ratios(double results[], uint64_t numerators[],
-                                   uint64_t denominators[],
+void calc_ratios(double results[], const uint64_t numerators[],
+                                   const uint64_t denominators[],
                                    int size);
 
 #endif

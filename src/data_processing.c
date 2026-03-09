@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "../include/data_processing.h"
 #include "../include/metric.h"
@@ -68,17 +69,11 @@ double_agg_t aggregate_double(double array[], int size)
     return agg;
 }
 
-void calc_ratios(double results[], uint64_t numerators[],
-                                   uint64_t denominators[],
+void calc_ratios(double results[], const uint64_t numerators[],
+                                   const uint64_t denominators[],
                                    int size)
 {
     for (int i = 0; i < size; i++) {
-
-        if (denominators[i] == 0) {
-            results[i] = 0.0;
-            continue;
-        }
-
-        results[i] = numerators[i] / (1.0 * denominators[i]);
+        results[i] = (double)numerators[i] / denominators[i];
     }
 }
