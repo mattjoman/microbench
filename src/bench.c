@@ -10,6 +10,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "../include/bench.h"
 
@@ -187,8 +188,10 @@ static void open_perf_counters(struct perf_event_attr attrs[],
 {
     counter_fds[0] = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0);
 
-    if (counter_fds[0] == -1)
+    if (counter_fds[0] == -1) {
+        perror("Failed to open perf counter group leader");
         exit(1);
+    }
 
     ioctl(counter_fds[0], PERF_EVENT_IOC_ID, &counter_ids[0]);
 
@@ -197,14 +200,8 @@ static void open_perf_counters(struct perf_event_attr attrs[],
         counter_fds[evt_idx] = syscall(SYS_perf_event_open,
                                 &(attrs[evt_idx]), 0, -1, counter_fds[0], 0);
 
-        /*
-         * XXX: Improve error handling here.
-         * If there is an error, it might be because the event is not supported
-         * by the user's hardware.
-         * Check if errno is EOPNOTSUPP.
-         */
         if (counter_fds[evt_idx] == -1) {
-            printf("Hardware probably doesn't support this event\n");
+            perror("Failed to open perf counters");
             exit(1);
         }
 
