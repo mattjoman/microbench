@@ -9,7 +9,7 @@ if [[ "$1" = "debug" ]]; then
     make BUILD_CFLAGS="-Iinclude -O0 -Wall -Wextra -std=gnu11 -g";
 elif [[ "$1" = "prod" ]]; then
     echo "Making production build";
-    make BUILD_CFLAGS="-O3 -std=gnu11";
+    make BUILD_CFLAGS="-O3 -std=gnu11 -g";
 else
     echo "Making debugging build";
     make BUILD_CFLAGS="-Iinclude -O0 -Wall -Wextra -std=gnu11 -g";
