@@ -32,69 +32,60 @@ int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
 
 static batch_data_t *init_batch_data(batch_conf_t batch_conf)
 {
+    batch_data_t *data;
     metric_grp_t metric_grp;
     counter_metric_t counter;
     ratio_metric_t ratio;
-    uint64_t *uint64_ptr;
-    double *double_ptr;
 
-    int batch_runs = batch_conf.batch_runs;
+    int runs = batch_conf.batch_runs;
 
-    batch_data_t *batch_data = calloc(1, sizeof(batch_data_t));
-    if (!batch_data) {
-        perror("Failed to allocate memory for batch_data struct");
+    
+    if (!(data = calloc(1, sizeof(batch_data_t)))) {
+        perror("Failed to allocate memory for batch_data_t struct");
         exit(1);
     }
 
     metric_grp = metric_grps[batch_conf.metric_grp_id];
 
-    batch_data->n_counters = metric_grp.n_counters;
-    batch_data->n_ratios = metric_grp.n_ratios;
+    data->n_counters = metric_grp.n_counters;
+    data->n_ratios = metric_grp.n_ratios;
 
     /* allocate memory for the time_enabled run_vals */
-    uint64_ptr = calloc(batch_runs, sizeof(uint64_t));
-    if (!uint64_ptr) {
+    if (!(data->time_enabled.run_vals = calloc(runs, sizeof(uint64_t)))) {
         perror("Failed to allocate array");
         exit(1);
     }
-    batch_data->time_enabled.run_vals = uint64_ptr;
 
     /* allocate memory for the time_running run_vals */
-    uint64_ptr = calloc(batch_runs, sizeof(uint64_t));
-    if (!uint64_ptr) {
+    if (!(data->time_running.run_vals = calloc(runs, sizeof(uint64_t)))) {
         perror("Failed to allocate array");
         exit(1);
     }
-    batch_data->time_running.run_vals = uint64_ptr;
 
     for (int i = 0; i < N_COUNTER_METRICS; i++) {
-        batch_data->counter_id_map[i] = -1;
+        data->counter_id_map[i] = -1;
     }
 
     for (int i = 0; i < metric_grp.n_counters; i++) {
         counter.id = metric_grp.counter_ids[i];
-        uint64_ptr = calloc(batch_runs, sizeof(uint64_t));
-        if (!uint64_ptr) {
+        if (!(counter.run_vals = calloc(runs, sizeof(uint64_t)))) {
             perror("Failed to allocate array");
             exit(1);
         }
-        counter.run_vals = uint64_ptr;
-        batch_data->counters[i] = counter;
-        batch_data->counter_id_map[metric_grp.counter_ids[i]] = i;
+        data->counters[i] = counter;
+        data->counter_id_map[metric_grp.counter_ids[i]] = i;
     }
 
     for (int i = 0; i < metric_grp.n_ratios; i++) {
         ratio.id = metric_grp.ratio_ids[i];
-        double_ptr = calloc(batch_runs, sizeof(double));
-        if (!double_ptr) {
+        if (!(ratio.run_vals = calloc(runs, sizeof(double)))) {
             perror("Failed to allocate array");
             exit(1);
         }
-        ratio.run_vals = double_ptr;
-        batch_data->ratios[i] = ratio;
+        data->ratios[i] = ratio;
     }
 
-    return batch_data;
+    return data;
 }
 
 static int destroy_batch_data(batch_data_t *batch_data)
