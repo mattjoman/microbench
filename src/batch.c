@@ -62,10 +62,10 @@ static batch_data_t *init_batch_data(batch_conf_t batch_conf)
         exit(1);
     }
 
-    for (int i = 0; i < N_COUNTER_METRICS; i++) {
-        data->counter_id_map[i] = -1;
-    }
+    /* init poor man's map elements to -1 */
+    memset(data->counter_id_map, -1, N_COUNTER_METRICS * sizeof(int));
 
+    /* init counter metrics */
     for (int i = 0; i < metric_grp.n_counters; i++) {
         counter.id = metric_grp.counter_ids[i];
         if (!(counter.run_vals = calloc(runs, sizeof(uint64_t)))) {
@@ -76,6 +76,7 @@ static batch_data_t *init_batch_data(batch_conf_t batch_conf)
         data->counter_id_map[metric_grp.counter_ids[i]] = i;
     }
 
+    /* init ratio metrics */
     for (int i = 0; i < metric_grp.n_ratios; i++) {
         ratio.id = metric_grp.ratio_ids[i];
         if (!(ratio.run_vals = calloc(runs, sizeof(double)))) {
@@ -113,7 +114,7 @@ static int destroy_batch_data(batch_data_t *batch_data)
 }
 
 static int process_batch_ctrs(batch_conf_t batch_conf,
-                               batch_data_t *batch_data)
+                              batch_data_t *batch_data)
 {
     uint64_agg_t agg;
     int batch_runs;
