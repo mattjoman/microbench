@@ -61,6 +61,26 @@ static void print_metric_grp_guide(void)
     }
 }
 
+int get_workload_id_from_name(const char *name)
+{
+    for (int i = 0; i < N_WORKLOADS; i++) {
+        if (strcmp(name, all_workloads[i]->name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int get_metric_grp_id_from_name(const char *name)
+{
+    for (int i = 0; i < N_METRIC_GRPS; i++) {
+        if (strcmp(name, metric_grps[i].name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -105,63 +125,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    int workload_id = -1;
-    int metric_grp_id = -1;
-
-    if (strcmp(workload_str, all_workloads[WL_CONTIGUOUS_ARRAY]->name) == 0) {
-        workload_id = WL_CONTIGUOUS_ARRAY;
-
-    } else if (strcmp(workload_str, all_workloads[WL_SCATTERED_ARRAY]->name) == 0) {
-        workload_id = WL_SCATTERED_ARRAY;
-    } else if (strcmp(workload_str, all_workloads[WL_STRIDED_ARRAY]->name) == 0) {
-        workload_id = WL_STRIDED_ARRAY;
-    }
-
-    if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_IPC].name) == 0) {
-        metric_grp_id = METRIC_GRP_IPC;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_LLC_READS].name) == 0) {
-        metric_grp_id = METRIC_GRP_LLC_READS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_L1D_READS].name) == 0) {
-        metric_grp_id = METRIC_GRP_L1D_READS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_L1I_READS].name) == 0) {
-        metric_grp_id = METRIC_GRP_L1I_READS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_DTLB_READS].name) == 0) {
-        metric_grp_id = METRIC_GRP_DTLB_READS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_ITLB_READS].name) == 0) {
-        metric_grp_id = METRIC_GRP_ITLB_READS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_BPU_READS].name) == 0) {
-        metric_grp_id = METRIC_GRP_BPU_READS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_BRANCH].name) == 0) {
-        metric_grp_id = METRIC_GRP_BRANCH;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_STALLED_CYCLES].name) == 0) {
-        metric_grp_id = METRIC_GRP_STALLED_CYCLES;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_PAGE_FAULTS].name) == 0) {
-        metric_grp_id = METRIC_GRP_PAGE_FAULTS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_ALIGNMENT_FAULTS].name) == 0) {
-        metric_grp_id = METRIC_GRP_ALIGNMENT_FAULTS;
-
-    } else if (strcmp(metric_grp_str, metric_grps[METRIC_GRP_RDTSCP].name) == 0) {
-        metric_grp_id = METRIC_GRP_RDTSCP;
-
-    }
+    int workload_id = get_workload_id_from_name(workload_str);
+    int metric_grp_id = get_metric_grp_id_from_name(metric_grp_str);
 
     if (workload_id < 0 || metric_grp_id < 0) {
         fprintf(stderr, "Usage 2\n");
         return 1;
     }
-
-    //int warmup_runs = 5;
-    //int batch_runs = MAX_BATCH_RUNS;
 
     batch_conf_t batch_conf;
     init_batch_conf(&batch_conf, warmup_runs, batch_runs, workload_id,
