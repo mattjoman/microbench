@@ -190,22 +190,19 @@ static int process_batch_data(batch_conf_t batch_conf,
 void run_batch(batch_conf_t batch_conf)
 {
     batch_data_t *batch_data = (batch_data_t*)init_batch_data(batch_conf);
+    workload_t *workload = all_workloads[batch_conf.workload_id];
 
-    workload_t workload = *all_workloads[batch_conf.workload_id];
-
-    workload.init();
+    workload->init();
 
     if (batch_conf.metric_grp_id == METRIC_GRP_RDTSCP) {
-        bench_rdtscp(batch_conf, batch_data, workload.workload);
+        bench_rdtscp(batch_conf, batch_data, workload->workload);
     } else {
-        bench_perf_event(batch_conf, batch_data, workload.workload);
+        bench_perf_event(batch_conf, batch_data, workload->workload);
     }
 
-    workload.clean();
+    workload->clean();
 
     process_batch_data(batch_conf, batch_data);
-
     run_report(batch_conf, batch_data);
-
     destroy_batch_data(batch_data);
 }
