@@ -49,7 +49,7 @@ static void print_metric_grp_guide(void)
 
         if (!metric_grp.n_ratios) {
             printf("\n");
-            return;
+            continue;
         }
 
         printf("    Derived:  ");
