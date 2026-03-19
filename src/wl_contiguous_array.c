@@ -34,7 +34,4 @@ static workload_t wl = {
     .workload = workload,
 };
 
-static void __attribute__((constructor)) register_wl(void)
-{
-    register_workload(&wl);
-}
+REGISTER_WORKLOAD(&wl);

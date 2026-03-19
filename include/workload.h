@@ -32,6 +32,11 @@ typedef struct workload {
 
 void register_workload(workload_t *wl);
 
+#define REGISTER_WORKLOAD(wl_ptr) \
+    static void __attribute((constructor)) register_wl(void) { \
+        register_workload(wl_ptr); \
+    }
+
 void print_workload_guide(void);
 
 workload_t *get_workload_by_name(const char *name);
