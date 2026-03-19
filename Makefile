@@ -1,6 +1,14 @@
 # Compiler and flags
 CC=gcc
-CFLAGS?=$(BUILD_CFLAGS)
+
+# Build modes
+PROD_CFLAGS = -O3 -g -Wall -Wextra -Wpedantic -std=gnu11
+DEBUG_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11
+ASAN_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 -fsanitize=address
+UBSAN_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 \
+	-fsanitize=undefined -fsanitize=float-divide-by-zero
+
+CFLAGS ?= $(PROD_CFLAGS)
 
 CORE_SRCS=core/main.c \
 	core/bench.c \
@@ -13,7 +21,6 @@ CORE_SRCS=core/main.c \
 WORKLOAD_SRCS := $(wildcard workloads/*.c)
 
 SRCS := $(CORE_SRCS) $(WORKLOAD_SRCS)
-
 OBJS=$(SRCS:.c=.o)
 
 # Output binary
@@ -21,6 +28,18 @@ OUT=out
 
 # Default target
 all: $(OUT)
+
+# Debug target overrides CFLAGS
+debug: CFLAGS := $(DEBUG_CFLAGS)
+debug: clean $(OUT)
+
+# Asan target overrides CFLAGS
+asan: CFLAGS := $(ASAN_CFLAGS)
+asan: clean $(OUT)
+
+# Asan target overrides CFLAGS
+ubsan: CFLAGS := $(UBSAN_CFLAGS)
+ubsan: clean $(OUT)
 
 # Link objects
 $(OUT): $(OBJS)

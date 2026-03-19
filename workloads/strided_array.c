@@ -10,8 +10,8 @@ static int *array;
 static void init(workload_t *wl, wl_arg_slice_t *wl_args)
 {
     stride_bytes = get_wl_param_val(wl, wl_args, "stride-bytes");
-    array_elements = get_wl_param_val(wl, wl_args,
-                                                            "array-elements");
+    array_elements = get_wl_param_val(wl, wl_args, "array-elements");
+
     array = (int *)aligned_alloc(stride_bytes, stride_bytes * array_elements);
     for (int i = 0; i < array_elements; i++) {
         array[i * (stride_bytes / sizeof(int))] = i;
@@ -23,8 +23,7 @@ static void clean(void)
     free(array);
 }
 
-__attribute__((noinline))
-static void workload(void)
+__attribute__((noinline)) static void workload(void)
 {
     volatile int sum = 0;
     for (int i = 0; i < array_elements; i++) {
@@ -54,4 +53,4 @@ static workload_t wl = {
     .workload = workload,
 };
 
-REGISTER_WORKLOAD(&wl);
+REGISTER_WORKLOAD(&wl)

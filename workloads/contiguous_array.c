@@ -7,6 +7,9 @@ static int *contiguous_array;
 
 static void init(workload_t *wl, wl_arg_slice_t *wl_args)
 {
+    (void)wl;
+    (void)wl_args;
+
     contiguous_array = (int *)calloc(array_size, sizeof(int));
     for (int i = 0; i < array_size; i++) {
         contiguous_array[i] = i;
@@ -18,8 +21,7 @@ static void clean(void)
     free(contiguous_array);
 }
 
-__attribute__((noinline))
-static void workload(void)
+__attribute__((noinline)) static void workload(void)
 {
     volatile int sum;
     for (int i = 0; i < array_size; i++) {
@@ -34,4 +36,4 @@ static workload_t wl = {
     .workload = workload,
 };
 
-REGISTER_WORKLOAD(&wl);
+REGISTER_WORKLOAD(&wl)
