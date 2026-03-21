@@ -4,7 +4,7 @@
 #include "../include/metric.h"
 #include "../include/data_processing.h"
 
-const char *counter_confs[N_RAW_METRICS] = {
+const char *raw_metric_confs[N_RAW_METRICS] = {
 
     /* raw metrics */
 
@@ -96,9 +96,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_IPC] = {
         .id = METRIC_GRP_IPC,
         .name = "IPC",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 2,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_REF_CPU_CYCLES,
             RAW_INSTRUCTIONS,
@@ -112,9 +112,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_LLC_READS] = {
         .id = METRIC_GRP_LLC_READS,
         .name = "LLC_READS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_LLC_READ_ACCESSES,
             RAW_LLC_READ_MISSES,
@@ -127,9 +127,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_L1D_READS] = {
         .id = METRIC_GRP_L1D_READS,
         .name = "L1D_READS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_L1D_READ_ACCESSES,
             RAW_L1D_READ_MISSES,
@@ -142,9 +142,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_L1I_READS] = {
         .id = METRIC_GRP_L1I_READS,
         .name = "L1I_READS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_L1I_READ_ACCESSES,
             RAW_L1I_READ_MISSES,
@@ -157,9 +157,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_DTLB_READS] = {
         .id = METRIC_GRP_DTLB_READS,
         .name = "DTLB_READS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_DTLB_READ_ACCESSES,
             RAW_DTLB_READ_MISSES,
@@ -172,9 +172,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_ITLB_READS] = {
         .id = METRIC_GRP_ITLB_READS,
         .name = "ITLB_READS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_ITLB_READ_ACCESSES,
             RAW_ITLB_READ_MISSES,
@@ -187,9 +187,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_BPU_READS] = {
         .id = METRIC_GRP_BPU_READS,
         .name = "BPU_READS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_BPU_READ_ACCESSES,
             RAW_BPU_READ_MISSES,
@@ -202,9 +202,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_BRANCH] = {
         .id = METRIC_GRP_BRANCH,
         .name = "BRANCH",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_BRANCH_INSTRUCTIONS,
             RAW_BRANCH_MISPREDICTIONS,
@@ -217,9 +217,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_STALLED_CYCLES] = {
         .id = METRIC_GRP_STALLED_CYCLES,
         .name = "STALLED_CYCLES",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 1,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_STALLED_CYCLES_FRONTEND,
             RAW_STALLED_CYCLES_BACKEND,
@@ -232,9 +232,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_PAGE_FAULTS] = {
         .id = METRIC_GRP_PAGE_FAULTS,
         .name = "PAGE_FAULTS",
-        .n_counters = 3,
+        .n_raw_metrics = 3,
         .n_ratios = 0,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_PAGE_FAULTS,
             RAW_PAGE_FAULTS_MAJ,
             RAW_PAGE_FAULTS_MIN,
@@ -246,9 +246,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_ALIGNMENT_FAULTS] = {
         .id = METRIC_GRP_ALIGNMENT_FAULTS,
         .name = "ALIGNMENT_FAULTS",
-        .n_counters = 2,
+        .n_raw_metrics = 2,
         .n_ratios = 0,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_CPU_CYCLES,
             RAW_ALIGNMENT_FAULTS,
         },
@@ -259,9 +259,9 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
     [METRIC_GRP_TIMER] = {
         .id = METRIC_GRP_TIMER,
         .name = "TIMER",
-        .n_counters = 1,
+        .n_raw_metrics = 1,
         .n_ratios = 0,
-        .counter_ids = {
+        .raw_metric_ids = {
             RAW_TIMER,
         },
         //.ratio_ids = {

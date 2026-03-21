@@ -21,14 +21,14 @@ static void print_table_cell_right_align(const char *text)
     printf("%s", cell_buf);
 }
 
-static void print_counter_table_row(counter_metric_t metric)
+static void print_raw_metric_table_row(raw_metric_t metric)
 {
     char name_buf[32];
     char min_buf[32];
     char max_buf[32];
     char median_buf[32];
 
-    snprintf(name_buf, sizeof(name_buf), "%s", counter_confs[metric.id]);
+    snprintf(name_buf, sizeof(name_buf), "%s", raw_metric_confs[metric.id]);
     snprintf(min_buf, sizeof(min_buf), "%ld", metric.agg.min);
     snprintf(max_buf, sizeof(max_buf), "%ld", metric.agg.max);
     snprintf(median_buf, sizeof(median_buf), "%ld", metric.agg.median);
@@ -84,17 +84,17 @@ static void print_batch_info(batch_conf_t batch_conf)
 
 void run_report(batch_conf_t batch_conf, batch_data_t *batch_data)
 {
-    counter_metric_t ctr_metric;
+    raw_metric_t raw_metric;
     ratio_metric_t ratio_metric;
 
     printf("\n");
     print_batch_info(batch_conf);
     print_table_column_headers();
 
-    for (int i = 0; i < batch_data->n_counters; i++) {
+    for (int i = 0; i < batch_data->n_raw_metrics; i++) {
 
-        ctr_metric = batch_data->counters[i];
-        print_counter_table_row(ctr_metric);
+        raw_metric = batch_data->raw_metrics[i];
+        print_raw_metric_table_row(raw_metric);
     }
 
     for (int i = 0; i < batch_data->n_ratios; i++) {

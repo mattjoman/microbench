@@ -8,7 +8,7 @@
 
 typedef enum {
 
-    /* counter metrics */
+    /* raw metrics */
 
     RAW_CPU_CYCLES,
     RAW_REF_CPU_CYCLES,
@@ -40,9 +40,9 @@ typedef enum {
 
     N_RAW_METRICS,
 
-} counter_id_t;
+} raw_metric_id_t;
 
-extern const char *counter_confs[N_RAW_METRICS];
+extern const char *raw_metric_confs[N_RAW_METRICS];
 
 typedef enum {
 
@@ -65,8 +65,8 @@ typedef enum {
 
 typedef struct ratio_conf {
     const char *name;
-    counter_id_t numerator_id;
-    counter_id_t denominator_id;
+    raw_metric_id_t numerator_id;
+    raw_metric_id_t denominator_id;
 } ratio_conf_t;
 
 extern const ratio_conf_t ratio_confs[N_RATIO_METRICS];
@@ -89,11 +89,11 @@ typedef enum {
     N_METRIC_GRPS,
 } metric_grp_id_t;
 
-typedef struct counter_metric {
+typedef struct raw_metric {
     int id;
     uint64_t *run_vals;
     uint64_agg_t agg;
-} counter_metric_t;
+} raw_metric_t;
 
 typedef struct ratio_metric {
     int id;
@@ -104,9 +104,11 @@ typedef struct ratio_metric {
 typedef struct metric_grp {
     int id;
     const char *name;
-    int n_counters;
+
+    int n_raw_metrics;
+    raw_metric_id_t raw_metric_ids[MAX_ACTIVE_PERF_COUNTERS];
+
     int n_ratios;
-    counter_id_t counter_ids[MAX_ACTIVE_PERF_COUNTERS];
     ratio_id_t ratio_ids[MAX_ACTIVE_RATIOS];
 } metric_grp_t;
 

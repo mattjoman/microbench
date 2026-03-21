@@ -31,7 +31,7 @@ int bench_timer(batch_conf_t batch_conf, batch_data_t *batch_data,
 {
     uint64_t start, end, *raw_values;
 
-    raw_values = batch_data->counters[0].run_vals;
+    raw_values = batch_data->raw_metrics[0].run_vals;
 
     pin_thread();
 

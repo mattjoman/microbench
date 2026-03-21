@@ -203,13 +203,13 @@ typedef struct perf_result {
 static void store_perf_results(batch_data_t *batch_data,
                                                perf_result_t perf_results[],
                                                uint64_t perf_ctr_ids[],
-                                               int n_counters,
+                                               int n_raw_metrics,
                                                int batch_runs)
 {
     for (int run = 0; run < batch_runs; run++) {
 
         /* verify that the kernel did not reorder the counters */
-        for (int i = 0; i < n_counters; i++) {
+        for (int i = 0; i < n_raw_metrics; i++) {
             assert(perf_results[run].values[i].id == perf_ctr_ids[i]);
         }
 
@@ -220,7 +220,7 @@ static void store_perf_results(batch_data_t *batch_data,
 
         for (unsigned int pr_idx = 0; pr_idx < perf_result->nr; pr_idx++) {
             uint64_t value = perf_result->values[pr_idx].value;
-            batch_data->counters[pr_idx].run_vals[run] = value;
+            batch_data->raw_metrics[pr_idx].run_vals[run] = value;
         }
     }
 }
@@ -233,7 +233,7 @@ int bench_perf_event_open(batch_conf_t batch_conf,
     int                    perf_ctr_fds[MAX_ACTIVE_PERF_COUNTERS];
     uint64_t               perf_ctr_ids[MAX_ACTIVE_PERF_COUNTERS];
 
-    int n_counters = metric_grps[batch_conf.metric_grp_id].n_counters;
+    int n_raw_metrics = metric_grps[batch_conf.metric_grp_id].n_raw_metrics;
 
     perf_result_t *perf_results = calloc(batch_conf.batch_runs,
                                                         sizeof(perf_result_t));
@@ -242,23 +242,24 @@ int bench_perf_event_open(batch_conf_t batch_conf,
         exit(1);
     }
 
-    for (int i = 0; i < n_counters; i++) {
+    for (int i = 0; i < n_raw_metrics; i++) {
 
-        int counter_id = batch_data->counters[i].id;
+        int raw_metric_id = batch_data->raw_metrics[i].id;
 
         int is_leader = 0;
         if (i == 0)
             is_leader = 1;
 
-        attrs[i] = create_perf_config(counter_id, is_leader);
+        attrs[i] = create_perf_config(raw_metric_id, is_leader);
     }
 
     pin_thread();
 
-    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, n_counters);
+    open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, n_raw_metrics);
 
-    for (int i = 0; i < batch_conf.warmup_runs; i++)
+    for (int i = 0; i < batch_conf.warmup_runs; i++) {
         workload();
+    }
 
     /*
      * This is the main benchmark loop.
@@ -288,13 +289,13 @@ int bench_perf_event_open(batch_conf_t batch_conf,
         }
     }
 
-    for (int i = 0; i < n_counters; i++) {
+    for (int i = 0; i < n_raw_metrics; i++) {
         if (close(perf_ctr_fds[i]) == -1) {
             exit(1);
         }
     }
 
-    store_perf_results(batch_data, perf_results, perf_ctr_ids, n_counters,
+    store_perf_results(batch_data, perf_results, perf_ctr_ids, n_raw_metrics,
                                                         batch_conf.batch_runs);
     free(perf_results);
 

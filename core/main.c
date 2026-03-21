@@ -21,7 +21,7 @@ static const char help_text[] =
 static void print_metric_grp_guide(void)
 {
     metric_grp_t metric_grp;
-    counter_id_t counter_id;
+    raw_metric_id_t raw_metric_id;
     ratio_id_t ratio_id;
 
     printf("Metric groups:\n\n");
@@ -30,10 +30,10 @@ static void print_metric_grp_guide(void)
         metric_grp = metric_grps[i];
         printf("  %s:\n", metric_grp.name);
 
-        printf("    Counters: ");
-        for (int j = 0; j < metric_grp.n_counters; j++) {
-            counter_id = metric_grp.counter_ids[j];
-            printf("%s  ", counter_confs[counter_id]);
+        printf("    Raw: ");
+        for (int j = 0; j < metric_grp.n_raw_metrics; j++) {
+            raw_metric_id = metric_grp.raw_metric_ids[j];
+            printf("%s  ", raw_metric_confs[raw_metric_id]);
         }
         printf("\n");
 

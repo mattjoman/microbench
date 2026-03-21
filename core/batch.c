@@ -34,7 +34,7 @@ static batch_data_t *init_batch_data(batch_conf_t batch_conf)
 {
     batch_data_t *data;
     metric_grp_t metric_grp;
-    counter_metric_t counter;
+    raw_metric_t raw_metric;
     ratio_metric_t ratio;
 
     int runs = batch_conf.batch_runs;
@@ -47,7 +47,7 @@ static batch_data_t *init_batch_data(batch_conf_t batch_conf)
 
     metric_grp = metric_grps[batch_conf.metric_grp_id];
 
-    data->n_counters = metric_grp.n_counters;
+    data->n_raw_metrics = metric_grp.n_raw_metrics;
     data->n_ratios = metric_grp.n_ratios;
 
     /* allocate memory for the time_enabled run_vals */
@@ -63,17 +63,17 @@ static batch_data_t *init_batch_data(batch_conf_t batch_conf)
     }
 
     /* init poor man's map elements to -1 */
-    memset(data->counter_id_map, -1, N_RAW_METRICS * sizeof(int));
+    memset(data->raw_metric_id_map, -1, N_RAW_METRICS * sizeof(int));
 
-    /* init counter metrics */
-    for (int i = 0; i < metric_grp.n_counters; i++) {
-        counter.id = metric_grp.counter_ids[i];
-        if (!(counter.run_vals = calloc(runs, sizeof(uint64_t)))) {
+    /* init raw metrics */
+    for (int i = 0; i < metric_grp.n_raw_metrics; i++) {
+        raw_metric.id = metric_grp.raw_metric_ids[i];
+        if (!(raw_metric.run_vals = calloc(runs, sizeof(uint64_t)))) {
             perror("Failed to allocate array");
             exit(1);
         }
-        data->counters[i] = counter;
-        data->counter_id_map[metric_grp.counter_ids[i]] = i;
+        data->raw_metrics[i] = raw_metric;
+        data->raw_metric_id_map[metric_grp.raw_metric_ids[i]] = i;
     }
 
     /* init ratio metrics */
@@ -97,9 +97,9 @@ static int destroy_batch_data(batch_data_t *batch_data)
     free(batch_data->time_running.run_vals);
     batch_data->time_running.run_vals = NULL;
 
-    for (int i = 0; i < batch_data->n_counters; i++) {
-        free(batch_data->counters[i].run_vals);
-        batch_data->counters[i].run_vals = NULL;
+    for (int i = 0; i < batch_data->n_raw_metrics; i++) {
+        free(batch_data->raw_metrics[i].run_vals);
+        batch_data->raw_metrics[i].run_vals = NULL;
     }
 
     for (int i = 0; i < batch_data->n_ratios; i++) {
@@ -113,17 +113,18 @@ static int destroy_batch_data(batch_data_t *batch_data)
     return 0;
 }
 
-static int process_batch_ctrs(batch_conf_t batch_conf,
-                              batch_data_t *batch_data)
+static int process_batch_raw_metrics(batch_conf_t batch_conf,
+                                     batch_data_t *batch_data)
 {
     uint64_agg_t agg;
     int batch_runs;
 
     batch_runs = batch_conf.batch_runs;
 
-    for (int i = 0; i < batch_data->n_counters; i++) {
-        agg = aggregate_uint64(batch_data->counters[i].run_vals, batch_runs);
-        batch_data->counters[i].agg = agg;
+    for (int i = 0; i < batch_data->n_raw_metrics; i++) {
+        agg = aggregate_uint64(batch_data->raw_metrics[i].run_vals,
+                                                                batch_runs);
+        batch_data->raw_metrics[i].agg = agg;
     }
 
     return 0;
@@ -134,14 +135,14 @@ static int process_batch_ratios(batch_conf_t batch_conf,
 {
     metric_grp_id_t metric_grp_id;
     ratio_id_t ratio_id;
-    counter_id_t numerator_id, denominator_id;
+    raw_metric_id_t numerator_id, denominator_id;
     double_agg_t agg;
-    counter_metric_t *counters;
+    raw_metric_t *raw_metrics;
     ratio_metric_t *ratios;
-    int numerator_idx, denominator_idx, batch_runs, *counter_id_map;
+    int numerator_idx, denominator_idx, batch_runs, *raw_metric_id_map;
     uint64_t *numerators, *denominators;
 
-    counter_id_map = batch_data->counter_id_map;
+    raw_metric_id_map = batch_data->raw_metric_id_map;
     metric_grp_id = batch_conf.metric_grp_id;
 
     for (int i = 0; i < batch_data->n_ratios; i++) {
@@ -150,18 +151,18 @@ static int process_batch_ratios(batch_conf_t batch_conf,
         numerator_id = ratio_confs[ratio_id].numerator_id;
         denominator_id = ratio_confs[ratio_id].denominator_id;
 
-        numerator_idx = counter_id_map[numerator_id];
-        denominator_idx = counter_id_map[denominator_id];
+        numerator_idx = raw_metric_id_map[numerator_id];
+        denominator_idx = raw_metric_id_map[denominator_id];
 
         if (numerator_idx == -1 || denominator_idx == -1) {
             return -1;
         }
 
-        counters = batch_data->counters;
+        raw_metrics = batch_data->raw_metrics;
         ratios = batch_data->ratios;
 
-        numerators = counters[numerator_idx].run_vals;
-        denominators = counters[denominator_idx].run_vals;
+        numerators = raw_metrics[numerator_idx].run_vals;
+        denominators = raw_metrics[denominator_idx].run_vals;
 
         batch_runs = batch_conf.batch_runs;
         calc_ratios(ratios[i].run_vals, numerators, denominators, batch_runs);
@@ -176,7 +177,7 @@ static int process_batch_ratios(batch_conf_t batch_conf,
 static int process_batch_data(batch_conf_t batch_conf,
                               batch_data_t *batch_data)
 {
-    if(process_batch_ctrs(batch_conf, batch_data) != 0) {
+    if(process_batch_raw_metrics(batch_conf, batch_data) != 0) {
         return -1;
     }
 
