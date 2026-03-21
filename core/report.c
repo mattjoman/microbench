@@ -107,11 +107,21 @@ void run_report(batch_conf_t batch_conf, batch_data_t *batch_data)
 
 static void write_batch_metadata(FILE *file, batch_conf_t batch_conf)
 {
-    fprintf(file, "# workload=%s\n", batch_conf.wl->name);
-    fprintf(file, "# metric-group=%s\n",
-                                metric_grps[batch_conf.metric_grp_id].name);
-    fprintf(file, "# warmup-runs=%d\n", batch_conf.warmup_runs);
-    fprintf(file, "# batch-runs=%d\n", batch_conf.batch_runs);
+    fprintf(file, "#workload=%s\n", batch_conf.wl->name);
+    fprintf(file, "#metric-group=%s\n",
+                               metric_grps[batch_conf.metric_grp_id].name);
+    fprintf(file, "#warmup-runs=%d\n", batch_conf.warmup_runs);
+    fprintf(file, "#batch-runs=%d\n", batch_conf.batch_runs);
+
+    workload_t *wl = batch_conf.wl;
+    if (!wl->params) {
+        return;
+    }
+
+    for (int i = 0; i < wl->n_params; i++) {
+        fprintf(file, "#workload-params.%s=", wl->params[i].key);
+        fprintf(file, "%llu\n", wl_get_param(wl, wl->params[i].key));
+    }
 }
 
 void timer_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
