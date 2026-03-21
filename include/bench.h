@@ -4,10 +4,14 @@
 #include "./batch.h"
 #include "./metric.h"
 
-int bench_rdtscp(batch_conf_t batch_conf, batch_data_t *batch_data,
-                                          void (*workload)(void));
+void pin_thread(void);
 
-int bench_perf_event(batch_conf_t batch_conf, batch_data_t *batch_data,
-                                              void (*workload)(void));
+int bench_timer(batch_conf_t batch_conf,
+                batch_data_t *batch_data,
+                void (*workload)(void));
+
+int bench_perf_event_open(batch_conf_t batch_conf,
+                          batch_data_t *batch_data,
+                          void (*workload)(void));
 
 #endif

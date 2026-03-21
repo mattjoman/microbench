@@ -36,7 +36,7 @@ typedef enum {
     COUNTER_TASK_CLOCK_NS,
     COUNTER_ALIGNMENT_FAULTS,
 
-    COUNTER_RDTSCP,
+    COUNTER_TIMER,
 
     N_COUNTER_METRICS,
 
@@ -84,7 +84,7 @@ typedef enum {
     METRIC_GRP_PAGE_FAULTS,
     METRIC_GRP_ALIGNMENT_FAULTS,
 
-    METRIC_GRP_RDTSCP,
+    METRIC_GRP_TIMER,
 
     N_METRIC_GRPS,
 } metric_grp_id_t;

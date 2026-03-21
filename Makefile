@@ -12,6 +12,8 @@ CFLAGS ?= $(PROD_CFLAGS)
 
 CORE_SRCS=core/main.c \
 	core/bench.c \
+	core/bench_perf_event_open.c \
+	core/bench_timer.c \
 	core/batch.c \
 	core/data_processing.c \
 	core/metric.c \

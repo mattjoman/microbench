@@ -194,10 +194,10 @@ void run_batch(batch_conf_t batch_conf, wl_arg_slice_t *wl_args)
 
     wl->init(wl, wl_args);
 
-    if (batch_conf.metric_grp_id == METRIC_GRP_RDTSCP) {
-        bench_rdtscp(batch_conf, batch_data, wl->workload);
+    if (batch_conf.metric_grp_id == METRIC_GRP_TIMER) {
+        bench_timer(batch_conf, batch_data, wl->workload);
     } else {
-        bench_perf_event(batch_conf, batch_data, wl->workload);
+        bench_perf_event_open(batch_conf, batch_data, wl->workload);
     }
 
     wl->clean();

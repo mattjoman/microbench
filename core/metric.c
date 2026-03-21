@@ -34,7 +34,7 @@ const char *counter_confs[N_COUNTER_METRICS] = {
     [COUNTER_TASK_CLOCK_NS]           = "TASK_CLOCK_NS",
     [COUNTER_ALIGNMENT_FAULTS]        = "ALIGNMENT_FAULTS",
 
-    [COUNTER_RDTSCP]                  = "RDTSCP",
+    [COUNTER_TIMER]                   = "TIMER",
 
 };
 
@@ -256,13 +256,13 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
         //},
     },
 
-    [METRIC_GRP_RDTSCP] = {
-        .id = METRIC_GRP_RDTSCP,
-        .name = "RDTSCP",
+    [METRIC_GRP_TIMER] = {
+        .id = METRIC_GRP_TIMER,
+        .name = "TIMER",
         .n_counters = 1,
         .n_ratios = 0,
         .counter_ids = {
-            COUNTER_RDTSCP,
+            COUNTER_TIMER,
         },
         //.ratio_ids = {
         //},
