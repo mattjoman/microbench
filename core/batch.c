@@ -204,6 +204,14 @@ void run_batch(batch_conf_t batch_conf, wl_arg_slice_t *wl_args)
     wl->clean();
 
     process_batch_data(batch_conf, batch_data);
+
+    if (batch_conf.metric_grp_id == METRIC_GRP_TIMER) {
+        timer_batch_to_csv(batch_conf, batch_data);
+    } else {
+        perf_batch_to_csv(batch_conf, batch_data);
+    }
+
     run_report(batch_conf, batch_data);
+
     destroy_batch_data(batch_data);
 }

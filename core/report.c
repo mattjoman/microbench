@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -92,16 +93,83 @@ void run_report(batch_conf_t batch_conf, batch_data_t *batch_data)
     print_table_column_headers();
 
     for (int i = 0; i < batch_data->n_raw_metrics; i++) {
-
         raw_metric = batch_data->raw_metrics[i];
         print_raw_metric_table_row(raw_metric);
     }
 
     for (int i = 0; i < batch_data->n_ratios; i++) {
-
         ratio_metric = batch_data->ratios[i];
         print_ratio_table_row(ratio_metric);
     }
 
     printf("\n");
+}
+
+static void write_batch_metadata(FILE *file, batch_conf_t batch_conf)
+{
+    fprintf(file, "# workload=%s\n", batch_conf.wl->name);
+    fprintf(file, "# metric-group=%s\n",
+                                metric_grps[batch_conf.metric_grp_id].name);
+    fprintf(file, "# warmup-runs=%d\n", batch_conf.warmup_runs);
+    fprintf(file, "# batch-runs=%d\n", batch_conf.batch_runs);
+}
+
+void timer_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
+{
+    FILE *file = fopen("batch.csv", "w");
+    if (!file) {
+        perror("Failed to open csv file");
+        exit(1);
+    }
+
+    write_batch_metadata(file, batch_conf);
+
+    fprintf(file, "%s\n", raw_metric_confs[batch_data->raw_metrics[0].id]);
+
+    for (int r = 0; r < batch_conf.batch_runs; r++) {
+        fprintf(file, "%ld\n", batch_data->raw_metrics[0].run_vals[r]);
+    }
+
+    fclose(file);
+}
+
+void perf_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
+{
+    FILE *file = fopen("batch.csv", "w");
+    if (!file) {
+        perror("Failed to open csv file");
+        exit(1);
+    }
+
+    write_batch_metadata(file, batch_conf);
+
+    fputs("TIME_ENABLED,", file);
+    fputs("TIME_RUNNING,", file);
+
+    for (int m = 0; m < batch_data->n_raw_metrics; m++) {
+        fprintf(file, "%s,", raw_metric_confs[batch_data->raw_metrics[m].id]);
+    }
+
+    for (int m = 0; m < batch_data->n_ratios; m++) {
+        fprintf(file, "%s,", ratio_confs[batch_data->ratios[m].id].name);
+    }
+
+    fputc('\n', file);
+
+    for (int i = 0; i < batch_conf.batch_runs; i++) {
+        fprintf(file, "%ld,", batch_data->time_enabled.run_vals[i]);
+        fprintf(file, "%ld,", batch_data->time_running.run_vals[i]);
+
+        for (int m = 0; m < batch_data->n_raw_metrics; m++) {
+            fprintf(file, "%ld,", batch_data->raw_metrics[m].run_vals[i]);
+        }
+
+        for (int m = 0; m < batch_data->n_ratios; m++) {
+            fprintf(file, "%.6f,", batch_data->ratios[m].run_vals[i]);
+        }
+
+        fputc('\n', file);
+    }
+
+    fclose(file);
 }
