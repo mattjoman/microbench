@@ -18,49 +18,6 @@ static const char help_text[] =
 "  -u, --warmup-runs RUNS           Number of warmup runs\n"
 "\n";
 
-static void print_metric_grp_guide(void)
-{
-    metric_grp_t metric_grp;
-    raw_metric_id_t raw_metric_id;
-    ratio_id_t ratio_id;
-
-    printf("Metric groups:\n\n");
-
-    for (int i = 0; i < N_METRIC_GRPS; i++) {
-        metric_grp = metric_grps[i];
-        printf("  %s:\n", metric_grp.name);
-
-        printf("    Raw: ");
-        for (int j = 0; j < metric_grp.n_raw_metrics; j++) {
-            raw_metric_id = metric_grp.raw_metric_ids[j];
-            printf("%s  ", raw_metric_confs[raw_metric_id]);
-        }
-        printf("\n");
-
-        if (!metric_grp.n_ratios) {
-            printf("\n");
-            continue;
-        }
-
-        printf("    Derived:  ");
-        for (int j = 0; j < metric_grp.n_ratios; j++) {
-            ratio_id = metric_grp.ratio_ids[j];
-            printf("%s  ", ratio_confs[ratio_id].name);
-        }
-        printf("\n\n");
-    }
-}
-
-int get_metric_grp_id_from_name(const char *name)
-{
-    for (int i = 0; i < N_METRIC_GRPS; i++) {
-        if (strcmp(name, metric_grps[i].name) == 0) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 #define MAX_WL_ARGS 5
 
 int main(int argc, char *argv[])
@@ -130,9 +87,9 @@ int main(int argc, char *argv[])
     }
 
     workload_t *wl = get_workload_by_name(workload_str);
-    int metric_grp_id = get_metric_grp_id_from_name(metric_grp_str);
+    const metric_grp_t *mg = get_mg_by_name(metric_grp_str);
 
-    if (!wl || metric_grp_id < 0) {
+    if (!wl || !mg) {
         fprintf(stderr, "Usage 2\n");
         return 1;
     }
@@ -142,7 +99,7 @@ int main(int argc, char *argv[])
     }
 
     batch_conf_t batch_conf;
-    init_batch_conf(&batch_conf, warmup_runs, batch_runs, wl, metric_grp_id);
+    init_batch_conf(&batch_conf, warmup_runs, batch_runs, wl, mg);
     run_batch(batch_conf);
 
     return 0;

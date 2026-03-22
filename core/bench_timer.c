@@ -29,9 +29,7 @@ static uint64_t rdtscp()
 int bench_timer(batch_conf_t batch_conf, batch_data_t *batch_data,
                                           void (*workload)(void))
 {
-    uint64_t start, end, *raw_values;
-
-    raw_values = batch_data->raw_metrics[0].run_vals;
+    uint64_t start, end;
 
     pin_thread();
 
@@ -43,7 +41,7 @@ int bench_timer(batch_conf_t batch_conf, batch_data_t *batch_data,
         start = rdtscp();
         workload();
         end = rdtscp();
-        raw_values[i] = end - start;
+        batch_data->timer.run_vals[i] = end - start;
     }
 
     return 0;

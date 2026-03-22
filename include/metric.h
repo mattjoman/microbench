@@ -4,74 +4,86 @@
 #include <stdint.h>
 
 #include "./microbench.h"
-#include "./data_processing.h"
 
 typedef enum {
 
-    /* raw metrics */
+    /* perf metrics */
 
-    RAW_CPU_CYCLES,
-    RAW_REF_CPU_CYCLES,
-    RAW_INSTRUCTIONS,
-    RAW_LLC_READ_ACCESSES,
-    RAW_LLC_READ_MISSES,
-    RAW_L1D_READ_ACCESSES,
-    RAW_L1D_READ_MISSES,
-    RAW_L1I_READ_ACCESSES,
-    RAW_L1I_READ_MISSES,
-    RAW_DTLB_READ_ACCESSES,
-    RAW_DTLB_READ_MISSES,
-    RAW_ITLB_READ_ACCESSES,
-    RAW_ITLB_READ_MISSES,
-    RAW_BPU_READ_ACCESSES,
-    RAW_BPU_READ_MISSES,
-    RAW_BRANCH_INSTRUCTIONS,
-    RAW_BRANCH_MISPREDICTIONS,
-    RAW_STALLED_CYCLES_FRONTEND,
-    RAW_STALLED_CYCLES_BACKEND,
-    RAW_PAGE_FAULTS,
-    RAW_PAGE_FAULTS_MAJ,
-    RAW_PAGE_FAULTS_MIN,
-    RAW_CPU_CLOCK_NS,
-    RAW_TASK_CLOCK_NS,
-    RAW_ALIGNMENT_FAULTS,
+    METRIC_CPU_CYCLES,
+    METRIC_REF_CPU_CYCLES,
+    METRIC_INSTRUCTIONS,
+    METRIC_LLC_READ_ACCESSES,
+    METRIC_LLC_READ_MISSES,
+    METRIC_L1D_READ_ACCESSES,
+    METRIC_L1D_READ_MISSES,
+    METRIC_L1I_READ_ACCESSES,
+    METRIC_L1I_READ_MISSES,
+    METRIC_DTLB_READ_ACCESSES,
+    METRIC_DTLB_READ_MISSES,
+    METRIC_ITLB_READ_ACCESSES,
+    METRIC_ITLB_READ_MISSES,
+    METRIC_BPU_READ_ACCESSES,
+    METRIC_BPU_READ_MISSES,
+    METRIC_BRANCH_INSTRUCTIONS,
+    METRIC_BRANCH_MISPREDICTIONS,
+    METRIC_STALLED_CYCLES_FRONTEND,
+    METRIC_STALLED_CYCLES_BACKEND,
+    METRIC_PAGE_FAULTS,
+    METRIC_PAGE_FAULTS_MAJ,
+    METRIC_PAGE_FAULTS_MIN,
+    METRIC_CPU_CLOCK_NS,
+    METRIC_TASK_CLOCK_NS,
+    METRIC_ALIGNMENT_FAULTS,
 
-    RAW_TIMER,
+    /* timer metric */
 
-    N_RAW_METRICS,
-
-} raw_metric_id_t;
-
-extern const char *raw_metric_confs[N_RAW_METRICS];
-
-typedef enum {
+    METRIC_TIMER,
 
     /* ratio metrics */
 
-    RATIO_INSTRUCTIONS_PER_CYCLE,
-    RATIO_CYCLES_PER_INSTRUCTION,
-    RATIO_LLC_READ_MISS_RATE,
-    RATIO_L1D_READ_MISS_RATE,
-    RATIO_L1I_READ_MISS_RATE,
-    RATIO_DTLB_READ_MISS_RATE,
-    RATIO_ITLB_READ_MISS_RATE,
-    RATIO_BPU_READ_MISS_RATE,
-    RATIO_BRANCH_MISPRED_RATE,
-    RATIO_FE_VS_BE_STALLS,
+    METRIC_INSTRUCTIONS_PER_CYCLE,
+    METRIC_CYCLES_PER_INSTRUCTION,
+    METRIC_LLC_READ_MISS_RATE,
+    METRIC_L1D_READ_MISS_RATE,
+    METRIC_L1I_READ_MISS_RATE,
+    METRIC_DTLB_READ_MISS_RATE,
+    METRIC_ITLB_READ_MISS_RATE,
+    METRIC_BPU_READ_MISS_RATE,
+    METRIC_BRANCH_MISPRED_RATE,
+    METRIC_FE_VS_BE_STALLS,
 
-    N_RATIO_METRICS,
+    N_METRICS,
 
-} ratio_id_t;
+} metric_id_t;
 
-typedef struct ratio_conf {
+enum {
+    METRIC_TYPE_PERF_COUNTER,
+    METRIC_TYPE_PERF_RATIO,
+    METRIC_TYPE_TIMER,
+};
+
+typedef struct {
+    metric_id_t id;
     const char *name;
-    raw_metric_id_t numerator_id;
-    raw_metric_id_t denominator_id;
-} ratio_conf_t;
+    int type;
+    metric_id_t numerator_id;
+    metric_id_t denominator_id;
+} metric_t;
 
-extern const ratio_conf_t ratio_confs[N_RATIO_METRICS];
+enum {
+    METRIC_GRP_TYPE_PERF,
+    METRIC_GRP_TYPE_TIMER,
+};
 
-typedef enum {
+typedef struct metric_grp {
+    const char *name;
+    int type;
+
+    int n_metrics;
+    const metric_t *const *metrics;
+} metric_grp_t;
+
+enum {
     METRIC_GRP_IPC,
     METRIC_GRP_LLC_READS,
     METRIC_GRP_L1D_READS,
@@ -83,35 +95,17 @@ typedef enum {
     METRIC_GRP_STALLED_CYCLES,
     METRIC_GRP_PAGE_FAULTS,
     METRIC_GRP_ALIGNMENT_FAULTS,
-
     METRIC_GRP_TIMER,
 
     N_METRIC_GRPS,
-} metric_grp_id_t;
+};
 
-typedef struct raw_metric {
-    int id;
-    uint64_t *run_vals;
-    uint64_agg_t agg;
-} raw_metric_t;
-
-typedef struct ratio_metric {
-    int id;
-    double *run_vals;
-    double_agg_t agg;
-} ratio_metric_t;
-
-typedef struct metric_grp {
-    int id;
-    const char *name;
-
-    int n_raw_metrics;
-    raw_metric_id_t raw_metric_ids[MAX_ACTIVE_PERF_COUNTERS];
-
-    int n_ratios;
-    ratio_id_t ratio_ids[MAX_ACTIVE_RATIOS];
-} metric_grp_t;
-
-extern const metric_grp_t metric_grps[N_METRIC_GRPS];
+const metric_grp_t *get_mg_by_name(const char *name);
+void mg_list_metrics_by_type(const metric_grp_t *mg,
+                             int type,
+                             int max_metrics,
+                             const metric_t *metrics_buff[],
+                             int *n_metrics);
+void print_metric_grp_guide(void);
 
 #endif

@@ -12,7 +12,7 @@
 int init_batch_conf(batch_conf_t *batch_conf, unsigned long long warmup_runs,
                                               unsigned long long batch_runs,
                                               workload_t *wl,
-                                              metric_grp_id_t id)
+                                              const metric_grp_t *mg)
 {
     if (batch_runs < 1 || batch_runs > MAX_BATCH_RUNS) {
         batch_runs = 100;
@@ -21,71 +21,85 @@ int init_batch_conf(batch_conf_t *batch_conf, unsigned long long warmup_runs,
     batch_conf->warmup_runs   = warmup_runs;
     batch_conf->batch_runs    = batch_runs;
     batch_conf->wl            = wl;
-    batch_conf->metric_grp_id = id;
+    batch_conf->mg            = mg;
 
     return 0;
 }
 
-static batch_data_t *init_batch_data(batch_conf_t batch_conf)
+static uint64_t *alloc_uint64_array(unsigned long long length)
+{
+    uint64_t *array = calloc(length, sizeof(uint64_t));
+    if (!array) {
+        perror("Failed to allocate uint64 array");
+        exit(1);
+    }
+    return array;
+}
+
+static double *alloc_double_array(unsigned long long length)
+{
+    double *array = calloc(length, sizeof(double));
+    if (!array) {
+        perror("Failed to allocate double array");
+        exit(1);
+    }
+    return array;
+}
+
+static batch_data_t *init_perf_batch_data(batch_conf_t batch_cfg)
 {
     batch_data_t *data;
-    metric_grp_t metric_grp;
-    raw_metric_t raw_metric;
-    ratio_metric_t ratio;
-
-    int runs = batch_conf.batch_runs;
-
-    
     if (!(data = calloc(1, sizeof(batch_data_t)))) {
         perror("Failed to allocate memory for batch_data_t struct");
         exit(1);
     }
 
-    metric_grp = metric_grps[batch_conf.metric_grp_id];
+    data->time_enabled.run_vals = alloc_uint64_array(batch_cfg.batch_runs);
+    data->time_running.run_vals = alloc_uint64_array(batch_cfg.batch_runs);
 
-    data->n_raw_metrics = metric_grp.n_raw_metrics;
-    data->n_ratios = metric_grp.n_ratios;
+    const metric_t *counter_metric_buff[MAX_PERF_COUNTERS];
+    const metric_t *ratio_metric_buff[MAX_PERF_RATIOS];
 
-    /* allocate memory for the time_enabled run_vals */
-    if (!(data->time_enabled.run_vals = calloc(runs, sizeof(uint64_t)))) {
-        perror("Failed to allocate array");
+    mg_list_metrics_by_type(batch_cfg.mg, METRIC_TYPE_PERF_COUNTER,
+            MAX_PERF_COUNTERS, counter_metric_buff, &data->n_perf_counters);
+    mg_list_metrics_by_type(batch_cfg.mg, METRIC_TYPE_PERF_RATIO,
+            MAX_PERF_RATIOS, ratio_metric_buff, &data->n_perf_ratios);
+
+    if (!data->n_perf_counters) {
+        fprintf(stderr, "No perf counter metrics\n");
         exit(1);
     }
 
-    /* allocate memory for the time_running run_vals */
-    if (!(data->time_running.run_vals = calloc(runs, sizeof(uint64_t)))) {
-        perror("Failed to allocate array");
+    if (!(data->perf_counters = calloc(data->n_perf_counters,
+                                       sizeof(perf_counter_data_t)))) {
+        perror("Failed to allocate memory for perf counters");
         exit(1);
     }
 
-    /* init poor man's map elements to -1 */
-    memset(data->raw_metric_id_map, -1, N_RAW_METRICS * sizeof(int));
-
-    /* init raw metrics */
-    for (int i = 0; i < metric_grp.n_raw_metrics; i++) {
-        raw_metric.id = metric_grp.raw_metric_ids[i];
-        if (!(raw_metric.run_vals = calloc(runs, sizeof(uint64_t)))) {
-            perror("Failed to allocate array");
+    if (data->n_perf_ratios) {
+        if (!(data->perf_ratios = calloc(data->n_perf_ratios,
+                                         sizeof(perf_ratio_data_t)))) {
+            perror("Failed to allocate memory for perf ratios");
             exit(1);
         }
-        data->raw_metrics[i] = raw_metric;
-        data->raw_metric_id_map[metric_grp.raw_metric_ids[i]] = i;
     }
 
-    /* init ratio metrics */
-    for (int i = 0; i < metric_grp.n_ratios; i++) {
-        ratio.id = metric_grp.ratio_ids[i];
-        if (!(ratio.run_vals = calloc(runs, sizeof(double)))) {
-            perror("Failed to allocate array");
-            exit(1);
-        }
-        data->ratios[i] = ratio;
+    for (int i = 0; i < data->n_perf_counters; i++) {
+        data->perf_counters[i].run_vals = alloc_uint64_array(
+                                                        batch_cfg.batch_runs);
+        data->perf_counters[i].metric = counter_metric_buff[i];
+    }
+
+    for (int i = 0; i < data->n_perf_ratios; i++) {
+        data->perf_ratios[i].run_vals = alloc_double_array(
+                                                        batch_cfg.batch_runs);
+        data->perf_ratios[i].metric = ratio_metric_buff[i];
     }
 
     return data;
 }
 
-static int destroy_batch_data(batch_data_t *batch_data)
+static void destroy_perf_batch_data(batch_data_t *batch_data)
 {
     free(batch_data->time_enabled.run_vals);
     batch_data->time_enabled.run_vals = NULL;
@@ -93,105 +107,135 @@ static int destroy_batch_data(batch_data_t *batch_data)
     free(batch_data->time_running.run_vals);
     batch_data->time_running.run_vals = NULL;
 
-    for (int i = 0; i < batch_data->n_raw_metrics; i++) {
-        free(batch_data->raw_metrics[i].run_vals);
-        batch_data->raw_metrics[i].run_vals = NULL;
+    for (int i = 0; i < batch_data->n_perf_counters; i++) {
+        free(batch_data->perf_counters[i].run_vals);
+        batch_data->perf_counters[i].run_vals = NULL;
     }
 
-    for (int i = 0; i < batch_data->n_ratios; i++) {
-        free(batch_data->ratios[i].run_vals);
-        batch_data->ratios[i].run_vals = NULL;
+    for (int i = 0; i < batch_data->n_perf_ratios; i++) {
+        free(batch_data->perf_ratios[i].run_vals);
+        batch_data->perf_ratios[i].run_vals = NULL;
     }
+
+    free(batch_data->perf_counters);
+    free(batch_data->perf_ratios);
+    free(batch_data);
+    batch_data = NULL;
+}
+
+static batch_data_t *init_timer_batch_data(batch_conf_t batch_cfg)
+{
+    batch_data_t *data = calloc(1, sizeof(batch_data_t));
+    if (!data) {
+        perror("Failed to allocate memory for batch data struct");
+        exit(1);
+    }
+
+    data->timer.run_vals = alloc_uint64_array(batch_cfg.batch_runs);
+    data->timer.metric = batch_cfg.mg->metrics[0];
+
+    return data;
+}
+
+static void destroy_timer_batch_data(batch_data_t *batch_data)
+{
+    free(batch_data->timer.run_vals);
+    batch_data->timer.run_vals = NULL;
 
     free(batch_data);
     batch_data = NULL;
-
-    return 0;
 }
 
-static int process_batch_raw_metrics(batch_conf_t batch_conf,
-                                     batch_data_t *batch_data)
+static void process_perf_counter_data(batch_conf_t batch_conf,
+                                      batch_data_t *batch_data)
 {
     uint64_agg_t agg;
-    int batch_runs;
+    int batch_runs = batch_conf.batch_runs;
 
-    batch_runs = batch_conf.batch_runs;
-
-    for (int i = 0; i < batch_data->n_raw_metrics; i++) {
-        agg = aggregate_uint64(batch_data->raw_metrics[i].run_vals,
+    for (int i = 0; i < batch_data->n_perf_counters; i++) {
+        agg = aggregate_uint64(batch_data->perf_counters[i].run_vals,
                                                                 batch_runs);
-        batch_data->raw_metrics[i].agg = agg;
+        batch_data->perf_counters[i].agg = agg;
     }
-
-    return 0;
 }
 
-static int process_batch_ratios(batch_conf_t batch_conf,
-                                 batch_data_t *batch_data)
+static void process_perf_ratio_data(batch_conf_t batch_cfg,
+                                    batch_data_t *batch_data)
 {
-    metric_grp_id_t metric_grp_id;
-    ratio_id_t ratio_id;
-    raw_metric_id_t numerator_id, denominator_id;
     double_agg_t agg;
-    raw_metric_t *raw_metrics;
-    ratio_metric_t *ratios;
-    int numerator_idx, denominator_idx, batch_runs, *raw_metric_id_map;
     uint64_t *numerators, *denominators;
+    metric_id_t numerator_id, denominator_id;
 
-    raw_metric_id_map = batch_data->raw_metric_id_map;
-    metric_grp_id = batch_conf.metric_grp_id;
+    for (int i = 0; i < batch_data->n_perf_ratios; i++) {
 
-    for (int i = 0; i < batch_data->n_ratios; i++) {
+        denominator_id = batch_data->perf_ratios[i].metric->denominator_id;
+        numerator_id = batch_data->perf_ratios[i].metric->numerator_id;
 
-        ratio_id = metric_grps[metric_grp_id].ratio_ids[i];
-        numerator_id = ratio_confs[ratio_id].numerator_id;
-        denominator_id = ratio_confs[ratio_id].denominator_id;
+        numerators = denominators = NULL;
 
-        numerator_idx = raw_metric_id_map[numerator_id];
-        denominator_idx = raw_metric_id_map[denominator_id];
-
-        if (numerator_idx == -1 || denominator_idx == -1) {
-            return -1;
+        for (int j = 0; j < batch_data->n_perf_counters; j++) {
+            if (batch_data->perf_counters[j].metric->id == numerator_id) {
+                numerators = batch_data->perf_counters[j].run_vals;
+                break;
+            }
         }
 
-        raw_metrics = batch_data->raw_metrics;
-        ratios = batch_data->ratios;
+        for (int j = 0; j < batch_data->n_perf_counters; j++) {
+            if (batch_data->perf_counters[j].metric->id == denominator_id) {
+                denominators = batch_data->perf_counters[j].run_vals;
+                break;
+            }
+        }
 
-        numerators = raw_metrics[numerator_idx].run_vals;
-        denominators = raw_metrics[denominator_idx].run_vals;
+        if (!numerators || !denominators) {
+            fprintf(stderr, "No numerators or denominators\n");
+            exit(1);
+        }
 
-        batch_runs = batch_conf.batch_runs;
-        calc_ratios(ratios[i].run_vals, numerators, denominators, batch_runs);
+        calc_ratios(batch_data->perf_ratios[i].run_vals,
+                    numerators,
+                    denominators,
+                    batch_cfg.batch_runs);
 
-        agg = aggregate_double(ratios[i].run_vals, batch_runs);
-        ratios[i].agg = agg;
+        agg = aggregate_double(batch_data->perf_ratios[i].run_vals,
+                                                        batch_cfg.batch_runs);
+        batch_data->perf_ratios[i].agg = agg;
     }
-
-    return 0;
 }
 
-static int process_batch_data(batch_conf_t batch_conf,
+static void process_timer_batch(batch_conf_t batch_conf,
+                         batch_data_t *batch_data)
+{
+    uint64_agg_t agg;
+    int batch_runs = batch_conf.batch_runs;
+
+    agg = aggregate_uint64(batch_data->timer.run_vals, batch_runs);
+    batch_data->timer.agg = agg;
+}
+
+static void process_perf_batch(batch_conf_t batch_conf,
                               batch_data_t *batch_data)
 {
-    if(process_batch_raw_metrics(batch_conf, batch_data) != 0) {
-        return -1;
-    }
-
-    if(process_batch_ratios(batch_conf, batch_data) != 0) {
-        return -1;
-    }
-
-    return 0;
+    process_perf_counter_data(batch_conf, batch_data);
+    process_perf_ratio_data(batch_conf, batch_data);
 }
 
 void run_batch(batch_conf_t batch_conf)
 {
-    batch_data_t *batch_data = (batch_data_t*)init_batch_data(batch_conf);
+
+    batch_data_t *batch_data;
     workload_t *wl = batch_conf.wl;
+    const metric_grp_t *mg = batch_conf.mg;
+
+    if (mg->type == METRIC_GRP_TYPE_TIMER) {
+        batch_data = init_timer_batch_data(batch_conf);
+    } else {
+        batch_data = init_perf_batch_data(batch_conf);
+    }
 
     wl->init(wl);
 
-    if (batch_conf.metric_grp_id == METRIC_GRP_TIMER) {
+    if (mg->type == METRIC_GRP_TYPE_TIMER) {
         bench_timer(batch_conf, batch_data, wl->workload);
     } else {
         bench_perf_event_open(batch_conf, batch_data, wl->workload);
@@ -199,15 +243,28 @@ void run_batch(batch_conf_t batch_conf)
 
     wl->clean();
 
-    process_batch_data(batch_conf, batch_data);
+    if (mg->type == METRIC_GRP_TYPE_TIMER) {
+        process_timer_batch(batch_conf, batch_data);
+    } else {
+        process_perf_batch(batch_conf, batch_data);
+    }
 
-    if (batch_conf.metric_grp_id == METRIC_GRP_TIMER) {
+    if (mg->type == METRIC_GRP_TYPE_TIMER) {
         timer_batch_to_csv(batch_conf, batch_data);
     } else {
         perf_batch_to_csv(batch_conf, batch_data);
     }
 
-    run_report(batch_conf, batch_data);
+    if (mg->type == METRIC_GRP_TYPE_TIMER) {
+        // TODO: implement run_timer_report(batch_conf, batch_data);
+    } else {
+        run_perf_report(batch_conf, batch_data);
+    }
 
-    destroy_batch_data(batch_data);
+
+    if (mg->type == METRIC_GRP_TYPE_TIMER) {
+        destroy_timer_batch_data(batch_data);
+    } else {
+        destroy_perf_batch_data(batch_data);
+    }
 }

@@ -22,17 +22,17 @@ static void print_table_cell_right_align(const char *text)
     printf("%s", cell_buf);
 }
 
-static void print_raw_metric_table_row(raw_metric_t metric)
+static void print_perf_counter_table_row(perf_counter_data_t data)
 {
     char name_buf[32];
     char min_buf[32];
     char max_buf[32];
     char median_buf[32];
 
-    snprintf(name_buf, sizeof(name_buf), "%s", raw_metric_confs[metric.id]);
-    snprintf(min_buf, sizeof(min_buf), "%ld", metric.agg.min);
-    snprintf(max_buf, sizeof(max_buf), "%ld", metric.agg.max);
-    snprintf(median_buf, sizeof(median_buf), "%ld", metric.agg.median);
+    snprintf(name_buf, sizeof(name_buf), "%s", data.metric->name);
+    snprintf(min_buf, sizeof(min_buf), "%ld", data.agg.min);
+    snprintf(max_buf, sizeof(max_buf), "%ld", data.agg.max);
+    snprintf(median_buf, sizeof(median_buf), "%ld", data.agg.median);
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);
@@ -42,17 +42,17 @@ static void print_raw_metric_table_row(raw_metric_t metric)
     printf("\n");
 }
 
-static void print_ratio_table_row(ratio_metric_t metric)
+static void print_perf_ratio_table_row(perf_ratio_data_t data)
 {
     char name_buf[32];
     char min_buf[32];
     char max_buf[32];
     char median_buf[32];
 
-    snprintf(name_buf, sizeof(name_buf), "%s", ratio_confs[metric.id].name);
-    snprintf(min_buf, sizeof(min_buf), "%.6f", metric.agg.min);
-    snprintf(max_buf, sizeof(max_buf), "%.6f", metric.agg.max);
-    snprintf(median_buf, sizeof(median_buf), "%.6f", metric.agg.median);
+    snprintf(name_buf, sizeof(name_buf), "%s", data.metric->name);
+    snprintf(min_buf, sizeof(min_buf), "%.6f", data.agg.min);
+    snprintf(max_buf, sizeof(max_buf), "%.6f", data.agg.max);
+    snprintf(median_buf, sizeof(median_buf), "%.6f", data.agg.median);
 
     print_table_cell_right_align(name_buf);
     print_table_cell_right_align(min_buf);
@@ -83,23 +83,18 @@ static void print_batch_info(batch_conf_t batch_conf)
     putchar('\n');
 }
 
-void run_report(batch_conf_t batch_conf, batch_data_t *batch_data)
+void run_perf_report(batch_conf_t batch_conf, batch_data_t *batch_data)
 {
-    raw_metric_t raw_metric;
-    ratio_metric_t ratio_metric;
-
     printf("\n");
     print_batch_info(batch_conf);
     print_table_column_headers();
 
-    for (int i = 0; i < batch_data->n_raw_metrics; i++) {
-        raw_metric = batch_data->raw_metrics[i];
-        print_raw_metric_table_row(raw_metric);
+    for (int i = 0; i < batch_data->n_perf_counters; i++) {
+        print_perf_counter_table_row(batch_data->perf_counters[i]);
     }
 
-    for (int i = 0; i < batch_data->n_ratios; i++) {
-        ratio_metric = batch_data->ratios[i];
-        print_ratio_table_row(ratio_metric);
+    for (int i = 0; i < batch_data->n_perf_ratios; i++) {
+        print_perf_ratio_table_row(batch_data->perf_ratios[i]);
     }
 
     printf("\n");
@@ -108,8 +103,7 @@ void run_report(batch_conf_t batch_conf, batch_data_t *batch_data)
 static void write_batch_metadata(FILE *file, batch_conf_t batch_conf)
 {
     fprintf(file, "#workload=%s\n", batch_conf.wl->name);
-    fprintf(file, "#metric-group=%s\n",
-                               metric_grps[batch_conf.metric_grp_id].name);
+    fprintf(file, "#metric-group=%s\n", batch_conf.mg->name);
     fprintf(file, "#warmup-runs=%llu\n", batch_conf.warmup_runs);
     fprintf(file, "#batch-runs=%llu\n", batch_conf.batch_runs);
 
@@ -134,10 +128,10 @@ void timer_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
 
     write_batch_metadata(file, batch_conf);
 
-    fprintf(file, "%s\n", raw_metric_confs[batch_data->raw_metrics[0].id]);
+    fprintf(file, "%s,\n", batch_data->timer.metric->name);
 
     for (unsigned long long r = 0; r < batch_conf.batch_runs; r++) {
-        fprintf(file, "%ld\n", batch_data->raw_metrics[0].run_vals[r]);
+        fprintf(file, "%ld\n", batch_data->timer.run_vals[r]);
     }
 
     fclose(file);
@@ -156,12 +150,12 @@ void perf_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
     fputs("TIME_ENABLED,", file);
     fputs("TIME_RUNNING,", file);
 
-    for (int m = 0; m < batch_data->n_raw_metrics; m++) {
-        fprintf(file, "%s,", raw_metric_confs[batch_data->raw_metrics[m].id]);
+    for (int m = 0; m < batch_data->n_perf_counters; m++) {
+        fprintf(file, "%s,", batch_data->perf_counters[m].metric->name);
     }
 
-    for (int m = 0; m < batch_data->n_ratios; m++) {
-        fprintf(file, "%s,", ratio_confs[batch_data->ratios[m].id].name);
+    for (int m = 0; m < batch_data->n_perf_ratios; m++) {
+        fprintf(file, "%s,", batch_data->perf_ratios[m].metric->name);
     }
 
     fputc('\n', file);
@@ -170,12 +164,12 @@ void perf_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
         fprintf(file, "%ld,", batch_data->time_enabled.run_vals[i]);
         fprintf(file, "%ld,", batch_data->time_running.run_vals[i]);
 
-        for (int m = 0; m < batch_data->n_raw_metrics; m++) {
-            fprintf(file, "%ld,", batch_data->raw_metrics[m].run_vals[i]);
+        for (int m = 0; m < batch_data->n_perf_counters; m++) {
+            fprintf(file, "%ld,", batch_data->perf_counters[m].run_vals[i]);
         }
 
-        for (int m = 0; m < batch_data->n_ratios; m++) {
-            fprintf(file, "%.6f,", batch_data->ratios[m].run_vals[i]);
+        for (int m = 0; m < batch_data->n_perf_ratios; m++) {
+            fprintf(file, "%.6f,", batch_data->perf_ratios[m].run_vals[i]);
         }
 
         fputc('\n', file);

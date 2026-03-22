@@ -4,46 +4,52 @@
 #include "./microbench.h"
 #include "./metric.h"
 #include "./workload.h"
+#include "./data_processing.h"
 
 typedef struct batch_conf {
     unsigned long long warmup_runs;
     unsigned long long batch_runs;
     workload_t *wl;
-    metric_grp_id_t metric_grp_id;
+    const metric_grp_t *mg;
 } batch_conf_t;
+
+typedef struct {
+    const metric_t *metric;
+    uint64_t *run_vals;
+    uint64_agg_t agg;
+} perf_counter_data_t;
+
+typedef struct {
+    const metric_t *metric;
+    double *run_vals;
+    double_agg_t agg;
+} perf_ratio_data_t;
+
+typedef struct {
+    const metric_t *metric;
+    uint64_t *run_vals;
+    uint64_agg_t agg;
+} timer_data_t;
 
 typedef struct batch_data {
 
-    /* these two are always active for perf_event batches */
-    raw_metric_t time_enabled;
-    raw_metric_t time_running;
+    /* these two are always active for perf batches */
+    perf_counter_data_t time_enabled;
+    perf_counter_data_t time_running;
 
-    int n_raw_metrics;
-    raw_metric_t raw_metrics[MAX_ACTIVE_PERF_COUNTERS];
+    int n_perf_counters;
+    perf_counter_data_t *perf_counters;
 
-    int n_ratios;
-    ratio_metric_t ratios[MAX_ACTIVE_RATIOS];
+    int n_perf_ratios;
+    perf_ratio_data_t *perf_ratios;
 
-    /*
-     * Poor man's map - a sparse array which maps a raw metric id to an index
-     * of the batch_data.raw_metrics[] array.
-     * Unused array elements should be set to -1.
-     *
-     * Usage:
-     *
-     *     int raw_metric_array_idx = raw_metric_id_map[RAW_METRIC_ID];
-     *     raw_metric_t raw_metric = raw_metrics[raw_metric_array_idx];
-     *     if (raw_metric == -1) {
-     *         return -1; // error
-     *     }
-     */
-    int raw_metric_id_map[N_RAW_METRICS];
+    timer_data_t timer;
 } batch_data_t;
 
 int init_batch_conf(batch_conf_t *batch_conf, unsigned long long warmup_runs,
                                               unsigned long long batch_runs,
                                               workload_t *wl,
-                                              metric_grp_id_t id);
+                                              const metric_grp_t *mg);
 
 void run_batch(batch_conf_t batch_conf);
 
