@@ -9,17 +9,13 @@
 #include "../include/data_processing.h"
 #include "../include/report.h"
 
-int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
-                                              int batch_runs,
+int init_batch_conf(batch_conf_t *batch_conf, unsigned long long warmup_runs,
+                                              unsigned long long batch_runs,
                                               workload_t *wl,
                                               metric_grp_id_t id)
 {
     if (batch_runs < 1 || batch_runs > MAX_BATCH_RUNS) {
         batch_runs = 100;
-    }
-
-    if (warmup_runs < 0 ) {
-        warmup_runs = 5;
     }
 
     batch_conf->warmup_runs   = warmup_runs;

@@ -35,11 +35,11 @@ int bench_timer(batch_conf_t batch_conf, batch_data_t *batch_data,
 
     pin_thread();
 
-    for (int i = 0; i < batch_conf.warmup_runs; i++) {
+    for (unsigned long long i = 0; i < batch_conf.warmup_runs; i++) {
         workload();
     }
 
-    for (int i = 0; i < batch_conf.batch_runs; i++) {
+    for (unsigned long long i = 0; i < batch_conf.batch_runs; i++) {
         start = rdtscp();
         workload();
         end = rdtscp();

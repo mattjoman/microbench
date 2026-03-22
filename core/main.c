@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 {
     char *workload_str = NULL;
     char *metric_grp_str  = NULL;
-    int batch_runs = 0;
-    int warmup_runs = 0;
+    unsigned long long batch_runs = 0;
+    unsigned long long warmup_runs = 0;
     int n_wl_params = 0;
     char *wl_param_keys[MAX_WL_ARGS];
     char *wl_param_args[MAX_WL_ARGS];
@@ -100,10 +100,10 @@ int main(int argc, char *argv[])
                 metric_grp_str = optarg;
                 break;
             case 'r':
-                batch_runs = atoi(optarg);
+                batch_runs = strtoull(optarg, NULL, 10);
                 break;
             case 'u':
-                warmup_runs = atoi(optarg);
+                warmup_runs = strtoull(optarg, NULL, 10);
                 break;
             case 'p':
                 if (n_wl_params >= MAX_WL_ARGS) {

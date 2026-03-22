@@ -78,8 +78,8 @@ static void print_table_column_headers()
 
 static void print_batch_info(batch_conf_t batch_conf)
 {
-    printf("    Warmup runs: %d\n", batch_conf.warmup_runs);
-    printf("    Batch runs:  %d\n", batch_conf.batch_runs);
+    printf("    Warmup runs: %llu\n", batch_conf.warmup_runs);
+    printf("    Batch runs:  %llu\n", batch_conf.batch_runs);
     putchar('\n');
 }
 
@@ -110,8 +110,8 @@ static void write_batch_metadata(FILE *file, batch_conf_t batch_conf)
     fprintf(file, "#workload=%s\n", batch_conf.wl->name);
     fprintf(file, "#metric-group=%s\n",
                                metric_grps[batch_conf.metric_grp_id].name);
-    fprintf(file, "#warmup-runs=%d\n", batch_conf.warmup_runs);
-    fprintf(file, "#batch-runs=%d\n", batch_conf.batch_runs);
+    fprintf(file, "#warmup-runs=%llu\n", batch_conf.warmup_runs);
+    fprintf(file, "#batch-runs=%llu\n", batch_conf.batch_runs);
 
     workload_t *wl = batch_conf.wl;
     if (!wl->params) {
@@ -136,7 +136,7 @@ void timer_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
 
     fprintf(file, "%s\n", raw_metric_confs[batch_data->raw_metrics[0].id]);
 
-    for (int r = 0; r < batch_conf.batch_runs; r++) {
+    for (unsigned long long r = 0; r < batch_conf.batch_runs; r++) {
         fprintf(file, "%ld\n", batch_data->raw_metrics[0].run_vals[r]);
     }
 
@@ -166,7 +166,7 @@ void perf_batch_to_csv(batch_conf_t batch_conf, batch_data_t *batch_data)
 
     fputc('\n', file);
 
-    for (int i = 0; i < batch_conf.batch_runs; i++) {
+    for (unsigned long long i = 0; i < batch_conf.batch_runs; i++) {
         fprintf(file, "%ld,", batch_data->time_enabled.run_vals[i]);
         fprintf(file, "%ld,", batch_data->time_running.run_vals[i]);
 

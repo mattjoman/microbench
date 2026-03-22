@@ -34,7 +34,7 @@ static int cmp_double(const void *a, const void *b)
     return 0;
 }
 
-uint64_agg_t aggregate_uint64(uint64_t array[], int size)
+uint64_agg_t aggregate_uint64(uint64_t array[], unsigned long long size)
 {
     uint64_agg_t agg;
     uint64_t *array_cpy = calloc(size, sizeof(uint64_t));
@@ -57,7 +57,7 @@ uint64_agg_t aggregate_uint64(uint64_t array[], int size)
     return agg;
 }
 
-double_agg_t aggregate_double(double array[], int size)
+double_agg_t aggregate_double(double array[], unsigned long long size)
 {
     double_agg_t agg;
     double *array_cpy = calloc(size, sizeof(double));
@@ -82,9 +82,9 @@ double_agg_t aggregate_double(double array[], int size)
 
 void calc_ratios(double results[], const uint64_t numerators[],
                                    const uint64_t denominators[],
-                                   int size)
+                                   unsigned long long size)
 {
-    for (int i = 0; i < size; i++) {
+    for (unsigned long long i = 0; i < size; i++) {
         results[i] = (double)numerators[i] / denominators[i];
     }
 }

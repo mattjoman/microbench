@@ -204,9 +204,9 @@ static void store_perf_results(batch_data_t *batch_data,
                                                perf_result_t perf_results[],
                                                uint64_t perf_ctr_ids[],
                                                int n_raw_metrics,
-                                               int batch_runs)
+                                               unsigned long long batch_runs)
 {
-    for (int run = 0; run < batch_runs; run++) {
+    for (unsigned long long run = 0; run < batch_runs; run++) {
 
         /* verify that the kernel did not reorder the counters */
         for (int i = 0; i < n_raw_metrics; i++) {
@@ -257,7 +257,7 @@ int bench_perf_event_open(batch_conf_t batch_conf,
 
     open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids, n_raw_metrics);
 
-    for (int i = 0; i < batch_conf.warmup_runs; i++) {
+    for (unsigned long long i = 0; i < batch_conf.warmup_runs; i++) {
         workload();
     }
 
@@ -266,7 +266,7 @@ int bench_perf_event_open(batch_conf_t batch_conf,
      * Keep it as clean and minimal as possible
      * to reduce noise.
      */
-    for (int run = 0; run < batch_conf.batch_runs; run++) {
+    for (unsigned long long run = 0; run < batch_conf.batch_runs; run++) {
 
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
         ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);

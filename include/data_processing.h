@@ -15,12 +15,12 @@ typedef struct double_agg {
     double median;
 } double_agg_t;
 
-uint64_agg_t aggregate_uint64(uint64_t array[], int size);
+uint64_agg_t aggregate_uint64(uint64_t array[], unsigned long long size);
 
-double_agg_t aggregate_double(double array[], int size);
+double_agg_t aggregate_double(double array[], unsigned long long size);
 
 void calc_ratios(double results[], const uint64_t numerators[],
                                    const uint64_t denominators[],
-                                   int size);
+                                   unsigned long long size);
 
 #endif

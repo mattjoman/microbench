@@ -6,8 +6,8 @@
 #include "./workload.h"
 
 typedef struct batch_conf {
-    int warmup_runs;
-    int batch_runs;
+    unsigned long long warmup_runs;
+    unsigned long long batch_runs;
     workload_t *wl;
     metric_grp_id_t metric_grp_id;
 } batch_conf_t;
@@ -40,8 +40,8 @@ typedef struct batch_data {
     int raw_metric_id_map[N_RAW_METRICS];
 } batch_data_t;
 
-int init_batch_conf(batch_conf_t *batch_conf, int warmup_runs,
-                                              int batch_runs,
+int init_batch_conf(batch_conf_t *batch_conf, unsigned long long warmup_runs,
+                                              unsigned long long batch_runs,
                                               workload_t *wl,
                                               metric_grp_id_t id);
 
