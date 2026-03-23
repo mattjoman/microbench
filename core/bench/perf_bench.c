@@ -283,9 +283,6 @@ int bench_perf_event_open(batch_conf_t batch_conf,
     open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids,
                                                 batch_data->n_perf_counters);
 
-    ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
-    ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
-
     for (unsigned long long i = 0; i < batch_conf.warmup_runs; i++) {
         workload();
     }
@@ -305,8 +302,6 @@ int bench_perf_event_open(batch_conf_t batch_conf,
 
         read(perf_ctr_fds[0], &perf_end_results[run], sizeof(perf_result_t));
     }
-
-    ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
 
     for (int i = 0; i < batch_data->n_perf_counters; i++) {
         if (close(perf_ctr_fds[i]) == -1) {
