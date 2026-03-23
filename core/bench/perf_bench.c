@@ -165,7 +165,9 @@ static struct perf_event_attr create_perf_config(int metric, int is_leader)
 }
 
 static void open_perf_counters(struct perf_event_attr attrs[],
-        int counter_fds[], uint64_t counter_ids[], int event_group_size)
+                               int counter_fds[],
+                               uint64_t counter_ids[],
+                               int event_group_size)
 {
     counter_fds[0] = syscall(SYS_perf_event_open, &(attrs[0]), 0, -1, -1, 0);
 
@@ -201,8 +203,23 @@ typedef struct perf_result {
     } values[MAX_PERF_COUNTERS];
 } perf_result_t;
 
+static perf_result_t *calc_run_delta(perf_result_t *start_result,
+                                     perf_result_t *end_result,
+                                     int n_perf_counters)
+{
+    end_result->time_enabled -= start_result->time_enabled;
+    end_result->time_running -= start_result->time_running;
+
+    for (int i = 0; i < n_perf_counters; i++) {
+        end_result->values[i].value -= start_result->values[i].value;
+    }
+
+    return end_result;
+}
+
 static void store_perf_results(batch_data_t *batch_data,
-                               perf_result_t perf_results[],
+                               perf_result_t perf_start_results[],
+                               perf_result_t perf_end_results[],
                                uint64_t perf_ctr_ids[],
                                unsigned long long batch_runs)
 {
@@ -210,10 +227,13 @@ static void store_perf_results(batch_data_t *batch_data,
 
         /* verify that the kernel did not reorder the counters */
         for (int i = 0; i < batch_data->n_perf_counters; i++) {
-            assert(perf_results[run].values[i].id == perf_ctr_ids[i]);
+            assert(perf_start_results[run].values[i].id == perf_ctr_ids[i]);
+            assert(perf_end_results[run].values[i].id == perf_ctr_ids[i]);
         }
 
-        perf_result_t *perf_result = &perf_results[run];
+        perf_result_t *perf_result = calc_run_delta(&perf_start_results[run],
+                                                  &perf_end_results[run],
+                                                  batch_data->n_perf_counters);
 
         batch_data->time_enabled.run_vals[run] = perf_result->time_enabled;
         batch_data->time_running.run_vals[run] = perf_result->time_running;
@@ -233,9 +253,11 @@ int bench_perf_event_open(batch_conf_t batch_conf,
     int                    perf_ctr_fds[MAX_PERF_COUNTERS];
     uint64_t               perf_ctr_ids[MAX_PERF_COUNTERS];
 
-    perf_result_t *perf_results = calloc(batch_conf.batch_runs,
-                                                        sizeof(perf_result_t));
-    if (!perf_results) {
+    perf_result_t *perf_start_results = calloc(batch_conf.batch_runs,
+                                               sizeof(perf_result_t));
+    perf_result_t *perf_end_results = calloc(batch_conf.batch_runs,
+                                             sizeof(perf_result_t));
+    if (!perf_start_results || !perf_end_results) {
         perror("Failed to allocate buffer for perf results");
         exit(1);
     }
@@ -256,6 +278,9 @@ int bench_perf_event_open(batch_conf_t batch_conf,
     open_perf_counters(attrs, perf_ctr_fds, perf_ctr_ids,
                                                 batch_data->n_perf_counters);
 
+    ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
+    ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
+
     for (unsigned long long i = 0; i < batch_conf.warmup_runs; i++) {
         workload();
     }
@@ -265,41 +290,18 @@ int bench_perf_event_open(batch_conf_t batch_conf,
      * Keep it as clean and minimal as possible
      * to reduce noise.
      */
-    perf_result_t run_start_result;
     for (unsigned long long run = 0; run < batch_conf.batch_runs; run++) {
 
-        ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
-        ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
-
-        read(perf_ctr_fds[0], &run_start_result, sizeof(perf_result_t));
+        read(perf_ctr_fds[0], &perf_start_results[run], sizeof(perf_result_t));
 
         asm volatile("" ::: "memory");
-
         workload();
-
         asm volatile("" ::: "memory");
 
-        ssize_t size = read(perf_ctr_fds[0], &perf_results[run],
-                                             sizeof(perf_result_t));
-
-        ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
-
-        /* these values are cumulative - calculate the run delta */
-        perf_results[run].time_enabled -= run_start_result.time_enabled;
-        perf_results[run].time_running -= run_start_result.time_running;
-
-        (void)size;
-        /*
-         * Check for corrupt read() data
-         * This is not correct if there are not MAX_PERF_COUNTERS in the
-         * metric grp.
-         * TODO: calculate size of perf_result dynamically
-         */
-        //if (size != sizeof(perf_result_t)) {
-        //    printf("Incorrect size returned from read()\n");
-        //    exit(1);
-        //}
+        read(perf_ctr_fds[0], &perf_end_results[run], sizeof(perf_result_t));
     }
+
+    ioctl(perf_ctr_fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
 
     for (int i = 0; i < batch_data->n_perf_counters; i++) {
         if (close(perf_ctr_fds[i]) == -1) {
@@ -307,9 +309,14 @@ int bench_perf_event_open(batch_conf_t batch_conf,
         }
     }
 
-    store_perf_results(batch_data, perf_results, perf_ctr_ids,
-                                                        batch_conf.batch_runs);
-    free(perf_results);
+    store_perf_results(batch_data,
+                       perf_start_results,
+                       perf_end_results,
+                       perf_ctr_ids,
+                       batch_conf.batch_runs);
+
+    free(perf_start_results);
+    free(perf_end_results);
 
     return 0;
 }
