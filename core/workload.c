@@ -25,6 +25,10 @@ void print_workload_guide(void)
 
 workload_t *get_workload_by_name(const char *name)
 {
+    if (name == NULL) {
+        return NULL;
+    }
+
     for (size_t i = 0; i < n_workloads; i++) {
         if (strcmp(name, workloads[i]->name) == 0) {
             return workloads[i];

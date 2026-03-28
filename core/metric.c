@@ -384,6 +384,10 @@ const metric_grp_t metric_grps[N_METRIC_GRPS] = {
 
 const metric_grp_t *get_mg_by_name(const char *name)
 {
+    if (name == NULL) {
+        return NULL;
+    }
+
     for (int i = 0; i < N_METRIC_GRPS; i++) {
         if (strcmp(name, metric_grps[i].name) == 0) {
             return &metric_grps[i];
