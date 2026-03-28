@@ -89,8 +89,11 @@ int main(int argc, char *argv[])
     workload_t *wl = get_workload_by_name(workload_str);
     const metric_grp_t *mg = get_mg_by_name(metric_grp_str);
 
-    if (!wl || !mg) {
-        fprintf(stderr, "Usage 2\n");
+    if (!wl) {
+        fprintf(stderr, "Usage: Please select a workload\n");
+        return 1;
+    } else if (!mg) {
+        fprintf(stderr, "Usage: Please select a metric group\n");
         return 1;
     }
 
