@@ -79,16 +79,20 @@ typedef enum {
     MG_TYPE_TIMER,
 } mg_type_t;
 
+typedef enum {
+    MG_ID_RDTSCP,
+} mg_id_t;
+
 //typedef enum {
 //} mg_id_t;
 
-// TODO: metric_grp_t => metric_t
 typedef struct {
     /* must be unique */
     const char *name;
 
-    // TODO: change this to id (or just add id), and make it the primary key
-    int type;
+    mg_type_t type;
+    mg_id_t id;
+
 
     /* only populated for perf metric groups */
     const perf_counter_metric_t *const *perf_counters;

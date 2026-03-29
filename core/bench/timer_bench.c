@@ -23,12 +23,9 @@ static uint64_t rdtscp()
     return ((uint64_t)hi << 32) | lo;
 }
 
-/*
- * This is just a placeholder for now.
- * Might make this function usable at some point.
- */
-int bench_timer(batch_conf_t *batch_cfg, timer_batch_t *batch_data,
-                                         void (*workload)(void))
+static void bench_rdtscp(batch_conf_t *batch_cfg,
+                 timer_batch_t *batch_data,
+                 void (*workload)(void))
 {
     uint64_t start, end;
 
@@ -44,7 +41,14 @@ int bench_timer(batch_conf_t *batch_cfg, timer_batch_t *batch_data,
         end = rdtscp();
         batch_data->timer.run_vals[i] = end - start;
     }
-
-    return 0;
 }
 
+bench_func_t get_timer_bench_func(mg_id_t id)
+{
+    switch (id) {
+        case MG_ID_RDTSCP:
+            return bench_rdtscp;
+        default:
+            exit(1);
+    }
+}

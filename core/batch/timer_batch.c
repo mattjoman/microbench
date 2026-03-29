@@ -42,13 +42,12 @@ static void process_timer_batch(batch_conf_t *cfg,
 
 void run_timer_batch(batch_conf_t *cfg)
 {
-
     workload_t *wl = cfg->wl;
     timer_batch_t *batch_data = init_timer_batch_data(cfg);
+    bench_func_t bench_func = get_timer_bench_func(cfg->mg->id);
 
-    // TODO: move this to a function in the bench subsystem
     wl->init(wl);
-    bench_timer(cfg, batch_data, wl->workload);
+    bench_func(cfg, batch_data, wl->workload);
     wl->clean();
 
     process_timer_batch(cfg, batch_data);

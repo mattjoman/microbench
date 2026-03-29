@@ -363,6 +363,7 @@ const metric_grp_t metric_grps[] = {
 
     {
         .name = "RDTSCP",
+        .id = MG_ID_RDTSCP,
         .type = MG_TYPE_TIMER,
     },
 
