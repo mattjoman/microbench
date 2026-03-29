@@ -22,18 +22,10 @@ static perf_batch_t *init_perf_batch_data(batch_conf_t *cfg)
     data->time_enabled.run_vals = alloc_uint64_array(cfg->batch_runs);
     data->time_running.run_vals = alloc_uint64_array(cfg->batch_runs);
 
-    const metric_t *counter_metric_buff[MAX_PERF_COUNTERS];
-    const metric_t *ratio_metric_buff[MAX_PERF_RATIOS];
+    const metric_grp_t *mg = cfg->mg;
 
-    mg_list_metrics_by_type(cfg->mg, METRIC_TYPE_PERF_COUNTER,
-            MAX_PERF_COUNTERS, counter_metric_buff, &data->n_perf_counters);
-    mg_list_metrics_by_type(cfg->mg, METRIC_TYPE_PERF_RATIO,
-            MAX_PERF_RATIOS, ratio_metric_buff, &data->n_perf_ratios);
-
-    if (!data->n_perf_counters) {
-        fprintf(stderr, "No perf counter metrics\n");
-        exit(1);
-    }
+    data->n_perf_counters = mg_n_perf_counters(mg);
+    assert(data->n_perf_counters > 0);
 
     if (!(data->perf_counters = calloc(data->n_perf_counters,
                                        sizeof(perf_counter_data_t)))) {
@@ -41,6 +33,7 @@ static perf_batch_t *init_perf_batch_data(batch_conf_t *cfg)
         exit(1);
     }
 
+    data->n_perf_ratios = mg_n_perf_ratios(mg);
     if (data->n_perf_ratios) {
         if (!(data->perf_ratios = calloc(data->n_perf_ratios,
                                          sizeof(perf_ratio_data_t)))) {
@@ -51,12 +44,12 @@ static perf_batch_t *init_perf_batch_data(batch_conf_t *cfg)
 
     for (int i = 0; i < data->n_perf_counters; i++) {
         data->perf_counters[i].run_vals = alloc_double_array(cfg->batch_runs);
-        data->perf_counters[i].metric = counter_metric_buff[i];
+        data->perf_counters[i].metric = mg->perf_counters[i];
     }
 
     for (int i = 0; i < data->n_perf_ratios; i++) {
         data->perf_ratios[i].run_vals = alloc_double_array(cfg->batch_runs);
-        data->perf_ratios[i].metric = ratio_metric_buff[i];
+        data->perf_ratios[i].metric = mg->perf_ratios[i];
     }
 
     return data;
@@ -81,7 +74,11 @@ static void destroy_perf_batch_data(perf_batch_t *batch_data)
     }
 
     free(batch_data->perf_counters);
+    batch_data->perf_counters = NULL;
+
     free(batch_data->perf_ratios);
+    batch_data->perf_ratios = NULL;
+
     free(batch_data);
     batch_data = NULL;
 }
@@ -90,11 +87,10 @@ static void process_perf_counter_data(batch_conf_t *cfg,
                                       perf_batch_t *batch_data)
 {
     double_agg_t agg;
-    int batch_runs = cfg->batch_runs;
 
     for (int i = 0; i < batch_data->n_perf_counters; i++) {
         agg = aggregate_double(batch_data->perf_counters[i].run_vals,
-                                                                batch_runs);
+                               cfg->batch_runs);
         batch_data->perf_counters[i].agg = agg;
     }
 }
@@ -155,7 +151,6 @@ void run_perf_batch(batch_conf_t *cfg)
 
     batch_data = init_perf_batch_data(cfg);
 
-    // TODO: move this to a function in the bench subsystem
     wl->init(wl);
     bench_perf_event_open(cfg, batch_data, wl->workload);
     wl->clean();

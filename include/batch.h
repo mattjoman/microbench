@@ -42,8 +42,9 @@ typedef struct {
     perf_ratio_data_t *perf_ratios;
 } perf_batch_t;
 
+/*** TIMER ***/
+
 typedef struct {
-    const metric_t *metric;
     uint64_t *run_vals;
     uint64_agg_t agg;
 } timer_data_t;

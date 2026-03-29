@@ -20,7 +20,6 @@ static timer_batch_t *init_timer_batch_data(batch_conf_t *cfg)
     }
 
     data->timer.run_vals = alloc_uint64_array(cfg->batch_runs);
-    data->timer.metric = cfg->mg->metrics[0];
 
     return data;
 }

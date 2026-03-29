@@ -7,7 +7,7 @@
 
 typedef enum {
 
-    /* perf metrics */
+    /* counters */
 
     METRIC_CPU_CYCLES,
     METRIC_REF_CPU_CYCLES,
@@ -35,11 +35,7 @@ typedef enum {
     METRIC_TASK_CLOCK_NS,
     METRIC_ALIGNMENT_FAULTS,
 
-    /* timer metric */
-
-    METRIC_TIMER,
-
-    /* ratio metrics */
+    /* ratios */
 
     METRIC_INSTRUCTIONS_PER_CYCLE,
     METRIC_CYCLES_PER_INSTRUCTION,
@@ -52,16 +48,16 @@ typedef enum {
     METRIC_BRANCH_MISPRED_RATE,
     METRIC_FE_VS_BE_STALLS,
 
-    N_METRICS,
+    N_METRICS
 
-} metric_id_t;
+} metric_id_t; // TODO: metric_id_t => perf_sub_metric_id_t
 
 enum {
     METRIC_TYPE_PERF_COUNTER,
     METRIC_TYPE_PERF_RATIO,
-    METRIC_TYPE_TIMER,
 };
 
+// TODO: metric_t =>  perf_sub_metric_t
 typedef struct {
     metric_id_t id;
     const char *name;
@@ -70,25 +66,29 @@ typedef struct {
     metric_id_t denominator_id;
 } metric_t;
 
+/*** METRIC GROUPS ***/
+
 enum {
     METRIC_GRP_TYPE_PERF,
     METRIC_GRP_TYPE_TIMER,
 };
 
-typedef struct metric_grp {
+// TODO: metric_grp_t => metric_t
+typedef struct {
+    /* must be unique */
     const char *name;
+
+    // TODO: change this to id (or just add id), and make it the primary key
     int type;
 
-    int n_metrics;
-    const metric_t *const *metrics;
+    /* only populated for perf metric groups */
+    const metric_t *const *perf_counters;
+    const metric_t *const *perf_ratios;
 } metric_grp_t;
 
 const metric_grp_t *get_mg_by_name(const char *name);
-void mg_list_metrics_by_type(const metric_grp_t *mg,
-                             int type,
-                             int max_metrics,
-                             const metric_t *metrics_buff[],
-                             int *n_metrics);
+int mg_n_perf_counters(const metric_grp_t *mg);
+int mg_n_perf_ratios(const metric_grp_t *mg);
 void print_metric_grp_guide(void);
 
 #endif

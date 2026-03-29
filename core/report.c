@@ -128,7 +128,7 @@ void timer_batch_to_csv(batch_conf_t *cfg, timer_batch_t *batch_data)
 
     write_batch_metadata(file, cfg);
 
-    fprintf(file, "%s,\n", batch_data->timer.metric->name);
+    fprintf(file, "%s,\n", cfg->mg->name);
 
     for (unsigned long long r = 0; r < cfg->batch_runs; r++) {
         fprintf(file, "%ld,\n", batch_data->timer.run_vals[r]);
