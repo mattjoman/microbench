@@ -55,7 +55,7 @@ bench_func_t get_timer_bench_func(mg_id_t id)
 #if defined(__x86_64__) || defined(__amd64__)
             return bench_rdtscp;
 #else
-            fprintf(strerr, "RDTSCP benchmark is x86-specific\n");
+            fprintf(stderr, "RDTSCP benchmark is x86-specific\n");
             exit(1);
 #endif
 
