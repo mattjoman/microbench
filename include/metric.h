@@ -81,6 +81,7 @@ typedef enum {
 
 typedef enum {
     MG_ID_RDTSCP,
+    MG_ID_ARM_TIMER,
 } mg_id_t;
 
 //typedef enum {

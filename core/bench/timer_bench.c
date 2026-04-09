@@ -52,12 +52,20 @@ bench_func_t get_timer_bench_func(mg_id_t id)
     switch (id) {
 
         case MG_ID_RDTSCP:
-#if defined(__x86_64__) || defined(__amd64__)
+#if defined(__x86_64__) || defined(__i386__) || defined(__amd64__)
             return bench_rdtscp;
 #else
-            fprintf(stderr, "RDTSCP benchmark is x86-specific\n");
+            fprintf(stderr, "RDTSCP is x86-only\n");
             exit(1);
 #endif
+
+        case MG_ID_ARM_TIMER:
+#if defined(__aarch64__) || defined(__arm__)
+            fprintf(stderr, "Arm timer not implemented yet\n");
+#else
+            fprintf(stderr, "Arm counter is arm-only\n");
+#endif
+            exit(1);
 
         default:
             exit(1);

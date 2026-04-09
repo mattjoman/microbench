@@ -361,13 +361,17 @@ const metric_grp_t metric_grps[] = {
         },
     },
 
-#if defined(__x86_64__) || defined(__amd64__)
     {
         .name = "RDTSCP",
         .id = MG_ID_RDTSCP,
         .type = MG_TYPE_TIMER,
     },
-#endif
+
+    {
+        .name = "ARM_TIMER",
+        .id = MG_ID_ARM_TIMER,
+        .type = MG_TYPE_TIMER,
+    },
 
     { 0 }, // end of mg array
 
