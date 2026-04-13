@@ -3,7 +3,7 @@
 
 #include "../../include/metric.h"
 
-void register_backend(backend_t *backend);
+void register_backend(metric_backend_t *backend);
 
 #define REGISTER_BACKEND(be_ptr) \
     static void __attribute((constructor)) register_be(void) { \

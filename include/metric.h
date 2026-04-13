@@ -15,12 +15,12 @@ typedef enum {
     METRIC_BE_PERF,
     METRIC_BE_CPU_INSTRUCTION,
     N_METRIC_BACKENDS,
-} metric_backend_t;
+} metric_backend_id_t;
 
 typedef struct {
     const char *name;
     metric_type_t type;
-    metric_backend_t backend;
+    metric_backend_id_t backend;
     metric_id_t numerator;
     metric_id_t denominator;
     /* TODO: add supported architectures */
@@ -30,7 +30,7 @@ typedef struct {
 
 typedef struct metric_grp {
     const char *name;
-    metric_backend_t backend;
+    metric_backend_id_t backend;
     int n_metrics;
     metric_id_t *metrics;
 } metric_grp_t;
@@ -58,10 +58,10 @@ typedef void (*bench_func_t)(
 );
 
 typedef struct {
-    metric_backend_t id;
+    metric_backend_id_t id;
     bench_func_t bench_func;
-} backend_t;
+} metric_backend_t;
 
-backend_t *get_backend(metric_backend_t id);
+metric_backend_t *get_backend(metric_backend_id_t id);
 
 #endif

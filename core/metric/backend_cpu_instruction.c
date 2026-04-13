@@ -80,7 +80,7 @@ void run_be(batch_conf_t *batch_cfg,
     }
 }
 
-static backend_t be = {
+static metric_backend_t be = {
     .id = METRIC_BE_CPU_INSTRUCTION,
     .bench_func = run_be,
 };

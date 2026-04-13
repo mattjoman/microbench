@@ -317,7 +317,7 @@ static void run_be(batch_conf_t *batch_cfg,
     free(perf_end_results);
 }
 
-static backend_t be = {
+static metric_backend_t be = {
     .id = METRIC_BE_PERF,
     .bench_func = run_be,
 };

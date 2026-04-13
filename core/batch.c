@@ -156,7 +156,7 @@ void run_batch(unsigned long long warmup_runs,
 {
     batch_conf_t *cfg = init_batch_conf(warmup_runs, batch_runs, wl, mg);
     batch_data_t *batch_data = init_batch_data(cfg);
-    const backend_t *backend = get_backend(mg->backend);
+    const metric_backend_t *backend = get_backend(mg->backend);
 
     wl->init(wl);
     backend->bench_func(cfg, batch_data, wl->workload);
