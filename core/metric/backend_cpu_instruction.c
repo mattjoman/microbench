@@ -14,7 +14,7 @@
 
 #include "../../include/metric.h"
 #include "../../include/bench.h"
-#include "./internal.h"
+#include "./backend_common.h"
 
 #if defined(__x86_64__) || defined(__amd64__)
 

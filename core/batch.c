@@ -3,13 +3,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "../../include/batch.h"
-#include "../../include/bench.h"
-#include "../../include/workload.h"
-#include "../../include/data_processing.h"
-#include "../../include/report.h"
-
-#include "./internal.h"
+#include "../include/batch.h"
+#include "../include/bench.h"
+#include "../include/workload.h"
+#include "../include/data_processing.h"
+#include "../include/report.h"
 
 static batch_conf_t *init_batch_conf(unsigned long long warmup_runs,
                               unsigned long long batch_runs,

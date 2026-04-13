@@ -13,7 +13,7 @@
 #include <errno.h>
 
 #include "../../include/bench.h"
-#include "./internal.h"
+#include "./backend_common.h"
 
 static struct perf_event_attr create_perf_config(int metric)
 {
