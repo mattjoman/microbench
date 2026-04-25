@@ -3,6 +3,9 @@ import pandas as pd
 
 from cyclops import BatchRunner
 
+BATCH_RUNS = 50
+WARMUP_RUNS = 5
+
 def run_L1D_batches(array_sizes: list):
 
     x_L1D = []
@@ -14,6 +17,8 @@ def run_L1D_batches(array_sizes: list):
         batch = BatchRunner(
             workload="STRIDED_ARRAY",
             metric_grp="L1D_READS",
+            warmup_runs=WARMUP_RUNS,
+            batch_runs=BATCH_RUNS,
             params=params,
         )
         batch.exec()
@@ -39,6 +44,8 @@ def run_LLC_batches(array_sizes: list):
         batch = BatchRunner(
             workload="STRIDED_ARRAY",
             metric_grp="LLC_READS",
+            warmup_runs=WARMUP_RUNS,
+            batch_runs=BATCH_RUNS,
             params=params,
         )
         batch.exec()

@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 class BatchRunner:
     workload: str
     metric_grp: str
+    warmup_runs: int = 5
+    batch_runs: int = 5
     params: dict = field(default_factory=dict)
 
     def build_output_file_name(self) -> str:
@@ -22,7 +24,8 @@ class BatchRunner:
             "../cyclops",
             "-w", self.workload,
             "-m", self.metric_grp,
-            "-r", "10",
+            "-u", str(self.warmup_runs),
+            "-r", str(self.batch_runs),
             "-o", self.build_output_file_name(),
         ]
 
