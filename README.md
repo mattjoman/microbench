@@ -24,6 +24,20 @@ make
 ./cyclops -w STRIDED_ARRAY -g IPC -p array-elements=1000
 ```
 
+## Benchmarking Methodology
+
+The following methods are used to maximise benchmark accuracy and minimise
+measurement noise:
+
+- Pin thread to a single core
+- Warmup runs to train branch predictors and warm caches (set from the cli)
+- Barriers and serialization to ensure the compiler or CPU don't reorder
+  workload instructions outside the measurement window
+- Detect kernel multiplexing physical PMU counters with `time_running` and
+  `time_enabled`, and scale results if necessary (for `perf_event_open()`)
+
+See the benchmarking code in the metric backends in `core/metric/`.
+
 ## Example Experiments
 
 The `cyclops` tool is designed to be highly scriptable, and make it easy to
@@ -74,21 +88,6 @@ is ~2-3\*10^4 Bytes, and a large jump in LLC miss rate at ~2\*10^6.
 From this, we can estimate that my L1D is probably 32KB and my LLC is in the
 range of 2MB.
 
-## Benchmarking
-
-The following methods are used to maximise benchmark accuracy and minimise
-measurement noise:
-
-- Pin thread to a single core
-- Warmup runs to train branch predictors and warm caches (set from the cli)
-- Barriers & serialization to ensure the compiler or CPU don't reorder
-  workload instructions outside the measurement window
-- Detect kernel multiplexing physical PMU counters with `time_running` and
-  `time_enabled`, and scale results if necessary (for `perf_event_open()`)
-
-See the benchmarking code in `core/bench/perf_bench.c` and
-`core/timer_bench.c`.
-
 ## Workloads
 
 **Cyclops** provides a simple workload API, making it easy to create custom
@@ -113,7 +112,7 @@ This C file will need to contain the following things:
 For examples see `/include/workload.h` and the default workloads in
 `/workloads`.
 
-## Metrics
+## Metric Groups
 
 See the default metric groups (declared in `/core/metric.c`) or with the
 output of `cyclops -h`.
@@ -121,34 +120,15 @@ output of `cyclops -h`.
 You can only benchmark with one metric group, so select one that contains the
 metrics you want (or create a custom group).
 
-### Metric Group Types
-
-There are two kinds of metric group:
-
-- **PERF** groups (metrics calculated using `perf_event_open()`)
-- **TIMER** group (metrics calculated using `rdtscp`)
-
-### Metric Types
-
-- raw perf event metrics
-- perf event derived metrics (e.g. instructions per cycle)
-- timer - `rdtscp` measurements
-
 ## Ouput
 
 ### CSV File
 
-**Cyclops** outputs batch data to a CSV file called `data.csv`.
-This contains data for each metric in the metric group, for each run.
-
-It also contains metadata at the top of the file (lines starting with '#') so
-you can recreate the batch.
-
-For **PERF** metric groups, the CSV file will contain the `time_enabled` and
-`time_running` values for the perf counter group for each run (see
-documentation for `perf_event_open()` for more).
-If kernel multiplexing occurred, the raw metrics will be scaled using
-`time_enabled` and `time_running`.
+Aggregated batch results (min, max, median for each metric in the selected
+metric group) will be written to a CSV file if the `-o <filename>` arguments
+are passed.
+The file will contain metadata like the workload, metric group and any workload
+parameters (metadata lines start with "#" and are at the top of the file).
 
 ### Batch Summary (`stdout`)
 
