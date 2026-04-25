@@ -63,8 +63,24 @@ def run_LLC_batches(array_sizes: list):
 
 if __name__ == "__main__":
     array_elements = [
+        10,
+        30,
+        50,
+        80,
+        90,
+
         100,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
         300,
+        325,
+        350,
+        375,
+        400,
         500,
         800,
 
@@ -78,7 +94,17 @@ if __name__ == "__main__":
         8000,
 
         10000,
+        15000,
+        20000,
+        25000,
         30000,
+        32500,
+        35000,
+        37500,
+        40000,
+        42500,
+        45000,
+        47500,
         50000,
         80000,
 
@@ -87,23 +113,18 @@ if __name__ == "__main__":
         500000,
         800000,
 
-        1000000,
-        3000000,
-        5000000,
-        8000000,
-
-        #10000000,
-        #50000000,
-
-        #100000000,
+        #1000000,
+        #3000000,
+        #5000000,
+        #8000000,
     ]
 
     x_LLC, y_LLC = run_LLC_batches(array_elements)
     x_L1D, y_L1D = run_L1D_batches(array_elements)
 
     plt.figure()
-    plt.plot(x_LLC, y_LLC, marker="o", label="LLC")
-    plt.plot(x_L1D, y_L1D, marker="o", label="L1D")
+    plt.plot(x_LLC, y_LLC, marker="", label="LLC")
+    plt.plot(x_L1D, y_L1D, marker="", label="L1D")
     plt.xscale("log")
     plt.yscale("log")
     plt.xlabel("Array size (Bytes)")
