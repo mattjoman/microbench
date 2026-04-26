@@ -56,16 +56,19 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Before running experiments, activate the virtual environment you just created:
+Before running the example experiments, activate the virtual environment you
+just created:
 
 ```bash
 source venv/bin/activate
 ```
 
-## L1 Cache and LLC Size Estimation
+Check the example experiments below for inspiration.
+
+### Experiment: L1 Cache and LLC Size Estimation
 
 This experiment uses the `STRIDED_ARRAY` workload, sweeping through increasing
-array sizes, to estimate L1D and LLC capacities.
+array sizes, to estimate L1D and LLC capacities from cache miss rates.
 
 This experiment can be run with:
 
@@ -73,7 +76,7 @@ This experiment can be run with:
 python estimate_cache_size.py
 ```
 
-### Results
+#### Results
 
 ![L1D and LLC miss rate curves](images/cache_miss_rates.png)
 
