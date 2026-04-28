@@ -3,7 +3,7 @@
 ## Project Overview
 
 **Cyclops** is a framework for investigating CPU behaviour/architecture and
-software performance.
+custom code performance.
 
 It allows the user to create experiments using low-level resources like PMU
 counters and `rdtscp`, with sensible implementations to improve avoid pitfalls.
