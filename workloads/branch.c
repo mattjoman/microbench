@@ -65,7 +65,7 @@ __attribute__((noinline)) static void workload(void)
 {
     volatile unsigned long long sum = 0;
     for (unsigned long long i = 0; i < n_branches; i++) {
-        if (array[i] == 0) {
+        if (array[i] == 1) {
             sum += 1;
         } else {
             sum -= 1;
