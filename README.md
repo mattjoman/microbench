@@ -99,8 +99,8 @@ python3 estimate_cache_size.py
 python3 branch.py
 ```
 
-This will generate the figures below (PNG files will be saved in
-`experiments/`):
+This will generate the figures below (png files will be saved in
+`experiments/`).
 
 ### L1 Cache and LLC Size Estimation
 
