@@ -12,6 +12,10 @@
 - Document the metric/group hierarchy and how they relate to metric backends
 - Document metric backends & strategies for increasing accuracy and reducing
   noise
+- For workloads and metric groups, add a description to the object
+    - Descriptions and more details (e.g. metrics within the group and workload
+      params & usage) should be displayed if the user does
+      `./cyclops -w BRANCH` with no other args
 
 ## CLI
 
@@ -41,6 +45,9 @@
 - Validate workloads on registration (e.g. workload params can be cast to `ull`
   and have a valid key and value)
 - Add a cache coherence workload
+- Validate user input from within workload init() e.g. if a param needs to be
+  in a certain range, or one param needs to be bigger than another, error in
+  init() with a helpful log message
 
 ## Experiments
 
