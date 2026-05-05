@@ -110,7 +110,7 @@ array sizes, to estimate L1D and LLC capacities from cache miss rates.
 This experiment can be run with:
 
 ```bash
-python estimate_cache_size.py
+python3 estimate_cache_size.py
 ```
 
 #### Results
