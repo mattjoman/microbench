@@ -220,7 +220,8 @@ static param_sweep_t *init_param_sweep(workload_t *wl,
                                        char *wl_param_key,
                                        char *wl_param_low,
                                        char *wl_param_high,
-                                       char *wl_param_step)
+                                       char *wl_param_step,
+                                       char *file_name)
 {
     param_sweep_t *ps = NULL;
     if (!(ps = calloc(1, sizeof(param_sweep_t)))) {
@@ -235,6 +236,8 @@ static param_sweep_t *init_param_sweep(workload_t *wl,
     ps->wl_param_low = wl_param_low;
     ps->wl_param_high = wl_param_high;
     ps->wl_param_step = wl_param_step;
+
+    ps->file_name = file_name;
 
     ps->n_batches = ps_n_batches(ps);
 
@@ -327,7 +330,7 @@ void run_cyclops(unsigned long long warmup_runs,
                  char *wl_param_low,
                  char *wl_param_high,
                  char *wl_param_step,
-                 bool write_batches_to_csv)
+                 char *ps_file_name)
 {
     if (wl_param_key) {
         param_sweep_t *ps = init_param_sweep(wl,
@@ -335,8 +338,9 @@ void run_cyclops(unsigned long long warmup_runs,
                                              wl_param_key,
                                              wl_param_low,
                                              wl_param_high,
-                                             wl_param_step);
-        run_param_sweep(ps, warmup_runs, batch_runs, write_batches_to_csv);
+                                             wl_param_step,
+                                             ps_file_name);
+        run_param_sweep(ps, warmup_runs, batch_runs, false);
         param_sweep_to_csv(ps);
         destroy_param_sweep(ps);
     } else {
@@ -345,7 +349,7 @@ void run_cyclops(unsigned long long warmup_runs,
                                                   wl,
                                                   mg);
         batch_data_t *batch_data = init_batch_data(batch_cfg);
-        run_batch(batch_cfg, batch_data, write_batches_to_csv, 0);
+        run_batch(batch_cfg, batch_data, false, 0);
         destroy_batch_conf(batch_cfg);
         destroy_batch_data(batch_data);
     }

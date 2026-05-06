@@ -12,6 +12,8 @@ AGGREGATE = "MEDIAN"
 
 WORKLOAD = "STRIDED_ARRAY"
 
+FILE_NAME = "estimate_cache_size.csv"
+
 L1D = 0
 LLC = 1
 
@@ -19,13 +21,13 @@ def sweep_array_elements(cache: int):
 
     if cache == L1D:
         array_elements_low = 100
-        array_elements_high = 10000
+        array_elements_high = 1000
         array_elements_step = 10
         metric_grp = "L1D_READS"
         metric = "L1D_READ_MISS_RATE"
     elif cache == LLC:
-        array_elements_low = 10000
-        array_elements_high = 100000
+        array_elements_low = 1000
+        array_elements_high = 10000
         array_elements_step = 1000
         metric_grp = "LLC_READS"
         metric = "LLC_READ_MISS_RATE"
@@ -43,16 +45,17 @@ def sweep_array_elements(cache: int):
         warmup_runs=WARMUP_RUNS,
         batch_runs=BATCH_RUNS,
         param_sweep=param_sweep,
+        file_name=FILE_NAME,
     )
     cyclops.exec()
 
     df = pd.read_csv(
-        f"{metric}.csv",
+        f"{FILE_NAME}",
         comment="#",
         index_col=param_sweep.key
     )
 
-    return 64 * df.index.values, df[AGGREGATE].values
+    return 64 * df.index.values, df[f"{metric}:{AGGREGATE}"].values
 
 if __name__ == "__main__":
 

@@ -16,6 +16,7 @@ class Cyclops:
     batch_runs: int = 5
     params: dict = field(default_factory=dict)
     param_sweep: ParamSweep | None = None
+    file_name: str | None = None
     write_per_batch_csv_files: bool = False
 
     def exec(self):
@@ -27,8 +28,9 @@ class Cyclops:
             "-r", str(self.batch_runs),
         ]
 
-        if self.write_per_batch_csv_files:
+        if self.file_name:
             arg_list.append("-o")
+            arg_list.append(self.file_name)
 
         for key, val in self.params.items():
             arg_list.append("-p")

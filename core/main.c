@@ -25,7 +25,8 @@ int main(int argc, char *argv[])
 {
     char *workload_str = NULL;
     char *metric_grp_str  = NULL;
-    bool write_batches_to_csv  = false;
+    //bool write_batches_to_csv  = false;
+    char *ps_file_name = NULL;
     unsigned long long batch_runs = 0;
     unsigned long long warmup_runs = 0;
     int n_wl_params = 0;
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
         {"metric-grp", required_argument, 0, 'm'},
         {"batch-runs", required_argument, 0, 'r'},
         {"warmup-runs", required_argument, 0, 'u'},
-        {"ouptut-file", no_argument, 0, 'o'},
+        {"ouptut-file", required_argument, 0, 'o'},
         {"param", required_argument, 0, 'p'},
         {"param-sweep", required_argument, 0, 's'},
         {0, 0, 0, 0}
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
     char *eq;
     char *colon_1;
     char *colon_2;
-    while ((opt = getopt_long(argc, argv, "hw:m:r:u:op:s:", long_opts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hw:m:r:u:o:p:s:", long_opts, NULL)) != -1) {
         switch (opt) {
             case 'h':
                 fputs(help_text, stdout);
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
                 warmup_runs = strtoull(optarg, NULL, 10);
                 break;
             case 'o':
-                write_batches_to_csv = true;
+                ps_file_name = optarg;
                 break;
             case 'p':
                 if (n_wl_params >= MAX_WL_ARGS) {
@@ -155,7 +156,7 @@ int main(int argc, char *argv[])
                 wl_param_sweep_low,
                 wl_param_sweep_high,
                 wl_param_sweep_step,
-                write_batches_to_csv);
+                ps_file_name);
 
     return 0;
 }

@@ -17,13 +17,15 @@ METRIC = "BRANCH_MISPRED_RATE"
 #METRIC_GRP = "BPU_READS"
 #METRIC = "BPU_READ_MISS_RATE"
 
+FILE_NAME = "branch.csv"
+
 def sweep_pattern_len(bias: int):
 
     param_sweep = ParamSweep(
         key="pattern-len",
-        low=1,
-        high=100000,
-        step=100,
+        low=10,
+        high=1000,
+        step=10,
     )
 
     cyclops = Cyclops(
@@ -36,16 +38,17 @@ def sweep_pattern_len(bias: int):
             "bias": bias,
         },
         param_sweep=param_sweep,
+        file_name=FILE_NAME,
     )
     cyclops.exec()
 
     df = pd.read_csv(
-        f"{METRIC}.csv",
+        f"{FILE_NAME}",
         comment="#",
         index_col=param_sweep.key
     )
 
-    return df.index.values, df[AGGREGATE].values
+    return df.index.values, df[f"{METRIC}:{AGGREGATE}"].values
 
 def run_bias_experiment(bias_take: bool):
 

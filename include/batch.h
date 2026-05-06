@@ -58,6 +58,8 @@ typedef struct {
     char *wl_param_high;
     char *wl_param_step;
 
+    char *file_name;
+
     unsigned long long n_batches;
     ps_data_t *data;
 } param_sweep_t;
@@ -70,6 +72,6 @@ void run_cyclops(unsigned long long warmup_runs,
                  char *wl_param_low,
                  char *wl_param_high,
                  char *wl_param_step,
-                 bool write_batches_to_csv);
+                 char *ps_file_name);
 
 #endif
