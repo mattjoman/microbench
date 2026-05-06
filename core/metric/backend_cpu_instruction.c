@@ -26,19 +26,18 @@ static uint64_t rdtscp()
     return ((uint64_t)hi << 32) | lo;
 }
 
-static void bench_rdtscp(batch_conf_t *batch_cfg,
-                 batch_data_t *batch_data,
+static void bench_rdtscp(batch_data_t *batch_data,
                  void (*workload)(void))
 {
     uint64_t start, end;
 
     pin_thread();
 
-    for (unsigned long long i = 0; i < batch_cfg->warmup_runs; i++) {
+    for (unsigned long long i = 0; i < batch_data->warmup_runs; i++) {
         workload();
     }
 
-    for (unsigned long long i = 0; i < batch_cfg->batch_runs; i++) {
+    for (unsigned long long i = 0; i < batch_data->batch_runs; i++) {
         start = rdtscp();
         workload();
         end = rdtscp();
@@ -48,18 +47,16 @@ static void bench_rdtscp(batch_conf_t *batch_cfg,
 
 #endif
 
-void run_be(batch_conf_t *batch_cfg,
-                            batch_data_t *batch_data,
-                            void (*workload)(void))
+void run_be(batch_data_t *batch_data, void (*workload)(void))
 {
-    const metric_grp_t *mg = batch_cfg->mg;
+    const metric_grp_t *mg = batch_data->mg;
     assert(mg != NULL);
 
     switch (mg->metrics[0]) {
 
         case METRIC_RDTSCP:
 #if defined(__x86_64__) || defined(__i386__) || defined(__amd64__)
-            bench_rdtscp(batch_cfg, batch_data, workload);
+            bench_rdtscp(batch_data, workload);
 #else
             fprintf(stderr, "RDTSCP is x86-only\n");
             exit(1);

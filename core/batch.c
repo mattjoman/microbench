@@ -9,27 +9,6 @@
 #include "../include/data_processing.h"
 #include "../include/report.h"
 
-static batch_conf_t *init_batch_conf(cyclops_cfg_t *cyclops_cfg)
-{
-    batch_conf_t *cfg = calloc(1, sizeof(batch_conf_t));
-    if (!cfg) {
-        perror("Could not allocate memory for the batch config struct");
-        exit(1);
-    }
-
-    cfg->warmup_runs   = cyclops_cfg->warmup_runs;
-    cfg->batch_runs    = cyclops_cfg->batch_runs;
-    cfg->wl            = cyclops_cfg->wl;
-    cfg->mg            = cyclops_cfg->mg;
-
-    return cfg;
-}
-
-static void destroy_batch_conf(batch_conf_t *cfg)
-{
-    free(cfg);
-}
-
 static double *alloc_double_array(unsigned long long length)
 {
     double *array = calloc(length, sizeof(double));
@@ -40,7 +19,7 @@ static double *alloc_double_array(unsigned long long length)
     return array;
 }
 
-static batch_data_t *init_batch_data(batch_conf_t *cfg)
+static batch_data_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
 {
     batch_data_t *data;
     if (!(data = calloc(1, sizeof(batch_data_t)))) {
@@ -48,7 +27,12 @@ static batch_data_t *init_batch_data(batch_conf_t *cfg)
         exit(1);
     }
 
-    const metric_grp_t *mg = cfg->mg;
+    data->warmup_runs   = cyclops_cfg->warmup_runs;
+    data->batch_runs    = cyclops_cfg->batch_runs;
+    data->wl            = cyclops_cfg->wl;
+    data->mg            = cyclops_cfg->mg;
+
+    const metric_grp_t *mg = cyclops_cfg->mg;
 
     data->n_raw = mg_n_raw(mg);
     data->n_derived = mg_n_derived(mg);
@@ -68,15 +52,15 @@ static batch_data_t *init_batch_data(batch_conf_t *cfg)
         }
     }
 
-    data->raw_data_scaling.run_vals = alloc_double_array(cfg->batch_runs);
+    data->raw_data_scaling.run_vals = alloc_double_array(data->batch_runs);
 
     for (int i = 0; i < data->n_raw; i++) {
-        data->raw_data[i].run_vals = alloc_double_array(cfg->batch_runs);
+        data->raw_data[i].run_vals = alloc_double_array(data->batch_runs);
         data->raw_data[i].metric_id = mg_get_nth_raw_id(mg, i);
     }
 
     for (int i = 0; i < data->n_derived; i++) {
-        data->derived_data[i].run_vals = alloc_double_array(cfg->batch_runs);
+        data->derived_data[i].run_vals = alloc_double_array(data->batch_runs);
         data->derived_data[i].metric_id = mg_get_nth_derived_id(mg, i);
     }
 
@@ -108,20 +92,20 @@ static void destroy_batch_data(batch_data_t *data)
     data = NULL;
 }
 
-static void process_perf_counter_data(batch_conf_t *cfg,
-                                      batch_data_t *batch_data)
+static void process_perf_counter_data(batch_data_t *batch_data)
 {
     batch_data->raw_data_scaling.agg = aggregate_double(
-                    batch_data->raw_data_scaling.run_vals, cfg->batch_runs);
+                batch_data->raw_data_scaling.run_vals,
+                batch_data->batch_runs);
 
     for (int i = 0; i < batch_data->n_raw; i++) {
         batch_data->raw_data[i].agg = aggregate_double(
-                            batch_data->raw_data[i].run_vals, cfg->batch_runs);
+                batch_data->raw_data[i].run_vals,
+                batch_data->batch_runs);
     }
 }
 
-static void process_perf_ratio_data(batch_conf_t *cfg,
-                                    batch_data_t *bd)
+static void process_perf_ratio_data(batch_data_t *bd)
 {
     for (int i = 0; i < bd->n_derived; i++) {
 
@@ -146,30 +130,29 @@ static void process_perf_ratio_data(batch_conf_t *cfg,
         calc_ratios(bd->derived_data[i].run_vals,
                     numerators,
                     denominators,
-                    cfg->batch_runs);
+                    bd->batch_runs);
 
-        ratio->agg = aggregate_double(ratio->run_vals, cfg->batch_runs);
+        ratio->agg = aggregate_double(ratio->run_vals, bd->batch_runs);
     }
 }
 
-static void run_batch(batch_conf_t *cfg,
-                      batch_data_t *batch_data,
+static void run_batch(batch_data_t *batch_data,
                       bool write_batch_to_csv,
                       unsigned long long batch_no)
 {
-    const metric_backend_t *backend = get_backend(cfg->mg->backend);
+    const metric_backend_t *backend = get_backend(batch_data->mg->backend);
 
-    cfg->wl->init(cfg->wl);
-    backend->bench_func(cfg, batch_data, cfg->wl->workload);
-    cfg->wl->clean();
+    batch_data->wl->init(batch_data->wl);
+    backend->bench_func(batch_data, batch_data->wl->workload);
+    batch_data->wl->clean();
 
-    process_perf_counter_data(cfg, batch_data);
-    process_perf_ratio_data(cfg, batch_data);
+    process_perf_counter_data(batch_data);
+    process_perf_ratio_data(batch_data);
 
     if (write_batch_to_csv) {
-        batch_to_csv(cfg, batch_data, batch_no);
+        batch_to_csv(batch_data, batch_no);
     }
-    run_report(cfg, batch_data);
+    run_report(batch_data);
 }
 
 static metric_data_t *batch_get_metric_data(batch_data_t *data,
@@ -286,11 +269,10 @@ static void run_param_sweep(param_sweep_t *ps, cyclops_cfg_t *cyclops_cfg)
         wl_reset_param(ps->wl, ps->wl_param_key, param_val_buf);
 
         /* init batch */
-        batch_conf_t *batch_cfg = init_batch_conf(cyclops_cfg);
-        batch_data_t *batch_data = init_batch_data(batch_cfg);
+        batch_data_t *batch_data = init_batch_data(cyclops_cfg);
 
         /* run batch */
-        run_batch(batch_cfg, batch_data, false, i);
+        run_batch(batch_data, false, i);
 
         /* extract aggregate batch data for each metric */
         for (int m = 0; m < ps->mg->n_metrics; m++) {
@@ -302,7 +284,6 @@ static void run_param_sweep(param_sweep_t *ps, cyclops_cfg_t *cyclops_cfg)
         }
 
         /* destroy batch */
-        destroy_batch_conf(batch_cfg);
         destroy_batch_data(batch_data);
     }
 
@@ -319,10 +300,8 @@ void run_cyclops(cyclops_cfg_t *cyclops_cfg)
         destroy_param_sweep(ps);
     } else {
         /* single batch */
-        batch_conf_t *batch_cfg = init_batch_conf(cyclops_cfg);
-        batch_data_t *batch_data = init_batch_data(batch_cfg);
-        run_batch(batch_cfg, batch_data, false, 0);
-        destroy_batch_conf(batch_cfg);
+        batch_data_t *batch_data = init_batch_data(cyclops_cfg);
+        run_batch(batch_data, false, 0);
         destroy_batch_data(batch_data);
     }
 }

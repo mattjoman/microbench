@@ -10,13 +10,6 @@
 
 typedef struct metric_grp metric_grp_t;
 
-typedef struct batch_conf {
-    unsigned long long warmup_runs;
-    unsigned long long batch_runs;
-    workload_t *wl;
-    const metric_grp_t *mg;
-} batch_conf_t;
-
 typedef struct {
     metric_id_t metric_id;
     double *run_vals;
@@ -24,6 +17,10 @@ typedef struct {
 } metric_data_t;
 
 typedef struct batch_data {
+    unsigned long long warmup_runs;
+    unsigned long long batch_runs;
+    workload_t *wl;
+    const metric_grp_t *mg;
 
     metric_data_t raw_data_scaling;
 

@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     char *metric_grp_str  = NULL;
     //bool write_batches_to_csv  = false;
     char *file_name = NULL;
-    unsigned long long batch_runs = 0;
+    unsigned long long batch_runs = 1;
     unsigned long long warmup_runs = 0;
     int n_wl_params = 0;
     char *wl_param_keys[MAX_WL_ARGS];

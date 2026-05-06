@@ -57,17 +57,17 @@ static void print_table_column_headers()
     putchar('\n');
 }
 
-static void print_batch_info(batch_conf_t *cfg)
+static void print_batch_info(batch_data_t *batch)
 {
-    printf("    Warmup runs: %llu\n", cfg->warmup_runs);
-    printf("    Batch runs:  %llu\n", cfg->batch_runs);
+    printf("    Warmup runs: %llu\n", batch->warmup_runs);
+    printf("    Batch runs:  %llu\n", batch->batch_runs);
     putchar('\n');
 }
 
-void run_report(batch_conf_t *cfg, batch_data_t *batch_data)
+void run_report(batch_data_t *batch_data)
 {
     printf("\n");
-    print_batch_info(cfg);
+    print_batch_info(batch_data);
     print_table_column_headers();
 
     print_double_agg_table_row(batch_data->raw_data_scaling.agg, "SCALING");
@@ -87,14 +87,14 @@ void run_report(batch_conf_t *cfg, batch_data_t *batch_data)
     printf("\n");
 }
 
-static void write_batch_metadata(FILE *file, batch_conf_t *cfg)
+static void write_batch_metadata(FILE *file, batch_data_t *batch)
 {
-    fprintf(file, "#workload=%s\n", cfg->wl->name);
-    fprintf(file, "#metric-group=%s\n", cfg->mg->name);
-    fprintf(file, "#warmup-runs=%llu\n", cfg->warmup_runs);
-    fprintf(file, "#batch-runs=%llu\n", cfg->batch_runs);
+    fprintf(file, "#workload=%s\n", batch->wl->name);
+    fprintf(file, "#metric-group=%s\n", batch->mg->name);
+    fprintf(file, "#warmup-runs=%llu\n", batch->warmup_runs);
+    fprintf(file, "#batch-runs=%llu\n", batch->batch_runs);
 
-    workload_t *wl = cfg->wl;
+    workload_t *wl = batch->wl;
     if (!wl->params) {
         return;
     }
@@ -105,8 +105,7 @@ static void write_batch_metadata(FILE *file, batch_conf_t *cfg)
     }
 }
 
-static void write_full_batch(FILE *file, batch_conf_t *cfg,
-                                                    batch_data_t *batch_data)
+static void write_full_batch(FILE *file, batch_data_t *batch_data)
 {
     /* raw data column names */
     fprintf(file, "%s,", "SCALING");
@@ -125,7 +124,7 @@ static void write_full_batch(FILE *file, batch_conf_t *cfg,
 
     fputc('\n', file);
 
-    for (unsigned long long r = 0; r < cfg->batch_runs; r++) {
+    for (unsigned long long r = 0; r < batch_data->batch_runs; r++) {
         fprintf(file, "%.6f,", batch_data->raw_data_scaling.run_vals[r]);
         for (int i = 0; i < batch_data->n_raw; i++) {
             fprintf(file, "%.6f,", batch_data->raw_data[i].run_vals[r]);
@@ -139,7 +138,7 @@ static void write_full_batch(FILE *file, batch_conf_t *cfg,
     }
 }
 
-void batch_to_csv(batch_conf_t *cfg, batch_data_t *batch_data,
+void batch_to_csv(batch_data_t *batch_data,
                   unsigned long long batch_no)
 {
     char file_name[128];
@@ -152,8 +151,8 @@ void batch_to_csv(batch_conf_t *cfg, batch_data_t *batch_data,
         exit(1);
     }
 
-    write_batch_metadata(file, cfg);
-    write_full_batch(file, cfg, batch_data);
+    write_batch_metadata(file, batch_data);
+    write_full_batch(file, batch_data);
 
     fclose(file);
 }
