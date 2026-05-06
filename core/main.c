@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     char *workload_str = NULL;
     char *metric_grp_str  = NULL;
     //bool write_batches_to_csv  = false;
-    char *ps_file_name = NULL;
+    char *file_name = NULL;
     unsigned long long batch_runs = 0;
     unsigned long long warmup_runs = 0;
     int n_wl_params = 0;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
                 warmup_runs = strtoull(optarg, NULL, 10);
                 break;
             case 'o':
-                ps_file_name = optarg;
+                file_name = optarg;
                 break;
             case 'p':
                 if (n_wl_params >= MAX_WL_ARGS) {
@@ -148,15 +148,25 @@ int main(int argc, char *argv[])
         wl_set_param(wl, wl_param_keys[i], wl_param_args[i]);
     }
 
-    run_cyclops(warmup_runs,
-                batch_runs,
-                wl,
-                mg,
-                wl_param_sweep_key,
-                wl_param_sweep_low,
-                wl_param_sweep_high,
-                wl_param_sweep_step,
-                ps_file_name);
+    cyclops_cfg_t *cfg = calloc(1, sizeof(cyclops_cfg_t));
+    if (!cfg) {
+        perror("Failed to allocate memory for the cyclops config struct");
+        exit(1);
+    }
+
+    cfg->warmup_runs = warmup_runs;
+    cfg->batch_runs = batch_runs;
+    cfg->wl = wl;
+    cfg->mg = mg;
+    cfg->ps_wl_param_key = wl_param_sweep_key;
+    cfg->ps_wl_param_low = wl_param_sweep_low;
+    cfg->ps_wl_param_high = wl_param_sweep_high;
+    cfg->ps_wl_param_step = wl_param_sweep_step;
+    cfg->file_name = file_name;
+
+    run_cyclops(cfg);
+
+    free(cfg);
 
     return 0;
 }

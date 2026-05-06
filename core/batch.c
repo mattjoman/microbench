@@ -9,25 +9,18 @@
 #include "../include/data_processing.h"
 #include "../include/report.h"
 
-static batch_conf_t *init_batch_conf(unsigned long long warmup_runs,
-                              unsigned long long batch_runs,
-                              workload_t *wl,
-                              const metric_grp_t *mg)
+static batch_conf_t *init_batch_conf(cyclops_cfg_t *cyclops_cfg)
 {
-    if (batch_runs < 1 || batch_runs > MAX_BATCH_RUNS) {
-        batch_runs = 100;
-    }
-
     batch_conf_t *cfg = calloc(1, sizeof(batch_conf_t));
     if (!cfg) {
         perror("Could not allocate memory for the batch config struct");
         exit(1);
     }
 
-    cfg->warmup_runs   = warmup_runs;
-    cfg->batch_runs    = batch_runs;
-    cfg->wl            = wl;
-    cfg->mg            = mg;
+    cfg->warmup_runs   = cyclops_cfg->warmup_runs;
+    cfg->batch_runs    = cyclops_cfg->batch_runs;
+    cfg->wl            = cyclops_cfg->wl;
+    cfg->mg            = cyclops_cfg->mg;
 
     return cfg;
 }
@@ -215,13 +208,7 @@ static unsigned long long ps_n_batches(param_sweep_t *ps)
     return (diff / step) + 1;
 }
 
-static param_sweep_t *init_param_sweep(workload_t *wl,
-                                       const metric_grp_t *mg,
-                                       char *wl_param_key,
-                                       char *wl_param_low,
-                                       char *wl_param_high,
-                                       char *wl_param_step,
-                                       char *file_name)
+static param_sweep_t *init_param_sweep(cyclops_cfg_t *cyclops_cfg)
 {
     param_sweep_t *ps = NULL;
     if (!(ps = calloc(1, sizeof(param_sweep_t)))) {
@@ -229,17 +216,19 @@ static param_sweep_t *init_param_sweep(workload_t *wl,
         exit(1);
     }
 
-    ps->wl = wl;
-    ps->mg = mg;
+    ps->wl = cyclops_cfg->wl;
+    ps->mg = cyclops_cfg->mg;
 
-    ps->wl_param_key = wl_param_key;
-    ps->wl_param_low = wl_param_low;
-    ps->wl_param_high = wl_param_high;
-    ps->wl_param_step = wl_param_step;
+    ps->wl_param_key = cyclops_cfg->ps_wl_param_key;
+    ps->wl_param_low = cyclops_cfg->ps_wl_param_low;
+    ps->wl_param_high = cyclops_cfg->ps_wl_param_high;
+    ps->wl_param_step = cyclops_cfg->ps_wl_param_step;
 
-    ps->file_name = file_name;
+    ps->file_name = cyclops_cfg->file_name;
 
     ps->n_batches = ps_n_batches(ps);
+
+    const metric_grp_t *mg = cyclops_cfg->mg;
 
     if (!(ps->data = calloc(mg->n_metrics, sizeof(ps_data_t)))) {
         perror("Failed to allocate memory for ps_data_t array");
@@ -285,10 +274,7 @@ static unsigned long long ps_get_nth_param_val(param_sweep_t *ps,
     return low + (n * step);
 }
 
-static void run_param_sweep(param_sweep_t *ps,
-                            unsigned long long warmup_runs,
-                            unsigned long long batch_runs,
-                            bool write_batches_to_csv)
+static void run_param_sweep(param_sweep_t *ps, cyclops_cfg_t *cyclops_cfg)
 {
     static char param_val_buf[64];
 
@@ -300,14 +286,11 @@ static void run_param_sweep(param_sweep_t *ps,
         wl_reset_param(ps->wl, ps->wl_param_key, param_val_buf);
 
         /* init batch */
-        batch_conf_t *batch_cfg = init_batch_conf(warmup_runs,
-                                                  batch_runs,
-                                                  ps->wl,
-                                                  ps->mg);
+        batch_conf_t *batch_cfg = init_batch_conf(cyclops_cfg);
         batch_data_t *batch_data = init_batch_data(batch_cfg);
 
         /* run batch */
-        run_batch(batch_cfg, batch_data, write_batches_to_csv, i);
+        run_batch(batch_cfg, batch_data, false, i);
 
         /* extract aggregate batch data for each metric */
         for (int m = 0; m < ps->mg->n_metrics; m++) {
@@ -317,37 +300,26 @@ static void run_param_sweep(param_sweep_t *ps,
             ps->data[m].batch_vals[i].agg = batch_metric_data->agg;
             ps->data[m].batch_vals[i].param_sweep_val = param_val;
         }
+
+        /* destroy batch */
+        destroy_batch_conf(batch_cfg);
+        destroy_batch_data(batch_data);
     }
 
     /* write to csv */
 }
 
-void run_cyclops(unsigned long long warmup_runs,
-                 unsigned long long batch_runs,
-                 workload_t *wl,
-                 const metric_grp_t *mg,
-                 char *wl_param_key,
-                 char *wl_param_low,
-                 char *wl_param_high,
-                 char *wl_param_step,
-                 char *ps_file_name)
+void run_cyclops(cyclops_cfg_t *cyclops_cfg)
 {
-    if (wl_param_key) {
-        param_sweep_t *ps = init_param_sweep(wl,
-                                             mg,
-                                             wl_param_key,
-                                             wl_param_low,
-                                             wl_param_high,
-                                             wl_param_step,
-                                             ps_file_name);
-        run_param_sweep(ps, warmup_runs, batch_runs, false);
+    if (cyclops_cfg->ps_wl_param_key) {
+        /* multi-batch param sweep */
+        param_sweep_t *ps = init_param_sweep(cyclops_cfg);
+        run_param_sweep(ps, cyclops_cfg);
         param_sweep_to_csv(ps);
         destroy_param_sweep(ps);
     } else {
-        batch_conf_t *batch_cfg = init_batch_conf(warmup_runs,
-                                                  batch_runs,
-                                                  wl,
-                                                  mg);
+        /* single batch */
+        batch_conf_t *batch_cfg = init_batch_conf(cyclops_cfg);
         batch_data_t *batch_data = init_batch_data(batch_cfg);
         run_batch(batch_cfg, batch_data, false, 0);
         destroy_batch_conf(batch_cfg);

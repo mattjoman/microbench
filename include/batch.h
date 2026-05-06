@@ -64,14 +64,20 @@ typedef struct {
     ps_data_t *data;
 } param_sweep_t;
 
-void run_cyclops(unsigned long long warmup_runs,
-                 unsigned long long batch_runs,
-                 workload_t *wl,
-                 const metric_grp_t *mg,
-                 char *wl_param_key,
-                 char *wl_param_low,
-                 char *wl_param_high,
-                 char *wl_param_step,
-                 char *ps_file_name);
+/*** CYCLOPS CONFIG **********************************************************/
+
+typedef struct {
+    unsigned long long warmup_runs;
+    unsigned long long batch_runs;
+    workload_t *wl;
+    const metric_grp_t *mg;
+    char *ps_wl_param_key;
+    char *ps_wl_param_low;
+    char *ps_wl_param_high;
+    char *ps_wl_param_step;
+    char *file_name;
+} cyclops_cfg_t;
+
+void run_cyclops(cyclops_cfg_t *cyclops_cfg);
 
 #endif
