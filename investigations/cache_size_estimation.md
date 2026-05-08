@@ -69,7 +69,7 @@ due to cold caches.
 
 ## Results
 
-![L1D and LLC miss rate curves](images/estimate_cache_size.png)
+![L1D and LLC miss rate curves](../images/estimate_cache_size.png)
 
 The figure above does show clear increases in cache miss rates:
 
