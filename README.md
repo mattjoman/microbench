@@ -99,34 +99,8 @@ python3 estimate_cache_size.py
 python3 branch.py
 ```
 
-This will generate the figures below (png files will be saved in
-`experiments/`).
+Figures (png) will be saved in `experiments/`.
 
-### L1 Cache and LLC Size Estimation
+See `investigations/` for investigations and writeups using **Cyclops**:
 
-This experiment uses the `STRIDED_ARRAY` workload, sweeping through increasing
-array sizes, to estimate L1D and LLC capacities from cache miss rates.
-
-This experiment can be run with:
-
-```bash
-python3 estimate_cache_size.py
-```
-
-#### Results
-
-![L1D and LLC miss rate curves](images/estimate_cache_size.png)
-
-As the array size increases, and exceeds the size of a cache, the cache can no
-longer hold all the data.
-Some will need to be fetched from other caches or DRAM, resulting in an
-increase in the cache miss rate at this point.
-
-Here we can see that there is a large jump in the L1D miss rate when the array
-is between 2\*10^4 and 4\*10^4 Bytes, and a large jump in LLC miss rate
-between 2\*10^6 and 4\*10^6.
-
-These ranges align with the actual cache sizes for my CPU:
-
-- **L1D:** 32KiB per physical core
-- **L3:** 3MiB
+- ![Reverse-engineering my cache](investigations/estimate_cache_size.md)
