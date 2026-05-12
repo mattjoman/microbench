@@ -1,14 +1,14 @@
-#include "../../../include/metric.h"
+#include "../../../include/metric_grp.h"
 
 static metric_id_t metrics[] = {
     METRIC_CPU_CYCLES,
-    METRIC_BPU_READ_ACCESSES,
-    METRIC_BPU_READ_MISSES,
-    METRIC_BPU_READ_MISS_RATE,
+    METRIC_L1D_READ_ACCESSES,
+    METRIC_L1D_READ_MISSES,
+    METRIC_L1D_READ_MISS_RATE,
 };
 
 static metric_grp_t mg = {
-    .name = "BPU_READS",
+    .name = "L1D_READS",
     .backend = METRIC_BE_PERF,
     .n_metrics = 4,
     .metrics = metrics,

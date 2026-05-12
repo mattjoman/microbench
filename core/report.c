@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "../include/report.h"
-#include "../include/metric.h"
+#include "../include/metric_grp.h"
 #include "../include/data_processing.h"
 
 #define TABLE_COLUMN_WIDTH 18

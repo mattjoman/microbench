@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../../include/metric.h"
+#include "../../include/metric_grp.h"
 #include "../../include/data_processing.h" // TODO: remove this?
 
 const metric_t metrics[N_METRICS] = {

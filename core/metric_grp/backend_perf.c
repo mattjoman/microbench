@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include "../../include/metric.h"
+#include "../../include/metric_grp.h"
 #include "./backend.h"
 #include "./backend_common.h"
 

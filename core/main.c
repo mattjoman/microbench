@@ -5,7 +5,7 @@
 
 #include "../include/batch.h"
 #include "../include/workload.h"
-#include "../include/metric.h"
+#include "../include/metric_grp.h"
 
 static const char help_text[] =
 "Usage: ./cyclops [OPTIONS]\n"

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "./microbench.h"
-#include "./metric.h"
+#include "./metric_grp.h"
 #include "./workload.h"
 #include "./data_processing.h"
 

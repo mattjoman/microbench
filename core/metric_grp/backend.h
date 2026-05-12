@@ -1,7 +1,7 @@
 #ifndef METRIC_BACKEND_H
 #define METRIC_BACKEND_H
 
-#include "../../include/metric.h"
+#include "../../include/metric_grp.h"
 
 void register_backend(metric_backend_t *backend);
 

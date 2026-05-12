@@ -11,24 +11,24 @@ UBSAN_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 \
 CFLAGS ?= $(PROD_CFLAGS)
 
 CORE_SRCS=core/main.c \
-	core/metric/frontend.c \
-	core/metric/backend.c \
-	core/metric/backend_common.c \
-	core/metric/backend_perf.c \
-	core/metric/backend_cpu_instruction.c \
-	core/metric/metric_grps/alignment_faults.c \
-	core/metric/metric_grps/arm_timer.c \
-	core/metric/metric_grps/bpu_reads.c \
-	core/metric/metric_grps/branch.c \
-	core/metric/metric_grps/dtlb_reads.c \
-	core/metric/metric_grps/ipc.c \
-	core/metric/metric_grps/itlb_reads.c \
-	core/metric/metric_grps/l1d_reads.c \
-	core/metric/metric_grps/l1i_reads.c \
-	core/metric/metric_grps/llc_reads.c \
-	core/metric/metric_grps/page_faults.c \
-	core/metric/metric_grps/rdtscp.c \
-	core/metric/metric_grps/stalled_cycles.c \
+	core/metric_grp/frontend.c \
+	core/metric_grp/backend.c \
+	core/metric_grp/backend_common.c \
+	core/metric_grp/backend_perf.c \
+	core/metric_grp/backend_cpu_instruction.c \
+	core/metric_grp/metric_grps/alignment_faults.c \
+	core/metric_grp/metric_grps/arm_timer.c \
+	core/metric_grp/metric_grps/bpu_reads.c \
+	core/metric_grp/metric_grps/branch.c \
+	core/metric_grp/metric_grps/dtlb_reads.c \
+	core/metric_grp/metric_grps/ipc.c \
+	core/metric_grp/metric_grps/itlb_reads.c \
+	core/metric_grp/metric_grps/l1d_reads.c \
+	core/metric_grp/metric_grps/l1i_reads.c \
+	core/metric_grp/metric_grps/llc_reads.c \
+	core/metric_grp/metric_grps/page_faults.c \
+	core/metric_grp/metric_grps/rdtscp.c \
+	core/metric_grp/metric_grps/stalled_cycles.c \
 	core/batch.c \
 	core/data_processing.c \
 	core/report.c \

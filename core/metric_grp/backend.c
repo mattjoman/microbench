@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../../include/metric.h"
+#include "../../include/metric_grp.h"
 #include "./backend.h"
 
 static metric_backend_t **backends = NULL;

@@ -1,4 +1,4 @@
-#include "../../../include/metric.h"
+#include "../../../include/metric_grp.h"
 
 static metric_id_t metrics[] = {
     METRIC_RDTSCP,

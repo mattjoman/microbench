@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "../include/data_processing.h"
-#include "../include/metric.h"
+#include "../include/metric_grp.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
