@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     }
 
     workload_t *wl = get_workload_by_name(workload_str);
-    const metric_grp_t *mg = get_mg_by_name(metric_grp_str);
+    metric_grp_t *mg = get_mg_by_name(metric_grp_str);
 
     if (!wl) {
         fprintf(stderr, "Usage: Please select a workload\n");

@@ -35,14 +35,21 @@ typedef struct metric_grp {
     metric_id_t *metrics;
 } metric_grp_t;
 
+void register_metric_grp(metric_grp_t *mg);
+
+#define REGISTER_MG(mg_ptr) \
+    static void __attribute((constructor)) register_mg(void) { \
+        register_metric_grp(mg_ptr); \
+    }
+
 const metric_t *get_metric_by_id(metric_id_t id);
-metric_id_t mg_get_nth_raw_id(const metric_grp_t *mg, int n);
-metric_id_t mg_get_nth_derived_id(const metric_grp_t *mg, int n);
+metric_id_t mg_get_nth_raw_id(metric_grp_t *mg, int n);
+metric_id_t mg_get_nth_derived_id(metric_grp_t *mg, int n);
 
-const metric_grp_t *get_mg_by_name(const char *name);
+metric_grp_t *get_mg_by_name(const char *name);
 
-int mg_n_raw(const metric_grp_t *mg);
-int mg_n_derived(const metric_grp_t *mg);
+int mg_n_raw(metric_grp_t *mg);
+int mg_n_derived(metric_grp_t *mg);
 
 void print_metric_grp_guide(void);
 

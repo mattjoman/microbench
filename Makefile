@@ -16,6 +16,7 @@ CORE_SRCS=core/main.c \
 	core/metric/backend_common.c \
 	core/metric/backend_perf.c \
 	core/metric/backend_cpu_instruction.c \
+	core/metric/metric_grps/ipc.c \
 	core/batch.c \
 	core/data_processing.c \
 	core/report.c \

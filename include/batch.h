@@ -20,7 +20,7 @@ typedef struct batch_data {
     unsigned long long warmup_runs;
     unsigned long long batch_runs;
     workload_t *wl;
-    const metric_grp_t *mg;
+    metric_grp_t *mg;
 
     metric_data_t raw_data_scaling;
 
@@ -48,7 +48,7 @@ typedef struct {
     unsigned long long warmup_runs;
     unsigned long long batch_runs;
     workload_t *wl;
-    const metric_grp_t *mg;
+    metric_grp_t *mg;
 
     char *wl_param_key;
     char *wl_param_low;
@@ -67,7 +67,7 @@ typedef struct {
     unsigned long long warmup_runs;
     unsigned long long batch_runs;
     workload_t *wl;
-    const metric_grp_t *mg;
+    metric_grp_t *mg;
     char *ps_wl_param_key;
     char *ps_wl_param_low;
     char *ps_wl_param_high;

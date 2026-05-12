@@ -32,7 +32,7 @@ static batch_data_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
     data->wl            = cyclops_cfg->wl;
     data->mg            = cyclops_cfg->mg;
 
-    const metric_grp_t *mg = cyclops_cfg->mg;
+    metric_grp_t *mg = cyclops_cfg->mg;
 
     data->n_raw = mg_n_raw(mg);
     data->n_derived = mg_n_derived(mg);
@@ -211,7 +211,7 @@ static param_sweep_t *init_param_sweep(cyclops_cfg_t *cyclops_cfg)
 
     ps->n_batches = ps_n_batches(ps);
 
-    const metric_grp_t *mg = cyclops_cfg->mg;
+    metric_grp_t *mg = cyclops_cfg->mg;
 
     if (!(ps->data = calloc(mg->n_metrics, sizeof(ps_data_t)))) {
         perror("Failed to allocate memory for ps_data_t array");

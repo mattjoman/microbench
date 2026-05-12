@@ -219,6 +219,17 @@ const metric_t metrics[N_METRICS] = {
     },
 };
 
+static metric_grp_t **metric_grps = NULL;
+static size_t n_metric_grps = 0;
+
+void register_metric_grp(metric_grp_t *mg)
+{
+    metric_grps = realloc(metric_grps,
+                          (n_metric_grps + 1) * sizeof(*metric_grps));
+    metric_grps[n_metric_grps++] = mg;
+}
+
+/*
 const metric_grp_t metric_grps[] = {
 
     {
@@ -400,13 +411,14 @@ const metric_grp_t metric_grps[] = {
     { 0 }, // end of mg array
 
 };
+*/
 
 const metric_t *get_metric_by_id(metric_id_t id)
 {
     return &metrics[id];
 }
 
-int mg_n_raw(const metric_grp_t *mg)
+int mg_n_raw(metric_grp_t *mg)
 {
     int raw_counter = 0;
     for (int i = 0; i < mg->n_metrics; i++) {
@@ -418,7 +430,7 @@ int mg_n_raw(const metric_grp_t *mg)
     return raw_counter;
 }
 
-int mg_n_derived(const metric_grp_t *mg)
+int mg_n_derived(metric_grp_t *mg)
 {
     int derived_counter = 0;
     for (int i = 0; i < mg->n_metrics; i++) {
@@ -430,7 +442,7 @@ int mg_n_derived(const metric_grp_t *mg)
     return derived_counter;
 }
 
-metric_id_t mg_get_nth_raw_id(const metric_grp_t *mg, int n)
+metric_id_t mg_get_nth_raw_id(metric_grp_t *mg, int n)
 {
     int raw_counter = 0;
     for (int i = 0; i < mg->n_metrics; i++) {
@@ -449,7 +461,7 @@ metric_id_t mg_get_nth_raw_id(const metric_grp_t *mg, int n)
     exit(1);
 }
 
-metric_id_t mg_get_nth_derived_id(const metric_grp_t *mg, int n)
+metric_id_t mg_get_nth_derived_id(metric_grp_t *mg, int n)
 {
     int derived_counter = 0;
     for (int i = 0; i < mg->n_metrics; i++) {
@@ -468,18 +480,17 @@ metric_id_t mg_get_nth_derived_id(const metric_grp_t *mg, int n)
     exit(1);
 }
 
-const metric_grp_t *get_mg_by_name(const char *name)
+metric_grp_t *get_mg_by_name(const char *name)
 {
     if (name == NULL) {
         return NULL;
     }
 
-    const metric_grp_t *mg = &metric_grps[0];
-    while (mg->name) {
+    for (size_t i = 0; i < n_metric_grps; i++) {
+        metric_grp_t *mg = metric_grps[i];
         if (strcmp(name, mg->name) == 0) {
             return mg;
         }
-        mg++;
     }
 
     fprintf(stderr, "No metric group with name '%s'\n", name);
@@ -490,9 +501,8 @@ void print_metric_grp_guide(void)
 {
     printf("Metric groups:\n\n");
 
-    const metric_grp_t *mg = &metric_grps[0];
-    while (mg->name) {
+    for (size_t i = 0; i < n_metric_grps; i++) {
+        metric_grp_t *mg = metric_grps[i];
         printf("  %s\n", mg->name);
-        mg++;
     }
 }
