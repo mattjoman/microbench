@@ -3,7 +3,8 @@
 #include <string.h>
 #include <getopt.h>
 
-#include "../include/batch.h"
+#include "../include/microbench.h"
+#include "../include/experiment.h"
 #include "../include/workload.h"
 #include "../include/metric_grp.h"
 
@@ -25,13 +26,12 @@ int main(int argc, char *argv[])
 {
     char *workload_str = NULL;
     char *metric_grp_str  = NULL;
-    //bool write_batches_to_csv  = false;
     char *file_name = NULL;
     unsigned long long batch_runs = 1;
     unsigned long long warmup_runs = 0;
     int n_wl_params = 0;
-    char *wl_param_keys[MAX_WL_ARGS];
-    char *wl_param_args[MAX_WL_ARGS];
+    static char *wl_param_keys[MAX_WL_ARGS];
+    static char *wl_param_args[MAX_WL_ARGS];
 
     char *wl_param_sweep_key = NULL;
     char *wl_param_sweep_low = NULL;
@@ -133,19 +133,12 @@ int main(int argc, char *argv[])
         }
     }
 
-    workload_t *wl = get_workload_by_name(workload_str);
-    metric_grp_t *mg = get_mg_by_name(metric_grp_str);
-
-    if (!wl) {
+    if (!workload_str) {
         fprintf(stderr, "Usage: Please select a workload\n");
         return 1;
-    } else if (!mg) {
+    } else if (!metric_grp_str) {
         fprintf(stderr, "Usage: Please select a metric group\n");
         return 1;
-    }
-
-    for (int i = 0; i < n_wl_params; i++) {
-        wl_set_param(wl, wl_param_keys[i], wl_param_args[i]);
     }
 
     cyclops_cfg_t *cfg = calloc(1, sizeof(cyclops_cfg_t));
@@ -156,15 +149,22 @@ int main(int argc, char *argv[])
 
     cfg->warmup_runs = warmup_runs;
     cfg->batch_runs = batch_runs;
-    cfg->wl = wl;
-    cfg->mg = mg;
+    cfg->wl_name = workload_str;
+    cfg->mg_name = metric_grp_str;
+    cfg->n_wl_params = n_wl_params;
+    cfg->wl_param_keys = wl_param_keys;
+    cfg->wl_param_args = wl_param_args;
     cfg->ps_wl_param_key = wl_param_sweep_key;
     cfg->ps_wl_param_low = wl_param_sweep_low;
     cfg->ps_wl_param_high = wl_param_sweep_high;
     cfg->ps_wl_param_step = wl_param_sweep_step;
     cfg->file_name = file_name;
 
-    run_cyclops(cfg);
+    if (cfg->ps_wl_param_key) {
+        param_sweep_run(cfg);
+    } else {
+        batch_single_run(cfg);
+    }
 
     free(cfg);
 

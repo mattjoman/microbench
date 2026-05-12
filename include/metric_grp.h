@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #include "./microbench.h"
-#include "./batch.h"
+#include "./experiment.h"
 
 typedef enum {
     METRIC_TYPE_RAW,

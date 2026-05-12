@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/report.h"
-#include "../include/metric_grp.h"
-#include "../include/data_processing.h"
+#include "./internal.h"
 
 #define TABLE_COLUMN_WIDTH 18
 

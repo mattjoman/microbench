@@ -29,9 +29,10 @@ CORE_SRCS=core/main.c \
 	core/metric_grp/metric_grps/page_faults.c \
 	core/metric_grp/metric_grps/rdtscp.c \
 	core/metric_grp/metric_grps/stalled_cycles.c \
-	core/batch.c \
-	core/data_processing.c \
-	core/report.c \
+	core/experiment/batch.c \
+	core/experiment/param_sweep.c \
+	core/experiment/report.c \
+	core/experiment/data_processing.c \
 	core/workload.c
 
 WORKLOAD_SRCS := $(wildcard workloads/*.c)

@@ -3,22 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../include/data_processing.h"
-#include "../include/metric_grp.h"
-
-static int cmp_uint64(const void *a, const void *b)
-{
-    uint64_t x = *(const uint64_t *)a;
-    uint64_t y = *(const uint64_t *)b;
-
-    if (x < y)
-        return -1;
-
-    if (x > y)
-        return 1;
-
-    return 0;
-}
+#include "./internal.h"
+#include "../../include/metric_grp.h"
 
 static int cmp_double(const void *a, const void *b)
 {
@@ -32,29 +18,6 @@ static int cmp_double(const void *a, const void *b)
         return 1;
 
     return 0;
-}
-
-uint64_agg_t aggregate_uint64(uint64_t array[], unsigned long long size)
-{
-    uint64_agg_t agg;
-    uint64_t *array_cpy = calloc(size, sizeof(uint64_t));
-    if (!array_cpy) {
-        perror("Failed to allocate array for uint64 aggregate calculations");
-        exit(1);
-    }
-
-    memcpy(array_cpy, array, size * sizeof(uint64_t));
-
-    qsort(array_cpy, size, sizeof(uint64_t), cmp_uint64);
-
-    memset(&agg, 0, sizeof(uint64_agg_t));
-
-    agg.min = array_cpy[0];
-    agg.max = array_cpy[size - 1];
-    agg.median = array_cpy[(size - 1) / 2]; // lower median
-
-    free(array_cpy);
-    return agg;
 }
 
 double_agg_t aggregate_double(double array[], unsigned long long size)

@@ -55,4 +55,19 @@ typedef enum {
 
 } metric_id_t;
 
+typedef struct {
+    unsigned long long warmup_runs;
+    unsigned long long batch_runs;
+    char *wl_name;
+    char *mg_name;
+    int n_wl_params;
+    char **wl_param_keys;
+    char **wl_param_args;
+    char *ps_wl_param_key;
+    char *ps_wl_param_low;
+    char *ps_wl_param_high;
+    char *ps_wl_param_step;
+    char *file_name;
+} cyclops_cfg_t;
+
 #endif
