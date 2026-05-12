@@ -16,7 +16,19 @@ CORE_SRCS=core/main.c \
 	core/metric/backend_common.c \
 	core/metric/backend_perf.c \
 	core/metric/backend_cpu_instruction.c \
+	core/metric/metric_grps/alignment_faults.c \
+	core/metric/metric_grps/arm_timer.c \
+	core/metric/metric_grps/bpu_reads.c \
+	core/metric/metric_grps/branch.c \
+	core/metric/metric_grps/dtlb_reads.c \
 	core/metric/metric_grps/ipc.c \
+	core/metric/metric_grps/itlb_reads.c \
+	core/metric/metric_grps/l1d_reads.c \
+	core/metric/metric_grps/l1i_reads.c \
+	core/metric/metric_grps/llc_reads.c \
+	core/metric/metric_grps/page_faults.c \
+	core/metric/metric_grps/rdtscp.c \
+	core/metric/metric_grps/stalled_cycles.c \
 	core/batch.c \
 	core/data_processing.c \
 	core/report.c \
