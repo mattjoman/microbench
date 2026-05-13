@@ -101,19 +101,20 @@ void param_sweep_run(cyclops_cfg_t *cyclops_cfg)
     param_sweep_t *ps = init_param_sweep(cyclops_cfg);
 
     static char param_val_buf[64];
+    unsigned long long param_val;
 
     for (unsigned long long i = 0; i < ps->n_batches; i++) {
 
-        unsigned long long param_val = ps_get_nth_param_val(ps, i);
-        snprintf(param_val_buf, sizeof(param_val_buf), "%llu", param_val);
-
-        /* init batch */
         batch_data_t *batch_data = init_batch_data(cyclops_cfg);
 
-        /* reset wl param to current value */
-        wl_reset_param(ps->wl, ps->wl_param_key, param_val_buf);
+        /* 
+         * must set param to current sweep value after calling
+         * init_batch_data(), not before
+         */
+        param_val = ps_get_nth_param_val(ps, i);
+        snprintf(param_val_buf, sizeof(param_val_buf), "%llu", param_val);
+        wl_set_param(ps->wl, ps->wl_param_key, param_val_buf);
 
-        /* run batch */
         run_batch(batch_data, false, i);
 
         /* extract aggregate batch data for each metric */
@@ -125,7 +126,6 @@ void param_sweep_run(cyclops_cfg_t *cyclops_cfg)
             ps->data[m].batch_vals[i].param_sweep_val = param_val;
         }
 
-        /* destroy batch */
         destroy_batch_data(batch_data);
     }
 

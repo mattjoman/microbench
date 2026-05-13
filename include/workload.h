@@ -32,6 +32,5 @@ workload_t *get_workload_by_name(const char *name);
 
 unsigned long long wl_get_param(workload_t *wl, const char *key);
 void wl_set_param(workload_t *wl, const char *key, const char *arg);
-void wl_reset_param(workload_t *wl, const char *key, const char *arg);
 
 #endif

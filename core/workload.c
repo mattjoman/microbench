@@ -68,29 +68,7 @@ void wl_set_param(workload_t *wl, const char *key, const char *arg)
 
     for (int i = 0; i < wl->n_params; i++) {
         if (strcmp(wl->params[i].key, key) == 0) {
-            if (wl->params[i].arg) {
-                fprintf(stderr,
-                        "Value for workload parameter %s already set\n", key);
-            }
             wl->params[i].arg = arg;
-            return;
-        }
-    }
-
-    fprintf(stderr, "Invalid workload parameter '%s'\n", key);
-}
-
-void wl_reset_param(workload_t *wl, const char *key, const char *arg)
-{
-    if (!wl->params) {
-        fprintf(stderr, "Workload has no parameters\n");
-        return;
-    }
-
-    for (int i = 0; i < wl->n_params; i++) {
-        if (strcmp(wl->params[i].key, key) == 0) {
-            wl->params[i].arg = arg;
-            printf("%s\n", arg);
             return;
         }
     }
