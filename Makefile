@@ -11,6 +11,7 @@ UBSAN_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 \
 CFLAGS ?= $(PROD_CFLAGS)
 
 CORE_SRCS=core/main.c \
+	core/cli.c \
 	core/metric_grp/frontend.c \
 	core/metric_grp/backend.c \
 	core/metric_grp/backend_common.c \

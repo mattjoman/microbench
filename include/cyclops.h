@@ -58,6 +58,7 @@ typedef enum {
 } metric_id_t;
 
 typedef struct {
+    bool display_help;
     unsigned long long warmup_runs;
     unsigned long long batch_runs;
     char *wl_name;
