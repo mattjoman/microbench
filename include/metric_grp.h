@@ -2,6 +2,7 @@
 #define METRIC_GRP_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "./cyclops.h"
 #include "./experiment.h"
@@ -34,6 +35,12 @@ typedef struct metric_grp {
     int n_metrics;
     metric_id_t *metrics;
 } metric_grp_t;
+
+// TODO: make a generic registry class?
+typedef struct mg_array {
+    size_t n_registered;
+    metric_grp_t **registry;
+} MetricGrpRegistry;
 
 void register_metric_grp(metric_grp_t *mg);
 

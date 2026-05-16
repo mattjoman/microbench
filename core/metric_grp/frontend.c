@@ -218,14 +218,16 @@ const metric_t metrics[N_METRICS] = {
     },
 };
 
-static metric_grp_t **metric_grps = NULL;
-static size_t n_metric_grps = 0;
+static MetricGrpRegistry mg_registry = {
+    .n_registered = 0,
+};
 
 void register_metric_grp(metric_grp_t *mg)
 {
-    metric_grps = realloc(metric_grps,
-                          (n_metric_grps + 1) * sizeof(*metric_grps));
-    metric_grps[n_metric_grps++] = mg;
+    mg_registry.registry = realloc(mg_registry.registry,
+                                      (mg_registry.n_registered + 1)
+                                      * sizeof(metric_grp_t *));
+    mg_registry.registry[mg_registry.n_registered++] = mg;
 }
 
 const metric_t *get_metric_by_id(metric_id_t id)
@@ -301,8 +303,8 @@ metric_grp_t *get_mg_by_name(const char *name)
         return NULL;
     }
 
-    for (size_t i = 0; i < n_metric_grps; i++) {
-        metric_grp_t *mg = metric_grps[i];
+    for (size_t i = 0; i < mg_registry.n_registered; i++) {
+        metric_grp_t *mg = mg_registry.registry[i];
         if (strcmp(name, mg->name) == 0) {
             return mg;
         }
@@ -316,8 +318,8 @@ void print_metric_grp_guide(void)
 {
     printf("Metric groups:\n\n");
 
-    for (size_t i = 0; i < n_metric_grps; i++) {
-        metric_grp_t *mg = metric_grps[i];
+    for (size_t i = 0; i < mg_registry.n_registered; i++) {
+        metric_grp_t *mg = mg_registry.registry[i];
         printf("  %s\n", mg->name);
     }
 }
