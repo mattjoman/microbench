@@ -20,11 +20,11 @@ void calc_ratios(double results[], const double numerators[],
 #include <stdbool.h>
 #include "../../include/metric_grp.h"
 
-batch_data_t *init_batch_data(cyclops_cfg_t *cyclops_cfg);
-void destroy_batch_data(batch_data_t *data);
-void run_batch(batch_data_t *batch_data,
+batch_t *init_batch_data(cyclops_cfg_t *cyclops_cfg);
+void destroy_batch_data(batch_t *data);
+void run_batch(batch_t *batch_data,
                unsigned long long batch_no);
-metric_data_t *batch_get_metric_data(batch_data_t *data,
+metric_data_t *batch_get_metric_data(batch_t *data,
                                      metric_id_t metric_id);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ metric_data_t *batch_get_metric_data(batch_data_t *data,
 
 #include "../../include/experiment.h"
 
-void run_report(batch_data_t *batch_data);
-void batch_to_csv(batch_data_t *batch_data, unsigned long long batch_no);
+void run_report(batch_t *batch_data);
+void batch_to_csv(batch_t *batch_data, unsigned long long batch_no);
 void param_sweep_to_csv(param_sweep_t *ps);
 
 #endif

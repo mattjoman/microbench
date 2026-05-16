@@ -217,7 +217,7 @@ static perf_result_t *calc_run_delta(perf_result_t *start_result,
     return end_result;
 }
 
-static void store_perf_results(batch_data_t *batch_data,
+static void store_perf_results(batch_t *batch_data,
                                perf_result_t perf_start_results[],
                                perf_result_t perf_end_results[],
                                uint64_t perf_ctr_ids[])
@@ -254,7 +254,7 @@ static void store_perf_results(batch_data_t *batch_data,
     }
 }
 
-static void run_be(batch_data_t *batch_data,
+static void run_be(batch_t *batch_data,
                  void (*workload)(void))
 {
     struct perf_event_attr attrs[MAX_PERF_COUNTERS];

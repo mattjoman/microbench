@@ -22,7 +22,7 @@ typedef struct {
     double_agg_t agg;
 } metric_data_t;
 
-typedef struct batch_data {
+typedef struct batch {
     unsigned long long warmup_runs;
     unsigned long long batch_runs;
     workload_t *wl;
@@ -37,7 +37,7 @@ typedef struct batch_data {
     metric_data_t *derived_data;
 
     bool to_csv;
-} batch_data_t;
+} batch_t;
 
 void batch_single_run(cyclops_cfg_t *cyclops_cfg);
 

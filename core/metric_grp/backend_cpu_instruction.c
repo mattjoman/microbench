@@ -26,7 +26,7 @@ static uint64_t rdtscp()
     return ((uint64_t)hi << 32) | lo;
 }
 
-static void bench_rdtscp(batch_data_t *batch_data,
+static void bench_rdtscp(batch_t *batch_data,
                  void (*workload)(void))
 {
     uint64_t start, end;
@@ -47,7 +47,7 @@ static void bench_rdtscp(batch_data_t *batch_data,
 
 #endif
 
-void run_be(batch_data_t *batch_data, void (*workload)(void))
+void run_be(batch_t *batch_data, void (*workload)(void))
 {
     const metric_grp_t *mg = batch_data->mg;
     assert(mg != NULL);

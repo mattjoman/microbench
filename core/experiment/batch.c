@@ -18,11 +18,11 @@ static double *alloc_double_array(unsigned long long length)
     return array;
 }
 
-batch_data_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
+batch_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
 {
-    batch_data_t *data;
-    if (!(data = calloc(1, sizeof(batch_data_t)))) {
-        perror("Failed to allocate memory for batch_data_t struct");
+    batch_t *data;
+    if (!(data = calloc(1, sizeof(batch_t)))) {
+        perror("Failed to allocate memory for batch struct");
         exit(1);
     }
 
@@ -74,7 +74,7 @@ batch_data_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
     return data;
 }
 
-void destroy_batch_data(batch_data_t *data)
+void destroy_batch_data(batch_t *data)
 {
     for (int i = 0; i < data->n_raw; i++) {
         free(data->raw_data[i].run_vals);
@@ -99,7 +99,7 @@ void destroy_batch_data(batch_data_t *data)
     data = NULL;
 }
 
-static void process_perf_counter_data(batch_data_t *batch_data)
+static void process_perf_counter_data(batch_t *batch_data)
 {
     batch_data->raw_data_scaling.agg = aggregate_double(
                 batch_data->raw_data_scaling.run_vals,
@@ -112,7 +112,7 @@ static void process_perf_counter_data(batch_data_t *batch_data)
     }
 }
 
-static void process_perf_ratio_data(batch_data_t *bd)
+static void process_perf_ratio_data(batch_t *bd)
 {
     for (int i = 0; i < bd->n_derived; i++) {
 
@@ -143,7 +143,7 @@ static void process_perf_ratio_data(batch_data_t *bd)
     }
 }
 
-void run_batch(batch_data_t *batch_data,
+void run_batch(batch_t *batch_data,
                unsigned long long batch_no)
 {
     const metric_backend_t *backend = get_backend(batch_data->mg->backend);
@@ -163,12 +163,12 @@ void run_batch(batch_data_t *batch_data,
 
 void batch_single_run(cyclops_cfg_t *cyclops_cfg)
 {
-    batch_data_t *batch = init_batch_data(cyclops_cfg);
+    batch_t *batch = init_batch_data(cyclops_cfg);
     run_batch(batch, 0);
     destroy_batch_data(batch);
 }
 
-metric_data_t *batch_get_metric_data(batch_data_t *data,
+metric_data_t *batch_get_metric_data(batch_t *data,
                                      metric_id_t metric_id)
 {
     for (int i = 0; i < data->n_raw; i++) {

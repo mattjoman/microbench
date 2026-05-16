@@ -55,14 +55,14 @@ static void print_table_column_headers()
     putchar('\n');
 }
 
-static void print_batch_info(batch_data_t *batch)
+static void print_batch_info(batch_t *batch)
 {
     printf("    Warmup runs: %llu\n", batch->warmup_runs);
     printf("    Batch runs:  %llu\n", batch->batch_runs);
     putchar('\n');
 }
 
-void run_report(batch_data_t *batch_data)
+void run_report(batch_t *batch_data)
 {
     printf("\n");
     print_batch_info(batch_data);
@@ -85,7 +85,7 @@ void run_report(batch_data_t *batch_data)
     printf("\n");
 }
 
-static void write_batch_metadata(FILE *file, batch_data_t *batch)
+static void write_batch_metadata(FILE *file, batch_t *batch)
 {
     fprintf(file, "#workload=%s\n", batch->wl->name);
     fprintf(file, "#metric-group=%s\n", batch->mg->name);
@@ -103,7 +103,7 @@ static void write_batch_metadata(FILE *file, batch_data_t *batch)
     }
 }
 
-static void write_full_batch(FILE *file, batch_data_t *batch_data)
+static void write_full_batch(FILE *file, batch_t *batch_data)
 {
     /* raw data column names */
     fprintf(file, "%s,", "SCALING");
@@ -136,7 +136,7 @@ static void write_full_batch(FILE *file, batch_data_t *batch_data)
     }
 }
 
-void batch_to_csv(batch_data_t *batch_data,
+void batch_to_csv(batch_t *batch_data,
                   unsigned long long batch_no)
 {
     char file_name[128];

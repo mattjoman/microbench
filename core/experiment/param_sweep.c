@@ -63,7 +63,7 @@ static param_sweep_t *init_param_sweep(cyclops_cfg_t *cyclops_cfg)
         ps->data[i].batch_vals = calloc(ps->n_batches,
                                         sizeof(ps_batch_data_t));
         if (!ps->data[i].batch_vals) {
-            perror("Failed to allocate memory for ps_batch_data_t array");
+            perror("Failed to allocate memory for ps_batch_data array");
             exit(1);
         }
 
@@ -107,7 +107,7 @@ void param_sweep_run(cyclops_cfg_t *cyclops_cfg)
 
     for (unsigned long long i = 0; i < ps->n_batches; i++) {
 
-        batch_data_t *batch_data = init_batch_data(cyclops_cfg);
+        batch_t *batch_data = init_batch_data(cyclops_cfg);
 
         /* 
          * must set param to current sweep value after calling

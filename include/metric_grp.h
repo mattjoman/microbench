@@ -64,10 +64,10 @@ void print_metric_grp_guide(void);
 
 /** METRIC BACKEND ***/
 
-typedef struct batch_data batch_data_t;
+typedef struct batch batch_t;
 
 typedef void (*bench_func_t)(
-    batch_data_t *,
+    batch_t *,
     void (*)(void)
 );
 
