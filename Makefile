@@ -1,16 +1,21 @@
-# Compiler and flags
-CC=gcc
+# Compiler
+CC = gcc
 
 # Build modes
-PROD_CFLAGS = -O3 -g -Wall -Wextra -Wpedantic -std=gnu11
+PROD_CFLAGS  = -O3 -g -Wall -Wextra -Wpedantic -std=gnu11
 DEBUG_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11
-ASAN_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 -fsanitize=address
+ASAN_CFLAGS  = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 \
+	-fsanitize=address
 UBSAN_CFLAGS = -O0 -g -Wall -Wextra -Wpedantic -std=gnu11 \
 	-fsanitize=undefined -fsanitize=float-divide-by-zero
 
 CFLAGS ?= $(PROD_CFLAGS)
 
-CORE_SRCS=core/main.c \
+# Include path
+CFLAGS += -Iinclude
+
+# Core reusable sources (NO main.c)
+CORE_SRCS = \
 	core/cli.c \
 	core/metric_grp/frontend.c \
 	core/metric_grp/backend.c \
@@ -38,39 +43,68 @@ CORE_SRCS=core/main.c \
 
 WORKLOAD_SRCS := $(wildcard workloads/*.c)
 
-SRCS := $(CORE_SRCS) $(WORKLOAD_SRCS)
-OBJS=$(SRCS:.c=.o)
+# Main application sources
+APP_SRCS = core/main.c $(CORE_SRCS) $(WORKLOAD_SRCS)
 
-# Output binary
-OUT=cyclops
+# Object files
+CORE_OBJS = $(CORE_SRCS:.c=.o)
+APP_OBJS  = $(APP_SRCS:.c=.o)
+
+# Application output
+APP_BIN = cyclops
+
+# Unit tests
+UNIT_TEST_SRCS := $(wildcard tests/unit/*.c)
+
+# Example:
+# tests/unit/test_cli.c -> tests/unit/test_cli
+UNIT_TEST_BINS := $(patsubst tests/unit/%.c,tests/unit/%.out,$(UNIT_TEST_SRCS))
 
 # Default target
-all: $(OUT)
+all: $(APP_BIN)
 
-# Debug target overrides CFLAGS
-debug: CFLAGS := $(DEBUG_CFLAGS)
-debug: clean $(OUT)
+# Build modes
+debug: CFLAGS := $(DEBUG_CFLAGS) -Iinclude
+debug: clean all
 
-# Asan target overrides CFLAGS
-asan: CFLAGS := $(ASAN_CFLAGS)
-asan: clean $(OUT)
+asan: CFLAGS := $(ASAN_CFLAGS) -Iinclude
+asan: clean all
 
-# Asan target overrides CFLAGS
-ubsan: CFLAGS := $(UBSAN_CFLAGS)
-ubsan: clean $(OUT)
+ubsan: CFLAGS := $(UBSAN_CFLAGS) -Iinclude
+ubsan: clean all
 
-# Link objects
-$(OUT): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+# Main executable
+$(APP_BIN): $(APP_OBJS)
+	$(CC) $(CFLAGS) -o $@ $(APP_OBJS)
 
-# Compile sources
+# Generic object compilation
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Unit tests target
+unit-tests: $(UNIT_TEST_BINS)
+
+run-unit-tests: unit-tests
+	for test in $(UNIT_TEST_BINS); do \
+		echo "Running $$test"; \
+		./$$test || exit 1; \
+		echo "Passed test: $$test";\
+	done
+
+# Build each unit test executable
+#
+# Example:
+# tests/unit/test_cli <- tests/unit/test_cli.c + CORE_OBJS
+tests/unit/%.out: tests/unit/%.c $(CORE_OBJS)
+	$(CC) $(CFLAGS) -o $@ $< $(CORE_OBJS)
+
+# Cleanup
 clean:
-	rm -f $(OBJS)
+	rm -f $(APP_OBJS)
+	rm -f $(CORE_OBJS)
+	rm -f $(UNIT_TEST_BINS)
 
-clear:
-	rm -f $(OBJS) $(OUT)
+clear: clean
+	rm -f $(APP_BIN)
 
-.PHONY: all clean clear
+.PHONY: all debug asan ubsan clean clear unit-tests

@@ -1,4 +1,5 @@
 cyclops
+*.out
 *.o
 *.csv
 __pycache__/
