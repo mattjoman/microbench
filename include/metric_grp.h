@@ -55,7 +55,7 @@ const metric_t *metric_get_by_id(metric_id_t id);
 metric_id_t mg_get_nth_raw_id(metric_grp_t *mg, int n);
 metric_id_t mg_get_nth_derived_id(metric_grp_t *mg, int n);
 
-metric_grp_t *get_mg_by_name(const char *name);
+metric_grp_t *mg_get_by_name(const char *name);
 
 int mg_n_raw(metric_grp_t *mg);
 int mg_n_derived(metric_grp_t *mg);

@@ -302,7 +302,7 @@ metric_id_t mg_get_nth_derived_id(metric_grp_t *mg, int n)
     exit(1);
 }
 
-metric_grp_t *get_mg_by_name(const char *name)
+metric_grp_t *mg_get_by_name(const char *name)
 {
     if (name == NULL) {
         return NULL;
