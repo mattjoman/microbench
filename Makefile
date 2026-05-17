@@ -65,13 +65,13 @@ all: $(APP_BIN) $(UNIT_TEST_BINS)
 
 # Build modes
 debug: CFLAGS := $(DEBUG_CFLAGS) -Iinclude
-#debug: clean all
+debug: all
 
 asan: CFLAGS := $(ASAN_CFLAGS) -Iinclude
-#asan: clean all
+asan: all
 
 ubsan: CFLAGS := $(UBSAN_CFLAGS) -Iinclude
-#ubsan: clean all
+ubsan: all
 
 # Main executable
 $(APP_BIN): $(APP_OBJS)
