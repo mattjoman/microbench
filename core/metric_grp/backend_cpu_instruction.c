@@ -26,37 +26,36 @@ static uint64_t rdtscp()
     return ((uint64_t)hi << 32) | lo;
 }
 
-static void bench_rdtscp(batch_t *batch_data,
-                 void (*workload)(void))
+static void bench_rdtscp(batch_t *b, void (*workload)(void))
 {
     uint64_t start, end;
 
     pin_thread();
 
-    for (unsigned long long i = 0; i < batch_data->warmup_runs; i++) {
+    for (unsigned long long i = 0; i < b->warmup_runs; i++) {
         workload();
     }
 
-    for (unsigned long long i = 0; i < batch_data->batch_runs; i++) {
+    for (unsigned long long i = 0; i < b->batch_runs; i++) {
         start = rdtscp();
         workload();
         end = rdtscp();
-        batch_data->raw_data[0].run_vals[i] = (double)(end - start);
+        b->raw_data[0].run_vals[i] = (double)(end - start);
     }
 }
 
 #endif
 
-void run_be(batch_t *batch_data, void (*workload)(void))
+void run_be(batch_t *b, void (*workload)(void))
 {
-    const metric_grp_t *mg = batch_data->mg;
+    const metric_grp_t *mg = b->mg;
     assert(mg != NULL);
 
     switch (mg->metrics[0]) {
 
         case METRIC_RDTSCP:
 #if defined(__x86_64__) || defined(__i386__) || defined(__amd64__)
-            bench_rdtscp(batch_data, workload);
+            bench_rdtscp(b, workload);
 #else
             fprintf(stderr, "RDTSCP is x86-only\n");
             exit(1);

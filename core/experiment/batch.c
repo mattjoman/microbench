@@ -20,8 +20,8 @@ static double *alloc_double_array(unsigned long long length)
 
 batch_t *batch_init(cyclops_cfg_t *cyclops_cfg)
 {
-    batch_t *data;
-    if (!(data = calloc(1, sizeof(batch_t)))) {
+    batch_t *b;
+    if (!(b = calloc(1, sizeof(batch_t)))) {
         perror("Failed to allocate memory for batch struct");
         exit(1);
     }
@@ -35,96 +35,96 @@ batch_t *batch_init(cyclops_cfg_t *cyclops_cfg)
                      cyclops_cfg->wl_param_args[i]);
     }
 
-    data->warmup_runs   = cyclops_cfg->warmup_runs;
-    data->batch_runs    = cyclops_cfg->batch_runs;
-    data->wl            = wl;
-    data->mg            = mg;
+    b->warmup_runs   = cyclops_cfg->warmup_runs;
+    b->batch_runs    = cyclops_cfg->batch_runs;
+    b->wl            = wl;
+    b->mg            = mg;
 
-    data->n_raw = mg_n_raw(mg);
-    data->n_derived = mg_n_derived(mg);
-    data->to_csv = cyclops_cfg->batch_csv;
+    b->n_raw = mg_n_raw(mg);
+    b->n_derived = mg_n_derived(mg);
+    b->to_csv = cyclops_cfg->batch_csv;
 
-    assert(data->n_raw > 0);
+    assert(b->n_raw > 0);
 
-    if (!(data->raw_data = calloc(data->n_raw, sizeof(metric_data_t)))) {
+    if (!(b->raw_data = calloc(b->n_raw, sizeof(metric_data_t)))) {
         perror("Failed to allocate memory for perf counters");
         exit(1);
     }
 
-    if (data->n_derived) {
-        if (!(data->derived_data = calloc(data->n_derived,
+    if (b->n_derived) {
+        if (!(b->derived_data = calloc(b->n_derived,
                                           sizeof(metric_data_t)))) {
             perror("Failed to allocate memory for perf ratios");
             exit(1);
         }
     }
 
-    data->raw_data_scaling.run_vals = alloc_double_array(data->batch_runs);
+    b->raw_data_scaling.run_vals = alloc_double_array(b->batch_runs);
 
-    for (int i = 0; i < data->n_raw; i++) {
-        data->raw_data[i].run_vals = alloc_double_array(data->batch_runs);
-        data->raw_data[i].metric_id = mg_get_nth_raw_id(mg, i);
+    for (int i = 0; i < b->n_raw; i++) {
+        b->raw_data[i].run_vals = alloc_double_array(b->batch_runs);
+        b->raw_data[i].metric_id = mg_get_nth_raw_id(mg, i);
     }
 
-    for (int i = 0; i < data->n_derived; i++) {
-        data->derived_data[i].run_vals = alloc_double_array(data->batch_runs);
-        data->derived_data[i].metric_id = mg_get_nth_derived_id(mg, i);
+    for (int i = 0; i < b->n_derived; i++) {
+        b->derived_data[i].run_vals = alloc_double_array(b->batch_runs);
+        b->derived_data[i].metric_id = mg_get_nth_derived_id(mg, i);
     }
 
-    return data;
+    return b;
 }
 
-void destroy_batch_data(batch_t *data)
+void destroy_batch_data(batch_t *b)
 {
-    for (int i = 0; i < data->n_raw; i++) {
-        free(data->raw_data[i].run_vals);
-        data->raw_data[i].run_vals = NULL;
+    for (int i = 0; i < b->n_raw; i++) {
+        free(b->raw_data[i].run_vals);
+        b->raw_data[i].run_vals = NULL;
     }
 
-    for (int i = 0; i < data->n_derived; i++) {
-        free(data->derived_data[i].run_vals);
-        data->derived_data[i].run_vals = NULL;
+    for (int i = 0; i < b->n_derived; i++) {
+        free(b->derived_data[i].run_vals);
+        b->derived_data[i].run_vals = NULL;
     }
 
-    free(data->raw_data_scaling.run_vals);
-    data->raw_data_scaling.run_vals = NULL;
+    free(b->raw_data_scaling.run_vals);
+    b->raw_data_scaling.run_vals = NULL;
 
-    free(data->raw_data);
-    data->raw_data = NULL;
+    free(b->raw_data);
+    b->raw_data = NULL;
 
-    free(data->derived_data);
-    data->derived_data = NULL;
+    free(b->derived_data);
+    b->derived_data = NULL;
 
-    free(data);
-    data = NULL;
+    free(b);
+    b = NULL;
 }
 
-metric_data_t *batch_get_metric_data(batch_t *data,
+metric_data_t *batch_get_metric_data(batch_t *b,
                                      metric_id_t metric_id)
 {
-    for (int i = 0; i < data->n_raw; i++) {
-        if (data->raw_data[i].metric_id == metric_id) {
-            return &data->raw_data[i];
+    for (int i = 0; i < b->n_raw; i++) {
+        if (b->raw_data[i].metric_id == metric_id) {
+            return &b->raw_data[i];
         }
     }
-    for (int i = 0; i < data->n_derived; i++) {
-        if (data->derived_data[i].metric_id == metric_id) {
-            return &data->derived_data[i];
+    for (int i = 0; i < b->n_derived; i++) {
+        if (b->derived_data[i].metric_id == metric_id) {
+            return &b->derived_data[i];
         }
     }
     return NULL;
 }
 
-static void batch_process_raw_metric_data(batch_t *batch_data)
+static void batch_process_raw_metric_data(batch_t *b)
 {
-    batch_data->raw_data_scaling.agg = aggregate_double(
-                batch_data->raw_data_scaling.run_vals,
-                batch_data->batch_runs);
+    b->raw_data_scaling.agg = aggregate_double(
+                b->raw_data_scaling.run_vals,
+                b->batch_runs);
 
-    for (int i = 0; i < batch_data->n_raw; i++) {
-        batch_data->raw_data[i].agg = aggregate_double(
-                batch_data->raw_data[i].run_vals,
-                batch_data->batch_runs);
+    for (int i = 0; i < b->n_raw; i++) {
+        b->raw_data[i].agg = aggregate_double(
+                b->raw_data[i].run_vals,
+                b->batch_runs);
     }
 }
 
@@ -152,29 +152,28 @@ static void batch_process_derived_metric_data(batch_t *b)
     }
 }
 
-static void batch_run(batch_t *batch_data, unsigned long long batch_no)
+static void batch_run(batch_t *b, unsigned long long batch_no)
 {
-    const metric_backend_t *backend = metric_backend_get(
-                                                    batch_data->mg->backend);
+    const metric_backend_t *backend = metric_backend_get(b->mg->backend);
 
-    batch_data->wl->init(batch_data->wl);
-    backend->bench_func(batch_data, batch_data->wl->workload);
-    batch_data->wl->clean();
+    b->wl->init(b->wl);
+    backend->bench_func(b, b->wl->workload);
+    b->wl->clean();
 
-    batch_process_raw_metric_data(batch_data);
-    batch_process_derived_metric_data(batch_data);
+    batch_process_raw_metric_data(b);
+    batch_process_derived_metric_data(b);
 
-    if (batch_data->to_csv) {
-        batch_to_csv(batch_data, batch_no);
+    if (b->to_csv) {
+        batch_to_csv(b, batch_no);
     }
-    run_report(batch_data);
+    run_report(b);
 }
 
 void batch_single_run(cyclops_cfg_t *cyclops_cfg)
 {
-    batch_t *batch = batch_init(cyclops_cfg);
-    batch_run(batch, 0);
-    destroy_batch_data(batch);
+    batch_t *b = batch_init(cyclops_cfg);
+    batch_run(b, 0);
+    destroy_batch_data(b);
 }
 
 void batch_param_sweep_run(batch_t *b, unsigned long long batch_no)
