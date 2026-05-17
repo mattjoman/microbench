@@ -17,7 +17,7 @@ typedef struct double_agg {
 typedef struct metric_grp metric_grp_t;
 
 typedef struct {
-    metric_id_t metric_id;
+    const metric_t *metric;
     double *run_vals;
     double_agg_t agg;
 } metric_data_t;

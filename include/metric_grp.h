@@ -7,26 +7,6 @@
 #include "./cyclops.h"
 #include "./experiment.h"
 
-typedef enum {
-    METRIC_TYPE_RAW,
-    METRIC_TYPE_DERIVED,
-} metric_type_t;
-
-typedef enum {
-    METRIC_BE_PERF,
-    METRIC_BE_CPU_INSTRUCTION,
-    N_METRIC_BACKENDS,
-} metric_backend_id_t;
-
-typedef struct {
-    const char *name;
-    metric_type_t type;
-    metric_backend_id_t backend;
-    metric_id_t numerator;
-    metric_id_t denominator;
-    /* TODO: add supported architectures */
-} metric_t;
-
 /*** METRIC GROUPS ***/
 
 typedef struct metric_grp {
@@ -52,10 +32,9 @@ void register_metric_grp(metric_grp_t *mg);
     }
 
 const metric_t *metric_get_by_id(metric_id_t id);
-metric_id_t mg_get_nth_raw_id(metric_grp_t *mg, int n);
-metric_id_t mg_get_nth_metric_id(metric_grp_t *mg,
-                                 int n,
-                                 metric_type_t type);
+const metric_t *mg_get_nth_metric_by_type(metric_grp_t *mg,
+                                          int n,
+                                          metric_type_t type);
 
 metric_grp_t *mg_get_by_name(const char *name);
 

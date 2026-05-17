@@ -57,6 +57,27 @@ typedef enum {
 
 } metric_id_t;
 
+typedef enum {
+    METRIC_TYPE_RAW,
+    METRIC_TYPE_DERIVED,
+} metric_type_t;
+
+typedef enum {
+    METRIC_BE_PERF,
+    METRIC_BE_CPU_INSTRUCTION,
+    N_METRIC_BACKENDS,
+} metric_backend_id_t;
+
+typedef struct {
+    metric_id_t id;
+    const char *name;
+    metric_type_t type;
+    metric_backend_id_t backend;
+    metric_id_t numerator;
+    metric_id_t denominator;
+    /* TODO: add supported architectures */
+} metric_t;
+
 typedef struct {
     bool display_help;
     unsigned long long warmup_runs;

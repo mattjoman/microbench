@@ -270,7 +270,7 @@ static void run_be(batch_t *b, void (*workload)(void))
     }
 
     for (int i = 0; i < b->n_raw; i++) {
-        int metric_id = b->raw_data[i].metric_id;
+        int metric_id = b->raw_data[i].metric->id;
         attrs[i] = create_perf_config(metric_id);
     }
 

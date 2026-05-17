@@ -63,13 +63,13 @@ batch_t *batch_init(cyclops_cfg_t *cyclops_cfg)
 
     for (int i = 0; i < b->n_raw; i++) {
         b->raw_data[i].run_vals = alloc_double_array(b->batch_runs);
-        b->raw_data[i].metric_id = mg_get_nth_metric_id(mg, i,
+        b->raw_data[i].metric = mg_get_nth_metric_by_type(mg, i,
                                                             METRIC_TYPE_RAW);
     }
 
     for (int i = 0; i < b->n_derived; i++) {
         b->derived_data[i].run_vals = alloc_double_array(b->batch_runs);
-        b->derived_data[i].metric_id = mg_get_nth_metric_id(mg, i,
+        b->derived_data[i].metric = mg_get_nth_metric_by_type(mg, i,
                                                         METRIC_TYPE_DERIVED);
     }
 
@@ -105,12 +105,12 @@ metric_data_t *batch_get_metric_data(batch_t *b,
                                      metric_id_t metric_id)
 {
     for (int i = 0; i < b->n_raw; i++) {
-        if (b->raw_data[i].metric_id == metric_id) {
+        if (b->raw_data[i].metric->id == metric_id) {
             return &b->raw_data[i];
         }
     }
     for (int i = 0; i < b->n_derived; i++) {
-        if (b->derived_data[i].metric_id == metric_id) {
+        if (b->derived_data[i].metric->id == metric_id) {
             return &b->derived_data[i];
         }
     }
@@ -137,7 +137,7 @@ static void batch_process_derived_metric_data(batch_t *b)
     for (int i = 0; i < b->n_derived; i++) {
 
         ratio = &b->derived_data[i];
-        const metric_t *m = metric_get_by_id(ratio->metric_id);
+        const metric_t *m = ratio->metric;
 
         numerator = batch_get_metric_data(b, m->numerator);
         denominator = batch_get_metric_data(b, m->denominator);
