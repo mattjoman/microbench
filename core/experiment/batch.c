@@ -27,7 +27,7 @@ batch_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
     }
 
     metric_grp_t *mg = mg_get_by_name(cyclops_cfg->mg_name);
-    workload_t *wl = get_workload_by_name(cyclops_cfg->wl_name);
+    workload_t *wl = wl_get_by_name(cyclops_cfg->wl_name);
 
     for (int i = 0; i < cyclops_cfg->n_wl_params; i++) {
         wl_set_param(wl,

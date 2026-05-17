@@ -23,7 +23,7 @@ void print_workload_guide(void)
     printf("\n");
 }
 
-workload_t *get_workload_by_name(const char *name)
+workload_t *wl_get_by_name(const char *name)
 {
     if (name == NULL) {
         return NULL;

@@ -28,7 +28,7 @@ void register_workload(workload_t *wl);
 
 void print_workload_guide(void);
 
-workload_t *get_workload_by_name(const char *name);
+workload_t *wl_get_by_name(const char *name);
 
 unsigned long long wl_get_param(workload_t *wl, const char *key);
 void wl_set_param(workload_t *wl, const char *key, const char *arg);
