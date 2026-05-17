@@ -13,7 +13,7 @@ void register_backend(metric_backend_t *be)
     backends[n_backends++] = be;
 }
 
-metric_backend_t *get_backend(metric_backend_id_t id)
+metric_backend_t *metric_backend_get(metric_backend_id_t id)
 {
     for (size_t i = 0; i < n_backends; i++) {
         if (backends[i]->id == id) {

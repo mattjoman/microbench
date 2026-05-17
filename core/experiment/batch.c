@@ -154,7 +154,8 @@ static void batch_process_derived_metric_data(batch_t *b)
 
 static void batch_run(batch_t *batch_data, unsigned long long batch_no)
 {
-    const metric_backend_t *backend = get_backend(batch_data->mg->backend);
+    const metric_backend_t *backend = metric_backend_get(
+                                                    batch_data->mg->backend);
 
     batch_data->wl->init(batch_data->wl);
     backend->bench_func(batch_data, batch_data->wl->workload);

@@ -77,6 +77,6 @@ typedef struct {
     bench_func_t bench_func;
 } metric_backend_t;
 
-metric_backend_t *get_backend(metric_backend_id_t id);
+metric_backend_t *metric_backend_get(metric_backend_id_t id);
 
 #endif
