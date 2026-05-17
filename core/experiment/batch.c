@@ -99,6 +99,22 @@ void destroy_batch_data(batch_t *data)
     data = NULL;
 }
 
+metric_data_t *batch_get_metric_data(batch_t *data,
+                                     metric_id_t metric_id)
+{
+    for (int i = 0; i < data->n_raw; i++) {
+        if (data->raw_data[i].metric_id == metric_id) {
+            return &data->raw_data[i];
+        }
+    }
+    for (int i = 0; i < data->n_derived; i++) {
+        if (data->derived_data[i].metric_id == metric_id) {
+            return &data->derived_data[i];
+        }
+    }
+    return NULL;
+}
+
 static void batch_process_raw_metric_data(batch_t *batch_data)
 {
     batch_data->raw_data_scaling.agg = aggregate_double(
@@ -112,34 +128,27 @@ static void batch_process_raw_metric_data(batch_t *batch_data)
     }
 }
 
-static void batch_process_derived_metric_data(batch_t *bd)
+static void batch_process_derived_metric_data(batch_t *b)
 {
-    for (int i = 0; i < bd->n_derived; i++) {
+    metric_data_t *ratio, *numerator, *denominator;
 
-        metric_data_t *ratio = &bd->derived_data[i];
+    for (int i = 0; i < b->n_derived; i++) {
+
+        ratio = &b->derived_data[i];
         const metric_t *m = get_metric_by_id(ratio->metric_id);
 
-        double *numerators = NULL;
-        double *denominators = NULL;
+        numerator = batch_get_metric_data(b, m->numerator);
+        denominator = batch_get_metric_data(b, m->denominator);
 
-        for (int j = 0; j < bd->n_raw; j++) {
-            if (numerators && denominators) {
-                break;
-            }
+        assert(numerator != NULL);
+        assert(denominator != NULL);
 
-            if (bd->raw_data[j].metric_id == m->numerator) {
-                numerators = bd->raw_data[j].run_vals;
-            } else if (bd->raw_data[j].metric_id == m->denominator) {
-                denominators = bd->raw_data[j].run_vals;
-            }
-        }
+        calc_ratios(ratio->run_vals,
+                    numerator->run_vals,
+                    denominator->run_vals,
+                    b->batch_runs);
 
-        calc_ratios(bd->derived_data[i].run_vals,
-                    numerators,
-                    denominators,
-                    bd->batch_runs);
-
-        ratio->agg = aggregate_double(ratio->run_vals, bd->batch_runs);
+        ratio->agg = aggregate_double(ratio->run_vals, b->batch_runs);
     }
 }
 
@@ -166,20 +175,4 @@ void batch_single_run(cyclops_cfg_t *cyclops_cfg)
     batch_t *batch = init_batch_data(cyclops_cfg);
     run_batch(batch, 0);
     destroy_batch_data(batch);
-}
-
-metric_data_t *batch_get_metric_data(batch_t *data,
-                                     metric_id_t metric_id)
-{
-    for (int i = 0; i < data->n_raw; i++) {
-        if (data->raw_data[i].metric_id == metric_id) {
-            return &data->raw_data[i];
-        }
-    }
-    for (int i = 0; i < data->n_derived; i++) {
-        if (data->derived_data[i].metric_id == metric_id) {
-            return &data->derived_data[i];
-        }
-    }
-    return NULL;
 }
