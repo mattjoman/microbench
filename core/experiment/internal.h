@@ -20,7 +20,7 @@ void calc_ratios(double results[], const double numerators[],
 #include <stdbool.h>
 #include "../../include/metric_grp.h"
 
-batch_t *init_batch_data(cyclops_cfg_t *cyclops_cfg);
+batch_t *batch_init(cyclops_cfg_t *cyclops_cfg);
 void destroy_batch_data(batch_t *data);
 void batch_param_sweep_run(batch_t *batch_data,
                            unsigned long long batch_no);

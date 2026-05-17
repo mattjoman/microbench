@@ -18,7 +18,7 @@ static double *alloc_double_array(unsigned long long length)
     return array;
 }
 
-batch_t *init_batch_data(cyclops_cfg_t *cyclops_cfg)
+batch_t *batch_init(cyclops_cfg_t *cyclops_cfg)
 {
     batch_t *data;
     if (!(data = calloc(1, sizeof(batch_t)))) {
@@ -172,7 +172,7 @@ static void batch_run(batch_t *batch_data, unsigned long long batch_no)
 
 void batch_single_run(cyclops_cfg_t *cyclops_cfg)
 {
-    batch_t *batch = init_batch_data(cyclops_cfg);
+    batch_t *batch = batch_init(cyclops_cfg);
     batch_run(batch, 0);
     destroy_batch_data(batch);
 }

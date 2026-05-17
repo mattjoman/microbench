@@ -107,11 +107,11 @@ void param_sweep_run(cyclops_cfg_t *cyclops_cfg)
 
     for (unsigned long long i = 0; i < ps->n_batches; i++) {
 
-        batch_t *batch_data = init_batch_data(cyclops_cfg);
+        batch_t *batch_data = batch_init(cyclops_cfg);
 
         /* 
          * must set param to current sweep value after calling
-         * init_batch_data(), not before
+         * batch_init(), not before
          */
         param_val = ps_get_nth_param_val(ps, i);
         snprintf(param_val_buf, sizeof(param_val_buf), "%llu", param_val);
