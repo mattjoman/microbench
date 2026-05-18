@@ -130,7 +130,7 @@ static void batch_aggregate_raw_metrics(batch_t *b)
     }
 }
 
-static void batch_process_derived_metric_data(batch_t *b)
+static void batch_process_derived_metrics(batch_t *b)
 {
     batch_metric_t *ratio, *numerator, *denominator;
 
@@ -163,7 +163,7 @@ static void batch_run(batch_t *b, unsigned long long batch_no)
     b->wl->clean();
 
     batch_aggregate_raw_metrics(b);
-    batch_process_derived_metric_data(b);
+    batch_process_derived_metrics(b);
 
     if (b->to_csv) {
         batch_to_csv(b, batch_no);
