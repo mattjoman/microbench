@@ -125,11 +125,14 @@ void ps_run(cyclops_cfg_t *cyclops_cfg)
 
         /* extract aggregate batch data for each metric */
         for (int m = 0; m < ps->mg->n_metrics; m++) {
+            param_sweep_metric_t *ps_metric = &ps->metrics[m];
             batch_metric_t *batch_metric = batch_get_batch_metric_by_id(b,
-                                                    ps->metrics[m].metric->id);
+                                                    ps_metric->metric->id);
+
             assert(batch_metric);
-            ps->metrics[m].batch_vals[i].agg = batch_metric->agg;
-            ps->metrics[m].batch_vals[i].param_sweep_val = param_val;
+
+            ps_metric->batch_vals[i].agg = batch_metric->agg;
+            ps_metric->batch_vals[i].param_sweep_val = param_val;
         }
 
         batch_destroy(b);
