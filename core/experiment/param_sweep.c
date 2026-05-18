@@ -106,11 +106,13 @@ static void ps_set_batch_vals(param_sweep_t *ps, batch_t *b,
                               unsigned long long batch_num,
                               unsigned long long param_val)
 {
+    param_sweep_metric_t *ps_metric;
+    batch_metric_t *batch_metric;
     int metric_num;
+
     for (metric_num = 0; metric_num < ps->mg->n_metrics; metric_num++) {
-        param_sweep_metric_t *ps_metric = &ps->metrics[metric_num];
-        batch_metric_t *batch_metric = batch_get_batch_metric_by_id(b,
-                                                ps_metric->metric->id);
+        ps_metric = &ps->metrics[metric_num];
+        batch_metric = batch_get_batch_metric_by_id(b,ps_metric->metric->id);
 
         assert(batch_metric);
 
