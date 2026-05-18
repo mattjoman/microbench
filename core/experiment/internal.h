@@ -21,7 +21,7 @@ void calc_ratios(double results[], const double numerators[],
 #include "../../include/metric_grp.h"
 
 batch_t *batch_init(cyclops_cfg_t *cyclops_cfg);
-void destroy_batch_data(batch_t *data);
+void batch_destroy(batch_t *data);
 void batch_param_sweep_run(batch_t *batch_data,
                            unsigned long long batch_no);
 batch_metric_t *batch_get_batch_metric_by_id(batch_t *data,

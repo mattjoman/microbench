@@ -133,7 +133,7 @@ void ps_run(cyclops_cfg_t *cyclops_cfg)
             ps->metrics[m].batch_vals[i].param_sweep_val = param_val;
         }
 
-        destroy_batch_data(batch_data);
+        batch_destroy(batch_data);
     }
 
     /* write to csv */

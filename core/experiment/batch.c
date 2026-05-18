@@ -76,7 +76,7 @@ batch_t *batch_init(cyclops_cfg_t *cyclops_cfg)
     return b;
 }
 
-void destroy_batch_data(batch_t *b)
+void batch_destroy(batch_t *b)
 {
     for (int i = 0; i < b->n_raw; i++) {
         free(b->raw_metrics[i].run_vals);
@@ -175,7 +175,7 @@ void batch_single_run(cyclops_cfg_t *cyclops_cfg)
 {
     batch_t *b = batch_init(cyclops_cfg);
     batch_run(b, 0);
-    destroy_batch_data(b);
+    batch_destroy(b);
 }
 
 void batch_param_sweep_run(batch_t *b, unsigned long long batch_no)
