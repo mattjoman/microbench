@@ -55,29 +55,29 @@ static void print_table_column_headers()
     putchar('\n');
 }
 
-static void print_batch_info(batch_t *batch)
+static void print_batch_info(batch_t *b)
 {
-    printf("    Warmup runs: %llu\n", batch->warmup_runs);
-    printf("    Batch runs:  %llu\n", batch->batch_runs);
+    printf("    Warmup runs: %llu\n", b->warmup_runs);
+    printf("    Batch runs:  %llu\n", b->batch_runs);
     putchar('\n');
 }
 
-void run_report(batch_t *batch_data)
+void run_report(batch_t *b)
 {
     printf("\n");
-    print_batch_info(batch_data);
+    print_batch_info(b);
     print_table_column_headers();
 
-    print_double_agg_table_row(batch_data->raw_metric_scaling.agg, "SCALING");
+    print_double_agg_table_row(b->raw_metric_scaling.agg, "SCALING");
 
-    for (int i = 0; i < batch_data->n_raw; i++) {
-        batch_metric_t *metric_data = &batch_data->raw_metrics[i];
+    for (int i = 0; i < b->n_raw; i++) {
+        batch_metric_t *metric_data = &b->raw_metrics[i];
         const metric_t *m = metric_data->metric;
         print_double_agg_table_row(metric_data->agg, m->name);
     }
 
-    for (int i = 0; i < batch_data->n_derived; i++) {
-        batch_metric_t *metric_data = &batch_data->derived_metrics[i];
+    for (int i = 0; i < b->n_derived; i++) {
+        batch_metric_t *metric_data = &b->derived_metrics[i];
         const metric_t *m = metric_data->metric;
         print_double_agg_table_row(metric_data->agg, m->name);
     }
@@ -85,14 +85,14 @@ void run_report(batch_t *batch_data)
     printf("\n");
 }
 
-static void write_batch_metadata(FILE *file, batch_t *batch)
+static void write_batch_metadata(FILE *file, batch_t *b)
 {
-    fprintf(file, "#workload=%s\n", batch->wl->name);
-    fprintf(file, "#metric-group=%s\n", batch->mg->name);
-    fprintf(file, "#warmup-runs=%llu\n", batch->warmup_runs);
-    fprintf(file, "#batch-runs=%llu\n", batch->batch_runs);
+    fprintf(file, "#workload=%s\n", b->wl->name);
+    fprintf(file, "#metric-group=%s\n", b->mg->name);
+    fprintf(file, "#warmup-runs=%llu\n", b->warmup_runs);
+    fprintf(file, "#batch-runs=%llu\n", b->batch_runs);
 
-    workload_t *wl = batch->wl;
+    workload_t *wl = b->wl;
     if (!wl->params) {
         return;
     }
@@ -103,40 +103,40 @@ static void write_batch_metadata(FILE *file, batch_t *batch)
     }
 }
 
-static void write_full_batch(FILE *file, batch_t *batch_data)
+static void write_full_batch(FILE *file, batch_t *b)
 {
     /* raw data column names */
     fprintf(file, "%s,", "SCALING");
-    for (int i = 0; i < batch_data->n_raw; i++) {
-        batch_metric_t *metric_data = &batch_data->raw_metrics[i];
+    for (int i = 0; i < b->n_raw; i++) {
+        batch_metric_t *metric_data = &b->raw_metrics[i];
         const metric_t *m = metric_data->metric;
         fprintf(file, "%s,", m->name);
     }
 
     /* derived data column names */
-    for (int i = 0; i < batch_data->n_derived; i++) {
-        batch_metric_t *metric_data = &batch_data->derived_metrics[i];
+    for (int i = 0; i < b->n_derived; i++) {
+        batch_metric_t *metric_data = &b->derived_metrics[i];
         const metric_t *m = metric_data->metric;
         fprintf(file, "%s,", m->name);
     }
 
     fputc('\n', file);
 
-    for (unsigned long long r = 0; r < batch_data->batch_runs; r++) {
-        fprintf(file, "%.6f,", batch_data->raw_metric_scaling.run_vals[r]);
-        for (int i = 0; i < batch_data->n_raw; i++) {
-            fprintf(file, "%.6f,", batch_data->raw_metrics[i].run_vals[r]);
+    for (unsigned long long r = 0; r < b->batch_runs; r++) {
+        fprintf(file, "%.6f,", b->raw_metric_scaling.run_vals[r]);
+        for (int i = 0; i < b->n_raw; i++) {
+            fprintf(file, "%.6f,", b->raw_metrics[i].run_vals[r]);
         }
 
-        for (int i = 0; i < batch_data->n_derived; i++) {
-            fprintf(file, "%.6f,", batch_data->derived_metrics[i].run_vals[r]);
+        for (int i = 0; i < b->n_derived; i++) {
+            fprintf(file, "%.6f,", b->derived_metrics[i].run_vals[r]);
         }
 
         fputc('\n', file);
     }
 }
 
-void batch_to_csv(batch_t *batch_data,
+void batch_to_csv(batch_t *b,
                   unsigned long long batch_no)
 {
     char file_name[128];
@@ -149,8 +149,8 @@ void batch_to_csv(batch_t *batch_data,
         exit(1);
     }
 
-    write_batch_metadata(file, batch_data);
-    write_full_batch(file, batch_data);
+    write_batch_metadata(file, b);
+    write_full_batch(file, b);
 
     fclose(file);
 }
