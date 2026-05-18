@@ -13,6 +13,7 @@
 enum {
     OPT_CSV = 256,
     OPT_CSV_ALL = 257,
+    OPT_REPORT = 258,
 };
 
 static struct option long_opts[] = {
@@ -27,6 +28,7 @@ static struct option long_opts[] = {
     /* long opts only */
     {"csv", no_argument, 0, OPT_CSV},
     {"csv-all", no_argument, 0, OPT_CSV_ALL},
+    {"report", no_argument, 0, OPT_REPORT},
 
     {0, 0, 0, 0}
 };
@@ -49,6 +51,7 @@ cyclops_cfg_t *cli_cfg_init(int argc, char *argv[])
 
     bool csv = false;
     bool csv_all = false;
+    bool report = false;
 
     int opt;
     char *key;
@@ -128,6 +131,9 @@ cyclops_cfg_t *cli_cfg_init(int argc, char *argv[])
             case OPT_CSV_ALL:
                 csv_all = true;
                 break;
+            case OPT_REPORT:
+                report = true;
+                break;
             default:
                 fprintf(stderr, "Usage 1\n");
                 return NULL;
@@ -152,6 +158,7 @@ cyclops_cfg_t *cli_cfg_init(int argc, char *argv[])
     cfg->ps_wl_param_low = wl_param_sweep_low;
     cfg->ps_wl_param_high = wl_param_sweep_high;
     cfg->ps_wl_param_step = wl_param_sweep_step;
+    cfg->report = report;
 
     if (csv_all) {
         cfg->param_sweep_csv = true;

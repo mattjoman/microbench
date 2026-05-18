@@ -93,6 +93,7 @@ typedef struct {
     char *ps_wl_param_step;
     bool batch_csv;
     bool param_sweep_csv;
+    bool report;
 } cyclops_cfg_t;
 
 #endif

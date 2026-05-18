@@ -43,6 +43,7 @@ batch_t *batch_init(cyclops_cfg_t *cyclops_cfg)
     b->n_raw = mg_n_metrics_by_type(mg, METRIC_TYPE_RAW);
     b->n_derived = mg_n_metrics_by_type(mg, METRIC_TYPE_DERIVED);
     b->to_csv = cyclops_cfg->batch_csv;
+    b->report = cyclops_cfg->report;
 
     assert(b->n_raw > 0);
 
@@ -168,7 +169,10 @@ static void batch_run(batch_t *b, unsigned long long batch_no)
     if (b->to_csv) {
         batch_to_csv(b, batch_no);
     }
-    run_report(b);
+
+    if (b->report) {
+        run_report(b);
+    }
 }
 
 void batch_single_run(cyclops_cfg_t *cyclops_cfg)

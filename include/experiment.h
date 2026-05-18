@@ -37,6 +37,7 @@ typedef struct batch {
     batch_metric_t *derived_metrics;
 
     bool to_csv;
+    bool report;
 } batch_t;
 
 void batch_single_run(cyclops_cfg_t *cyclops_cfg);
