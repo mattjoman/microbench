@@ -17,6 +17,7 @@ CFLAGS += -Iinclude
 # Core reusable sources (NO main.c)
 CORE_SRCS = \
 	core/cli.c \
+	core/registry.c \
 	core/metric_grp/frontend.c \
 	core/metric_grp/backend.c \
 	core/metric_grp/backend_common.c \

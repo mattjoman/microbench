@@ -1,6 +1,8 @@
 #ifndef WORKLOAD_H
 #define WORKLOAD_H
 
+#include "./registry.h"
+
 typedef struct {
     const char *key;
     const char *arg;
@@ -24,13 +26,9 @@ typedef struct {
     workload_t **registry;
 } workload_registry_t;
 
-workload_registry_t *wl_registry_get_registry(void);
-
-void wl_register(workload_t *wl);
-
 #define REGISTER_WORKLOAD(wl_ptr) \
-    static void __attribute((constructor)) _wl_register(void) { \
-        wl_register(wl_ptr); \
+    static void __attribute((constructor)) _registry_register_object(void) { \
+        registry_register_object((void *)wl_ptr, REG_ID_WORKLOAD); \
     }
 
 void print_workload_guide(void);
