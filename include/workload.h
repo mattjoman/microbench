@@ -19,11 +19,18 @@ typedef struct workload {
     void (*workload)(void);
 } workload_t;
 
-void register_workload(workload_t *wl);
+typedef struct {
+    size_t n_registered;
+    workload_t **registry;
+} workload_registry_t;
+
+workload_registry_t *wl_registry_get_registry(void);
+
+void wl_register(workload_t *wl);
 
 #define REGISTER_WORKLOAD(wl_ptr) \
-    static void __attribute((constructor)) register_wl(void) { \
-        register_workload(wl_ptr); \
+    static void __attribute((constructor)) _wl_register(void) { \
+        wl_register(wl_ptr); \
     }
 
 void print_workload_guide(void);

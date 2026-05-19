@@ -4,21 +4,39 @@
 
 #include "../include/workload.h"
 
-static workload_t **workloads = NULL;
-static size_t n_workloads = 0;
-
+/*
 void register_workload(workload_t *wl)
 {
     workloads = realloc(workloads, (n_workloads + 1) * sizeof(*workloads));
     workloads[n_workloads++] = wl;
+}
+*/
+
+static workload_registry_t wl_registry = {
+    .n_registered = 0,
+    .registry = NULL,
+};
+
+void wl_register(workload_t *wl)
+{
+    wl_registry.registry = realloc(wl_registry.registry,
+                                   (wl_registry.n_registered + 1)
+                                   * sizeof(workload_t *));
+    wl_registry.registry[wl_registry.n_registered++] = wl;
+}
+
+workload_registry_t *wl_registry_get_registry(void)
+{
+    return &wl_registry;
 }
 
 void print_workload_guide(void)
 {
     printf("Workloads:\n\n");
 
-    for (size_t i = 0; i < n_workloads; i++) {
-        printf("  %s\n", workloads[i]->name);
+    for (size_t i = 0; i < wl_registry.n_registered; i++) {
+        workload_t *wl = wl_registry.registry[i];
+        printf("  %s\n", wl->name);
     }
     printf("\n");
 }
@@ -29,9 +47,11 @@ workload_t *wl_get_by_name(const char *name)
         return NULL;
     }
 
-    for (size_t i = 0; i < n_workloads; i++) {
-        if (strcmp(name, workloads[i]->name) == 0) {
-            return workloads[i];
+    for (size_t i = 0; i < wl_registry.n_registered; i++) {
+        workload_t *wl = wl_registry.registry[i];
+
+        if (strcmp(name, wl->name) == 0) {
+            return wl;
         }
     }
     return NULL;
