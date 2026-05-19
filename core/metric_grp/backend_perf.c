@@ -222,6 +222,8 @@ static void store_perf_results(batch_t *b,
                                perf_result_t perf_end_results[],
                                uint64_t perf_ctr_ids[])
 {
+    batch_metric_t *batch_metric;
+
     for (unsigned long long run = 0; run < b->batch_runs; run++) {
 
         /* verify that the kernel did not reorder the counters */
@@ -249,7 +251,9 @@ static void store_perf_results(batch_t *b,
 
         for (unsigned int pr_idx = 0; pr_idx < pr->nr; pr_idx++) {
             double value = scaling * pr->values[pr_idx].value;
-            b->raw_metrics[pr_idx].run_vals[run] = value;
+
+            batch_metric = &b->raw_metrics[pr_idx];
+            batch_metric_set_run_val(batch_metric, run, value);
         }
     }
 }

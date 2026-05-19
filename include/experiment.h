@@ -40,6 +40,10 @@ typedef struct batch {
     bool report;
 } batch_t;
 
+void batch_metric_set_run_val(batch_metric_t *batch_metric,
+                              unsigned long long run,
+                              double val);
+
 void batch_single_run(cyclops_cfg_t *cyclops_cfg);
 
 ///////////////////////////////////////////////////////////////////////////////

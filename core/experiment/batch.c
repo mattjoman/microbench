@@ -102,6 +102,13 @@ void batch_destroy(batch_t *b)
     b = NULL;
 }
 
+void batch_metric_set_run_val(batch_metric_t *batch_metric,
+                              unsigned long long run,
+                              double val)
+{
+    batch_metric->run_vals[run] = val;
+}
+
 batch_metric_t *batch_get_batch_metric_by_id(batch_t *b,
                                              metric_id_t metric_id)
 {
