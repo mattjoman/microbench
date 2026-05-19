@@ -260,25 +260,6 @@ const metric_t *metric_get_by_id(metric_id_t id)
     return &metrics[id];
 }
 
-static metric_grp_registry mg_registry = {
-    .n_registered = 0,
-    .registry = NULL,
-};
-
-metric_grp_registry *mg_registry_get_registry()
-{
-    return &mg_registry;
-}
-
-void register_metric_grp(metric_grp_t *mg)
-{
-    metric_grp_registry *reg = mg_registry_get_registry();
-
-    reg->registry = realloc(reg->registry,
-                            (reg->n_registered + 1) * sizeof(metric_grp_t *));
-    reg->registry[reg->n_registered++] = mg;
-}
-
 int mg_n_metrics_by_type(metric_grp_t *mg, metric_type_t type)
 {
     int counter = 0;
@@ -315,7 +296,7 @@ const metric_t *mg_get_nth_metric_by_type(metric_grp_t *mg,
 
 metric_grp_t *mg_get_by_name(const char *name)
 {
-    metric_grp_registry *reg = mg_registry_get_registry();
+    registry_t *reg = registry_get_reg_by_id(REG_ID_METRIC_GRP);
     metric_grp_t *mg;
 
     if (name == NULL) {
@@ -323,7 +304,7 @@ metric_grp_t *mg_get_by_name(const char *name)
     }
 
     for (size_t i = 0; i < reg->n_registered; i++) {
-        mg = reg->registry[i];
+        mg = (metric_grp_t *)reg->registry[i];
         if (strcmp(name, mg->name) == 0) {
             return mg;
         }
@@ -335,13 +316,13 @@ metric_grp_t *mg_get_by_name(const char *name)
 
 void print_metric_grp_guide(void)
 {
-    metric_grp_registry *reg = mg_registry_get_registry();
+    registry_t *reg = registry_get_reg_by_id(REG_ID_METRIC_GRP);
     metric_grp_t *mg;
 
     printf("Metric groups:\n\n");
 
     for (size_t i = 0; i < reg->n_registered; i++) {
-        mg = reg->registry[i];
+        mg = (metric_grp_t *)reg->registry[i];
         printf("  %s\n", mg->name);
     }
 }

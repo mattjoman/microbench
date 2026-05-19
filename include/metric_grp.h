@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include "./cyclops.h"
+#include "./registry.h"
 #include "./experiment.h"
 
 /*** METRIC GROUPS ***/
@@ -16,19 +17,9 @@ typedef struct metric_grp {
     metric_id_t *metrics;
 } metric_grp_t;
 
-// TODO: make a generic registry class?
-typedef struct {
-    size_t n_registered;
-    metric_grp_t **registry;
-} metric_grp_registry;
-
-metric_grp_registry *mg_registry_get_registry(void);
-
-void register_metric_grp(metric_grp_t *mg);
-
 #define REGISTER_MG(mg_ptr) \
-    static void __attribute((constructor)) register_mg(void) { \
-        register_metric_grp(mg_ptr); \
+    static void __attribute((constructor)) _registry_register_object(void) { \
+        registry_register_object((void *)mg_ptr, REG_ID_METRIC_GRP); \
     }
 
 const metric_t *metric_get_by_id(metric_id_t id);
