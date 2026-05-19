@@ -21,11 +21,6 @@ typedef struct workload {
     void (*workload)(void);
 } workload_t;
 
-typedef struct {
-    size_t n_registered;
-    workload_t **registry;
-} workload_registry_t;
-
 #define REGISTER_WORKLOAD(wl_ptr) \
     static void __attribute((constructor)) _registry_register_object(void) { \
         registry_register_object((void *)wl_ptr, REG_ID_WORKLOAD); \
