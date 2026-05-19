@@ -66,10 +66,6 @@ int main()
     bm = batch_get_batch_metric_by_id(b, METRIC_L1D_READ_MISSES);
     assert(bm == NULL);
 
-    // try to set a run val for an invalid run number
-    bm = batch_get_batch_metric_by_id(b, METRIC_INSTRUCTIONS);
-    batch_metric_set_run_val(bm, b->batch_runs, 42.0);
-
     /* cleanup */
 
     batch_destroy(b);

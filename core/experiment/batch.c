@@ -108,10 +108,7 @@ void batch_metric_set_run_val(batch_metric_t *batch_metric,
                               unsigned long long run,
                               double val)
 {
-    /* Guard to prevent buffer overflows */
-    if (run >= batch_metric->batch_runs) {
-        return; // TODO: we should be propagating errors here
-    }
+    assert(run < batch_metric->batch_runs);
 
     batch_metric->run_vals[run] = val;
 }
